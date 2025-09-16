@@ -1,9 +1,7 @@
-import { NextResponse } from 'next/server'
-
 export function middleware(request) {
-  // dejar pasar sin bloqueo
-  return NextResponse.next()
+  // Middleware deshabilitado temporalmente
+  return;
 }
 export const config = {
-  matcher: ['/((?!api|_next/static|favicon.ico).*)'], // fila para ignorar rutas estáticas y API
+  matcher: ['/((?!api|_next/static|favicon.ico).*)'],
 }
