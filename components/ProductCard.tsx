@@ -1,29 +1,47 @@
-"use client";
-import type { Producto } from "../lib/products";
-import Image from "next/image";
-import { motion } from "framer-motion";
-import { usePreviewEnv } from "../hooks/usePreviewEnv";
+'use client';
 
-export default function ProductCard({ p, onAdd }: { p: Producto; onAdd: (id: string) => void }) {
-  const isPreview = usePreviewEnv();
+type Props = {
+  p: {
+    id: string;
+    nombre: string;
+    precio: number;
+    moneda?: string;
+    imagen: string;
+    categoria: string;
+  };
+  onAdd?: (id: string) => void;
+};
 
+export default function ProductCard({ p, onAdd }: Props) {
   return (
-    <motion.div whileHover={{ y: -4 }} className="card">
-      <div className="relative h-52 w-full">
-        {isPreview ? (
-          <img src={p.imagen} alt={p.nombre} className="object-cover w-full h-full" loading="lazy" />
-        ) : (
-          <Image src={p.imagen} alt={p.nombre} fill className="object-cover" />
-        )}
+    <div className="group rounded-xl border overflow-hidden bg-white hover:shadow-md transition">
+      <div className="aspect-[4/3] overflow-hidden bg-gray-50">
+        <img
+          src={p.imagen}
+          alt={p.nombre}
+          className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
+          referrerPolicy="no-referrer"
+          crossOrigin="anonymous"
+          loading="lazy"
+        />
       </div>
-      <div className="p-4 space-y-2">
-        <div className="text-sm text-gray-500">{p.categoria} · {p.envio}</div>
-        <h3 className="font-semibold">{p.nombre}</h3>
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-bold">${p.precio.toLocaleString("es-CL")}</span>
-          <button onClick={() => onAdd(p.id)} className="btn btn-primary">Agregar</button>
+      <div className="p-4">
+        <div className="text-sm text-gray-500 mb-1 capitalize">{p.categoria}</div>
+        <h3 className="font-medium leading-tight">{p.nombre}</h3>
+        <div className="mt-3 flex items-center justify-between">
+          <div className="font-semibold">
+            {(p.moneda ?? "CLP")} {p.precio.toLocaleString("es-CL")}
+          </div>
+          {onAdd ? (
+            <button
+              onClick={() => onAdd(p.id)}
+              className="px-3 py-1.5 text-sm rounded-lg bg-black text-white hover:opacity-90"
+            >
+              Agregar
+            </button>
+          ) : null}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
