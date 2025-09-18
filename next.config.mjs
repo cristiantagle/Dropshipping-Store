@@ -3,7 +3,7 @@ const isPreview = process.env.VERCEL_ENV === 'preview';
 
 const nextConfig = {
   images: {
-    unoptimized: isPreview, // En preview: sin optimizador, para evitar bloqueos de CDNs
+    unoptimized: isPreview, // en preview forzamos <img> o _next/image sin optimizar
     domains: [
       'images.unsplash.com',
       'ae01.alicdn.com',
@@ -22,5 +22,4 @@ const nextConfig = {
     minimumCacheTTL: 60
   }
 };
-
 export default nextConfig;
