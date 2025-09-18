@@ -2,11 +2,19 @@
 import type { Producto } from "../lib/products";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { usePreviewEnv } from "../hooks/usePreviewEnv";
+
 export default function ProductCard({ p, onAdd }: { p: Producto; onAdd: (id: string) => void }) {
+  const isPreview = usePreviewEnv();
+
   return (
     <motion.div whileHover={{ y: -4 }} className="card">
       <div className="relative h-52 w-full">
-        <Image src={p.imagen} alt={p.nombre} fill className="object-cover" />
+        {isPreview ? (
+          <img src={p.imagen} alt={p.nombre} className="object-cover w-full h-full" loading="lazy" />
+        ) : (
+          <Image src={p.imagen} alt={p.nombre} fill className="object-cover" />
+        )}
       </div>
       <div className="p-4 space-y-2">
         <div className="text-sm text-gray-500">{p.categoria} · {p.envio}</div>
