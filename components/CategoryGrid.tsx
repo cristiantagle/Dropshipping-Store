@@ -1,15 +1,22 @@
+'use client';
+import Image from "next/image";
 import Link from "next/link";
-const cats = ["Hogar","Mascotas","Belleza","Bienestar","Tecnología","Eco"] as const;
+import { categorias } from "../lib/catalogo";
+
 export default function CategoryGrid() {
   return (
-    <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {cats.map(c => (
-        <li key={c} className="card p-6">
-          <div className="font-semibold mb-2">{c}</div>
-          <p className="text-sm text-gray-600 mb-3">Productos seleccionados para {c.toLowerCase()}.</p>
-          <Link className="underline" href="/">{`Ver ${c}`}</Link>
-        </li>
-      ))}
-    </ul>
+    <section className="space-y-4">
+      <h2 className="text-xl font-semibold">Categorías destacadas</h2>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {categorias.map((c) => (
+          <Link key={c.slug} href={`/categorias?c=${c.slug}`} className="group block rounded-xl overflow-hidden border">
+            <div className="relative h-40 w-full">
+              <Image src={c.imagen} alt={c.nombre} fill className="object-cover group-hover:scale-[1.02] transition-transform" />
+            </div>
+            <div className="p-3 font-medium">{c.nombre}</div>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
