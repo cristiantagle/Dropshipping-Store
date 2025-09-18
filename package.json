@@ -1,8 +1,9 @@
 {
   "name": "lunaria",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "scripts": {
+    "postinstall": "node scripts/inject-env.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
