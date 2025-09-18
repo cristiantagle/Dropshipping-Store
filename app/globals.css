@@ -1,13 +1,10 @@
-body {
-  margin: 0;
-  background: #ffffff;
-  color: #333;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Trebuchet MS', Helvetica, sans-serif;
-}
-
-a:hover {
-  opacity: 0.85;
-}
+:root { color-scheme: light; }
+body { @apply bg-white text-gray-900 antialiased; }
+.container { @apply max-w-7xl mx-auto px-4; }
+.btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium transition; }
+.btn-primary { @apply bg-black text-white hover:opacity-90; }
+.card { @apply rounded-2xl border shadow-sm bg-white overflow-hidden; }
