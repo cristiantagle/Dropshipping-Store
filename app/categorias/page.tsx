@@ -1,9 +1,17 @@
-import CategoryGrid from "../../components/CategoryGrid";
-export default function Categorias() {
+import { Suspense } from "react";
+import CategoriasClient from "@/components/CategoriasClient";
+import { categorias } from "@/lib/catalogo";
+
+export const dynamic = "force-dynamic";
+export const metadata = {
+  title: "Categorías — Lunaria",
+  description: "Explora las categorías y descubre nuestros productos."
+};
+
+export default function CategoriasPage() {
   return (
-    <section className="space-y-6">
-      <h1 className="text-2xl font-bold">Categorías</h1>
-      <CategoryGrid />
-    </section>
+    <Suspense fallback={<div className="text-sm text-gray-500">Cargando categorías…</div>}>
+      <CategoriasClient />
+    </Suspense>
   );
 }
