@@ -1,7 +1,6 @@
 import "./globals.css";
 import PreviewBadge from "../components/PreviewBadge";
 import Link from "next/link";
-import PreviewTag from "../components/PreviewTag";
 
 export const metadata = {
   title: "Lunaria — Tienda en Chile",
@@ -24,7 +23,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </header>
         <main className="container py-8 space-y-10">
           {children}
-          <PreviewTag />
         </main>
 
         {/* Sello estilo Oretec: solo visible en PREVIEW */}
