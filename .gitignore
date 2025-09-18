@@ -1,4 +1,9 @@
 node_modules/
 .next/
-.env.local
-.env.vercel
+out/
+.env*
+.vercel/
+pnpm-lock.yaml
+yarn.lock
+dist/
+coverage/
