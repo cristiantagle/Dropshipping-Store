@@ -1,6 +1,6 @@
 import "./globals.css";
 import Link from "next/link";
-import PreviewTag from "../components/PreviewTag";
+import PreviewBadge from "../components/PreviewBadge";
 
 export const metadata = {
   title: "Lunaria — Tienda en Chile",
@@ -21,15 +21,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </nav>
           </div>
         </header>
+
         <main className="container py-8 space-y-10">
           {children}
-          <PreviewTag />
         </main>
+
         <footer className="border-t">
           <div className="container py-8 text-sm text-gray-500">
             © {new Date().getFullYear()} Lunaria · Envíos a todo Chile
           </div>
         </footer>
+
+        {/* Sello estilo Oretec: solo visible en PREVIEW */}
+        <PreviewBadge />
       </body>
     </html>
   );
