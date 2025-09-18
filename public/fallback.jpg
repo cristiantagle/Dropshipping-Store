@@ -1,0 +1,1 @@
+/* archivo marcador: en runtime quedará vacío si no se reemplaza; el <img> solo lo usará como src si falla */
