@@ -1,4 +1,5 @@
 import "./globals.css";
+import PreviewBadge from "../components/PreviewBadge";
 import Link from "next/link";
 import PreviewTag from "../components/PreviewTag";
 
@@ -25,6 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <PreviewTag />
         </main>
+
+        {/* Sello estilo Oretec: solo visible en PREVIEW */}
+        <PreviewBadge />
         <footer className="border-t">
           <div className="container py-8 text-sm text-gray-500">
             © {new Date().getFullYear()} Lunaria · Envíos a todo Chile
