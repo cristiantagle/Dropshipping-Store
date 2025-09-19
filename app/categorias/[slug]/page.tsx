@@ -1,30 +1,31 @@
 import { notFound } from "next/navigation";
+import { getCategoriaBySlug, type CategoriaSlug } from "@/lib/categorias";
+import { getProductosByCategoria } from "@/lib/products.helpers";
 import ProductListClient from "@/components/ProductListClient";
-import { productos } from "@/lib/products";
-import { getAllCategorySlugs, getCategoriaBySlug, normalizaCategoria } from "@/lib/categorias";
 
 export const dynamic = "force-static";
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  return getAllCategorySlugs().map(slug => ({ slug }));
+  return [
+    { slug: "hogar" },
+    { slug: "belleza" },
+    { slug: "tecnologia" },
+    { slug: "bienestar" },
+    { slug: "eco" },
+    { slug: "mascotas" },
+  ];
 }
 
-export const metadata = { title: "Categoría" };
-
-export default async function CategoriaPage({ params }: { params: { slug: string } }) {
+export default function CategoriaPage({ params }: { params: { slug: CategoriaSlug } }) {
   const cat = getCategoriaBySlug(params.slug);
   if (!cat) return notFound();
 
-  const lista = productos
-    .filter(p => normalizaCategoria(p.categoria ?? "") === cat.slug)
-    .slice(0, 12);
+  const lista = getProductosByCategoria(cat.slug, 12);
 
   return (
     <section className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">{cat.nombre}</h1>
-        <p className="text-gray-600">{cat.descripcion}</p>
-      </div>
+      <h1 className="text-2xl font-bold">Categoría: {cat.nombre}</h1>
       <ProductListClient items={lista} />
     </section>
   );
