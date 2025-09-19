@@ -1,30 +1,44 @@
 import { notFound } from "next/navigation";
 import ProductListClient from "@/components/ProductListClient";
 import { productos } from "@/lib/products";
-import { getAllCategorySlugs, getCategoriaBySlug, normalizaCategoria } from "@/lib/categorias";
 
 export const dynamic = "force-static";
 
-export async function generateStaticParams() {
-  return getAllCategorySlugs().map(slug => ({ slug }));
+const SLUGS = ["hogar","belleza","tecnologia","bienestar","eco","mascotas"] as const;
+type Slug = typeof SLUGS[number];
+
+function normalize(raw: any): string {
+  const s = String(raw ?? "")
+    .normalize("NFD").replace(/\p{Diacritic}/gu, "")
+    .toLowerCase().replace(/[^a-z0-9\s-]/g, " ")
+    .replace(/\s+/g, " ").trim();
+
+  if (s.includes("hogar") || s.includes("casa")) return "hogar";
+  if (s.includes("belleza") || s.includes("cuidado")) return "belleza";
+  if (s.includes("tecno") || s.includes("gadget")) return "tecnologia";
+  if (s.includes("bienestar") || s.includes("fit") || s.includes("deporte")) return "bienestar";
+  if (s.includes("eco") || s.includes("susten") || s.includes("verde")) return "eco";
+  if (s.includes("mascota") || s.includes("pet")) return "mascotas";
+  return s;
 }
 
-export const metadata = { title: "Categoría" };
+export async function generateStaticParams() {
+  return SLUGS.map((slug) => ({ slug }));
+}
 
-export default async function CategoriaPage({ params }: { params: { slug: string } }) {
-  const cat = getCategoriaBySlug(params.slug);
-  if (!cat) return notFound();
+export default function CategoriaPage({ params }: { params: { slug: string }}) {
+  const slug = normalize(params.slug) as Slug;
+  if (!SLUGS.includes(slug)) return notFound();
 
-  const lista = productos
-    .filter(p => normalizaCategoria(p.categoria ?? "") === cat.slug)
-    .slice(0, 12);
+  // Importante: aceptar datasets con categoria = "Belleza" o "belleza"
+  const listaBase = (productos as any[]).filter((p) => normalize(p?.categoria) === slug);
+
+  // Garantizar hasta 12
+  const lista = listaBase.slice(0, 12);
 
   return (
     <section className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">{cat.nombre}</h1>
-        <p className="text-gray-600">{cat.descripcion}</p>
-      </div>
+      <h1 className="text-2xl font-bold">Categoría: {slug}</h1>
       <ProductListClient items={lista} />
     </section>
   );
