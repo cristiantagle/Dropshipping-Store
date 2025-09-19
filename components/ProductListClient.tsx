@@ -1,56 +1,61 @@
-'use client';
-
+"use client";
 import Image from "next/image";
 
-type Producto = {
-  id: string;
-  nombre: string;
-  precio: number;
-  imagen: string;
+export type Producto = {
+  id?: string | number;
+  nombre?: string;
+  name?: string;
+  precio?: number;
+  price?: number;
+  imagen?: string;
+  image?: string;
   categoria?: string;
-  destacado?: boolean;
+  category?: string;
 };
 
-export default function ProductListClient({ items }: { items: Producto[] }) {
-  const agregar = (p: Producto) => {
-    try {
-      const raw = localStorage.getItem("carro") || "[]";
-      const carro = JSON.parse(raw) as Producto[];
-      carro.push(p);
-      localStorage.setItem("carro", JSON.stringify(carro));
-    } catch {}
-    alert(`“${p.nombre}” agregado al carro`);
-  };
+function pick<T>(...vals: (T | undefined)[]): T | undefined {
+  return vals.find(v => v !== undefined);
+}
 
-  if (!items?.length) {
-    return <p className="text-gray-600">No hay productos disponibles en esta categoría por ahora.</p>;
+export default function ProductListClient({ items }: { items: Producto[] }) {
+  if (!items || items.length === 0) {
+    return <p className="text-gray-600">No hay productos para esta categoría.</p>;
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {items.map((p) => (
-        <div key={p.id} className="border rounded-2xl p-4 shadow-sm hover:shadow-md transition">
-          <div className="relative w-full aspect-[4/3] overflow-hidden rounded-xl bg-gray-100">
-            <Image
-              src={p.imagen}
-              alt={p.nombre}
-              fill
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover"
-            />
-          </div>
-          <div className="mt-3 space-y-1">
-            <h3 className="font-semibold leading-tight">{p.nombre}</h3>
-            <p className="text-lime-700 font-bold">${p.precio.toLocaleString("es-CL")}</p>
-          </div>
-          <button
-            onClick={() => agregar(p)}
-            className="mt-3 w-full rounded-xl px-4 py-2 bg-lime-600 text-white hover:bg-lime-700 transition"
-          >
-            Agregar al carro
-          </button>
-        </div>
-      ))}
-    </div>
+    <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {items.map((p, i) => {
+        const id = (p.id ?? `${pick(p.nombre, p.name) ?? "item"}-${i}`) as React.Key;
+        const title = pick(p.nombre, p.name) ?? "Producto";
+        const img = pick(p.imagen, p.image);
+        const price = pick<number>(p.precio, p.price);
+
+        return (
+          <li key={id} className="border rounded-xl p-3 bg-white">
+            <div className="aspect-square relative mb-2 bg-gray-50 overflow-hidden rounded-lg">
+              {img ? (
+                <Image
+                  src={img}
+                  alt={title}
+                  fill
+                  sizes="(max-width:768px) 50vw, (max-width:1200px) 25vw, 20vw"
+                  style={{ objectFit: "cover" }}
+                  priority={i < 4}
+                  unoptimized={false}
+                />
+              ) : (
+                <div className="w-full h-full grid place-content-center text-xs text-gray-500">Sin imagen</div>
+              )}
+            </div>
+            <h3 className="font-medium">{title}</h3>
+            {typeof price === "number" && (
+              <p className="text-sm text-gray-700">
+                ${price.toLocaleString("es-CL")}
+              </p>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 }
