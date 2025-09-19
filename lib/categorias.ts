@@ -1,37 +1,59 @@
 export type CategoriaSlug = "hogar" | "belleza" | "tecnologia" | "bienestar" | "eco" | "mascotas";
 
-export const CATEGORIAS: { slug: CategoriaSlug; nombre: string; descripcion: string }[] = [
-  { slug: "hogar",      nombre: "Hogar",      descripcion: "Organización y decoración inteligente" },
-  { slug: "belleza",    nombre: "Belleza",    descripcion: "Cuidado personal y accesorios" },
-  { slug: "tecnologia", nombre: "Tecnología", descripcion: "Gadgets útiles para el día a día" },
-  { slug: "bienestar",  nombre: "Bienestar",  descripcion: "Fitness, descanso y salud" },
-  { slug: "eco",        nombre: "Eco",        descripcion: "Productos sustentables" },
-  { slug: "mascotas",   nombre: "Mascotas",   descripcion: "Accesorios y cuidado" },
-];
+export interface Categoria {
+  slug: CategoriaSlug;
+  nombre: string;
+  descripcion?: string;
+}
 
-const MAP_NOMBRE_A_SLUG: Record<string, CategoriaSlug> = {
-  "Hogar": "hogar",
-  "Belleza": "belleza",
-  "Tecnología": "tecnologia",
-  "Tecnologia": "tecnologia",
-  "Bienestar": "bienestar",
-  "Eco": "eco",
-  "Mascotas": "mascotas",
+export const CATEGORIAS: Record<CategoriaSlug, Categoria> = {
+  hogar:      { slug: "hogar",      nombre: "Hogar",      descripcion: "Productos para el hogar" },
+  belleza:    { slug: "belleza",    nombre: "Belleza",    descripcion: "Belleza y cuidado personal" },
+  tecnologia: { slug: "tecnologia", nombre: "Tecnología", descripcion: "Gadgets y accesorios" },
+  bienestar:  { slug: "bienestar",  nombre: "Bienestar",  descripcion: "Salud y fitness" },
+  eco:        { slug: "eco",        nombre: "Eco",        descripcion: "Sustentables y reutilizables" },
+  mascotas:   { slug: "mascotas",   nombre: "Mascotas",   descripcion: "Para tus mascotas" },
 };
 
-export function normalizaCategoria(valor?: string): CategoriaSlug | undefined {
-  if (!valor) return undefined;
-  const v = valor.trim().toLowerCase();
-  const direct = ["hogar","belleza","tecnologia","bienestar","eco","mascotas"] as const;
-  if ((direct as readonly string[]).includes(v)) return v as CategoriaSlug;
-  const porNombre = MAP_NOMBRE_A_SLUG[valor] || MAP_NOMBRE_A_SLUG[valor.normalize?.()] ;
-  return porNombre;
+const alias: Array<[RegExp, CategoriaSlug]> = [
+  // hogar
+  [/hogar|casa|home|organiza|cocina|ba(?:n|ñ)o/i, "hogar"],
+  // belleza
+  [/belleza|maquillaje|cosm[ée]tica|skincare|cuidado personal/i, "belleza"],
+  // tecnologia
+  [/tecno|tecnolog|gadg|cable|usb|bluetooth|auricular|teclado|mouse/i, "tecnologia"],
+  // bienestar
+  [/bienestar|salud|fitness|gimnas|yoga|band[ao] el[áa]stic/i, "bienestar"],
+  // eco
+  [/eco|sustent|reutil|bambu|bamb[úu]/i, "eco"],
+  // mascotas
+  [/mascota|pet|perr|gat/i, "mascotas"],
+];
+
+function stripAccents(s: string) {
+  return s.normalize("NFD").replace(/\p{Diacritic}/gu, "");
+}
+
+export function normalizaCategoria(texto: string | undefined | null): CategoriaSlug | null {
+  if (!texto) return null;
+  const t = stripAccents(String(texto)).toLowerCase();
+  // match directo por slug
+  if ((["hogar","belleza","tecnologia","bienestar","eco","mascotas"] as const).includes(t as any)) {
+    return t as CategoriaSlug;
+  }
+  for (const [re, slug] of alias) {
+    if (re.test(t)) return slug;
+  }
+  return null;
 }
 
 export function getCategoriaBySlug(slug: string) {
-  return CATEGORIAS.find(c => c.slug === slug);
+  const s = normalizaCategoria(slug);
+  return s ? CATEGORIAS[s] : null;
 }
 
-export function getAllCategorySlugs(): CategoriaSlug[] {
-  return CATEGORIAS.map(c => c.slug);
+export function listCategorias() {
+  return Object.values(CATEGORIAS);
 }
+
+export const ALL_SLUGS: CategoriaSlug[] = ["hogar","belleza","tecnologia","bienestar","eco","mascotas"];
