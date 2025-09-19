@@ -1,68 +1,46 @@
-#!/usr/bin/env bash
-# run.sh — Promoción de la rama preview actual a main (con respaldo) [LUNARIA]
-set -Eeuo pipefail
+#!/bin/bash
 
-say(){ printf "\n\033[1;36m%s\033[0m\n" "$*"; }
+echo "💾 Guardando cambios locales (stash si hay)…"
+git stash push -m "auto-stash-before-preview" || true
 
-REMOTE="origin"
-TS="$(date +%Y%m%d-%H%M%S)"
+echo "🔀 Cambiando a main y actualizando (ff-only)…"
+git checkout main
+git pull --ff-only origin main
 
-# 1) Detectar rama fuente
-CURRENT="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")"
-if [[ "$CURRENT" != preview/* ]]; then
-  # Intentar tomar la última preview por fecha si no estamos parados en una
-  CANDIDATE="$(git for-each-ref --format='%(refname:short) %(committerdate:iso)' --sort=-committerdate refs/heads/preview/ | awk 'NR==1{print $1}')"
-  if [[ -z "${CANDIDATE:-}" ]]; then
-    echo "❌ No se encontró ninguna rama preview/*. Párete en la rama preview a promover y vuelve a correr."
-    exit 1
-  fi
-  CURRENT="$CANDIDATE"
+branch="preview/fix-categorias-12-items-images-$(date +%Y%m%d-%H%M%S)"
+echo "🌱 Creando rama $branch…"
+git checkout -b "$branch"
+
+# 🔁 Traer de vuelta lo stasheado si existe
+if git stash list | grep -q "auto-stash-before-preview"; then
+  echo "📦 Aplicando stash…"
+  git stash pop || true
+else
+  echo "ℹ️ No hay stash para aplicar."
 fi
 
-say "🔎 Rama a promover: $CURRENT"
+echo "📄 Añadiendo cambios…"
+git add -A
 
-# 2) Guardar cambios locales (si los hay)
-say "💾 Stash/commit WIP si hay cambios…"
-if ! git diff --quiet || ! git diff --cached --quiet; then
-  git add -A || true
-  git commit -m "WIP: autosave antes de promover $CURRENT ($TS)" || true
+# Si no hay cambios reales, forzamos un ping para que Vercel construya igual
+if git diff --cached --quiet; then
+  echo "⚠️  No hay cambios staged; creando PREVIEW_PING.md para forzar build…"
+  echo "# Preview ping $(date -u +"%Y-%m-%d %H:%M:%S UTC")" > PREVIEW_PING.md
+  git add PREVIEW_PING.md
 fi
 
-# 3) Asegurar identidad git mínima
-git config user.email >/dev/null 2>&1 || git config user.email "bot@local"
-git config user.name  >/dev/null 2>&1 || git config user.name  "Automation Bot"
+echo "📝 Commit…"
+git commit -m "chore: preview build (cats 12 + images) $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 
-# 4) Actualizar main
-say "🌿 Checkout main (crear si no existe) y actualizar…"
-git checkout main >/dev/null 2>&1 || git checkout -b main
-git fetch "$REMOTE" --prune >/dev/null 2>&1 || true
-git merge --ff-only "refs/remotes/$REMOTE/main" >/dev/null 2>&1 || true
+echo "📤 Push a remoto…"
+git push -u origin "$branch"
 
-# 5) Respaldo
-BACKUP="legacy/backup-before-promote-${TS}"
-say "🛟 Creando respaldo ${BACKUP} desde main…"
-git branch -f "$BACKUP" main
-git push -u "$REMOTE" "$BACKUP" >/dev/null 2>&1 || true
-
-# 6) Merge no-ff de la preview → main
-say "🔀 Haciendo merge no-ff de ${CURRENT} → main…"
-git merge --no-ff "$CURRENT" -m "merge: promote ${CURRENT} → main [LUNARIA]" || {
-  echo "❌ Conflictos en merge. Resuélvelos y vuelve a correr."
-  exit 1
-}
-
-# 7) Asegurar que .next no quede trackeado
-say "🧹 Asegurando que .next no quede en el índice…"
-echo -e "\n# Next build\n.next/" >> .gitignore || true
-git rm -r --cached .next >/dev/null 2>&1 || true
-
-# 8) Push a main
-say "🚀 Push a origin/main…"
-git push "$REMOTE" main
-
-# 9) Info final
-REPO_URL="$(git remote get-url "$REMOTE" | sed -E 's#(git@|https://)github.com[:/]{1}([^/]+/[^/.]+).*#https://github.com/\2#')"
-echo
-echo "✅ Promoción lista: ${CURRENT} → main"
-echo "🔗 Repo: ${REPO_URL}"
-echo "📝 Si Vercel está apuntado a main, desplegará producción automáticamente."
+echo "✅ Rama lista: $branch"
+echo "🔗 PR: https://github.com/cristiantagle/Dropshipping-Store/pull/new/$branch"
+echo "🧪 Rutas a probar:"
+echo "   /categorias/hogar"
+echo "   /categorias/belleza"
+echo "   /categorias/tecnologia"
+echo "   /categorias/bienestar"
+echo "   /categorias/eco"
+echo "   /categorias/mascotas"
