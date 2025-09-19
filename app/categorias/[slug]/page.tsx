@@ -16,8 +16,8 @@ export default async function CategoriaPage({ params }: { params: { slug: string
   if (!cat) return notFound();
 
   const lista = productos
-    .filter(p => normalizaCategoria(p.categoria ?? "") === cat.slug)
-    .slice(0, 12);
+    .filter(p => normalizaCategoria(p.categoria ?? "") === cat.nombre)
+    .slice(0,12);
 
   return (
     <section className="space-y-6">
