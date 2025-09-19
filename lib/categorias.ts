@@ -1,37 +1,87 @@
-export type CategoriaSlug = "hogar" | "belleza" | "tecnologia" | "bienestar" | "eco" | "mascotas";
+// lib/categorias.ts
+export type CategoriaSlug =
+  | "hogar"
+  | "belleza"
+  | "tecnologia"
+  | "bienestar"
+  | "eco"
+  | "mascotas";
 
-export const CATEGORIAS: { slug: CategoriaSlug; nombre: string; descripcion: string }[] = [
-  { slug: "hogar",      nombre: "Hogar",      descripcion: "Organización y decoración inteligente" },
-  { slug: "belleza",    nombre: "Belleza",    descripcion: "Cuidado personal y accesorios" },
-  { slug: "tecnologia", nombre: "Tecnología", descripcion: "Gadgets útiles para el día a día" },
-  { slug: "bienestar",  nombre: "Bienestar",  descripcion: "Fitness, descanso y salud" },
-  { slug: "eco",        nombre: "Eco",        descripcion: "Productos sustentables" },
-  { slug: "mascotas",   nombre: "Mascotas",   descripcion: "Accesorios y cuidado" },
-];
+export type CategoriaNombre =
+  | "Hogar"
+  | "Belleza"
+  | "Tecnología"
+  | "Bienestar"
+  | "Eco"
+  | "Mascotas";
 
-const MAP_NOMBRE_A_SLUG: Record<string, CategoriaSlug> = {
-  "Hogar": "hogar",
-  "Belleza": "belleza",
-  "Tecnología": "tecnologia",
-  "Tecnologia": "tecnologia",
-  "Bienestar": "bienestar",
-  "Eco": "eco",
-  "Mascotas": "mascotas",
+export interface Categoria {
+  slug: CategoriaSlug;
+  nombre: CategoriaNombre;
+}
+
+export const CATEGORIAS: Record<CategoriaSlug, Categoria> = {
+  hogar: { slug: "hogar", nombre: "Hogar" },
+  belleza: { slug: "belleza", nombre: "Belleza" },
+  tecnologia: { slug: "tecnologia", nombre: "Tecnología" },
+  bienestar: { slug: "bienestar", nombre: "Bienestar" },
+  eco: { slug: "eco", nombre: "Eco" },
+  mascotas: { slug: "mascotas", nombre: "Mascotas" },
 };
 
-export function normalizaCategoria(valor?: string): CategoriaSlug | undefined {
-  if (!valor) return undefined;
-  const v = valor.trim().toLowerCase();
-  const direct = ["hogar","belleza","tecnologia","bienestar","eco","mascotas"] as const;
-  if ((direct as readonly string[]).includes(v)) return v as CategoriaSlug;
-  const porNombre = MAP_NOMBRE_A_SLUG[valor] || MAP_NOMBRE_A_SLUG[valor.normalize?.()] ;
-  return porNombre;
+// Normaliza string a slug CategoriaSlug si coincide, o null si no.
+export function toSlug(raw: string | undefined | null): CategoriaSlug | null {
+  if (!raw) return null;
+  const s = raw
+    .normalize("NFD").replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, " ");
+
+  const map: Record<string, CategoriaSlug> = {
+    "hogar": "hogar",
+    "casa": "hogar",
+    "home": "hogar",
+
+    "belleza": "belleza",
+    "accesorios belleza": "belleza",
+    "cuidado personal": "belleza",
+
+    "tecnologia": "tecnologia",
+    "tecnología": "tecnologia",
+    "electronica": "tecnologia",
+    "electrónica": "tecnologia",
+    "gadgets": "tecnologia",
+
+    "bienestar": "bienestar",
+    "fitness": "bienestar",
+    "salud": "bienestar",
+
+    "eco": "eco",
+    "ecologico": "eco",
+    "ecológico": "eco",
+    "sustentable": "eco",
+
+    "mascotas": "mascotas",
+    "pet": "mascotas",
+    "perros": "mascotas",
+    "gatos": "mascotas",
+  };
+
+  // Si ya es un slug exacto:
+  if ((Object.keys(CATEGORIAS) as CategoriaSlug[]).includes(s as CategoriaSlug)) {
+    return s as CategoriaSlug;
+  }
+
+  // Búsqueda por nombre exacto (sin tildes) o alias del mapa
+  return map[s] ?? null;
 }
 
-export function getCategoriaBySlug(slug: string) {
-  return CATEGORIAS.find(c => c.slug === slug);
+export function getCategoriaBySlug(slug: string): Categoria | null {
+  const s = toSlug(slug);
+  return s ? CATEGORIAS[s] : null;
 }
 
-export function getAllCategorySlugs(): CategoriaSlug[] {
-  return CATEGORIAS.map(c => c.slug);
+export function listCategorias(): Categoria[] {
+  return (Object.keys(CATEGORIAS) as CategoriaSlug[]).map((k) => CATEGORIAS[k]);
 }

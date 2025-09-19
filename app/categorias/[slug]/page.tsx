@@ -1,30 +1,23 @@
+// app/categorias/[slug]/page.tsx
 import { notFound } from "next/navigation";
-import ProductListClient from "@/components/ProductListClient";
+import { getCategoriaBySlug, toSlug } from "@/lib/categorias";
 import { productos } from "@/lib/products";
-import { getAllCategorySlugs, getCategoriaBySlug, normalizaCategoria } from "@/lib/categorias";
+import ProductListClient from "@/components/ProductListClient";
 
-export const dynamic = "force-static";
+type Params = { slug: string };
 
-export async function generateStaticParams() {
-  return getAllCategorySlugs().map(slug => ({ slug }));
-}
-
-export const metadata = { title: "Categoría" };
-
-export default async function CategoriaPage({ params }: { params: { slug: string } }) {
+export default async function CategoriaPage({ params }: { params: Params }) {
   const cat = getCategoriaBySlug(params.slug);
   if (!cat) return notFound();
 
+  // p.categoria puede venir como "Hogar"/"Belleza" o ya como slug.
   const lista = productos
-    .filter(p => normalizaCategoria(p.categoria ?? "") === cat.slug)
+    .filter((p: any) => toSlug(p.categoria) === cat.slug)
     .slice(0, 12);
 
   return (
     <section className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">{cat.nombre}</h1>
-        <p className="text-gray-600">{cat.descripcion}</p>
-      </div>
+      <h1 className="text-2xl font-semibold">Categoría: {cat.nombre}</h1>
       <ProductListClient items={lista} />
     </section>
   );
