@@ -1,23 +1,24 @@
 import { notFound } from "next/navigation";
 import ProductListClient from "@/components/ProductListClient";
-import { productos } from "@/lib/products";
-import { getAllCategorySlugs, getCategoriaBySlug, normalizaCategoria } from "@/lib/categorias";
+import { getCategoria, getProductosByCategoria } from "@/lib/catalog";
 
 export const dynamic = "force-static";
-
-export async function generateStaticParams() {
-  return getAllCategorySlugs().map(slug => ({ slug }));
-}
-
 export const metadata = { title: "Categoría" };
 
+export async function generateStaticParams() {
+  // Render estático sincrónico: build-time fetch
+  const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/categorias?select=slug`, {
+    headers: { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "" }
+  });
+  const data = await res.json();
+  return (data || []).map((x:any)=>({ slug: x.slug }));
+}
+
 export default async function CategoriaPage({ params }: { params: { slug: string } }) {
-  const cat = getCategoriaBySlug(params.slug);
+  const cat = await getCategoria(params.slug);
   if (!cat) return notFound();
 
-  const lista = productos
-    .filter(p => normalizaCategoria(p.categoria ?? "") === cat.slug)
-    .slice(0, 12);
+  const lista = await getProductosByCategoria(params.slug, 12);
 
   return (
     <section className="space-y-6">

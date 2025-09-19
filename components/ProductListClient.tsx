@@ -1,56 +1,50 @@
-'use client';
-
+"use client";
 import Image from "next/image";
 
-type Producto = {
+export type Producto = {
   id: string;
   nombre: string;
   precio: number;
-  imagen: string;
-  categoria?: string;
-  destacado?: boolean;
+  imagen_url?: string | null;
+  envio?: string | null;
+  destacado?: boolean | null;
+  categoria_slug: string;
 };
 
 export default function ProductListClient({ items }: { items: Producto[] }) {
-  const agregar = (p: Producto) => {
-    try {
-      const raw = localStorage.getItem("carro") || "[]";
-      const carro = JSON.parse(raw) as Producto[];
-      carro.push(p);
-      localStorage.setItem("carro", JSON.stringify(carro));
-    } catch {}
-    alert(`“${p.nombre}” agregado al carro`);
-  };
-
-  if (!items?.length) {
-    return <p className="text-gray-600">No hay productos disponibles en esta categoría por ahora.</p>;
+  if (!items || items.length === 0) {
+    return <p>No hay productos disponibles en esta categoría por ahora.</p>;
   }
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {items.map((p) => (
-        <div key={p.id} className="border rounded-2xl p-4 shadow-sm hover:shadow-md transition">
-          <div className="relative w-full aspect-[4/3] overflow-hidden rounded-xl bg-gray-100">
-            <Image
-              src={p.imagen}
-              alt={p.nombre}
-              fill
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover"
-            />
+    <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {items.map(p => (
+        <li key={p.id} className="border rounded-2xl p-4 flex flex-col gap-3">
+          <div className="aspect-[4/3] w-full bg-gray-100 overflow-hidden rounded-xl">
+            {p.imagen_url ? (
+              <Image
+                src={p.imagen_url}
+                alt={p.nombre}
+                width={800}
+                height={600}
+                className="w-full h-full object-cover"
+                unoptimized
+              />
+            ) : (
+              <div className="w-full h-full grid place-content-center text-gray-500 text-sm">
+                Sin imagen
+              </div>
+            )}
           </div>
-          <div className="mt-3 space-y-1">
-            <h3 className="font-semibold leading-tight">{p.nombre}</h3>
-            <p className="text-lime-700 font-bold">${p.precio.toLocaleString("es-CL")}</p>
+          <div className="flex-1">
+            <h3 className="font-semibold">{p.nombre}</h3>
+            <p className="text-sm text-gray-600">{p.envio || "—"}</p>
           </div>
-          <button
-            onClick={() => agregar(p)}
-            className="mt-3 w-full rounded-xl px-4 py-2 bg-lime-600 text-white hover:bg-lime-700 transition"
-          >
-            Agregar al carro
-          </button>
-        </div>
+          <div className="flex items-center justify-between">
+            <span className="font-bold">${(p.precio/100).toFixed(0)}90</span>
+            <button className="px-3 py-1 rounded bg-black text-white">Agregar</button>
+          </div>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
