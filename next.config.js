@@ -4,4 +4,15 @@ const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   images: { formats: ['image/avif', 'image/webp'] },
 }
-module.exports = nextConfig
+const nextConfigPatched = {
+  ...(typeof nextConfig === 'object' ? nextConfig : {}),
+  images: {
+    ...(nextConfig?.images || {}),
+    remotePatterns: [
+      ...(nextConfig?.images?.remotePatterns || []),
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+    ],
+    formats: ['image/avif','image/webp'],
+  },
+};
+module.exports = nextConfigPatched;

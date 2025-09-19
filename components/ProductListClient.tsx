@@ -1,56 +1,28 @@
 'use client';
-
 import Image from "next/image";
 
-type Producto = {
+export interface Producto {
   id: string;
   nombre: string;
   precio: number;
   imagen: string;
-  categoria?: string;
-  destacado?: boolean;
-};
+  categoria: string;
+}
 
 export default function ProductListClient({ items }: { items: Producto[] }) {
-  const agregar = (p: Producto) => {
-    try {
-      const raw = localStorage.getItem("carro") || "[]";
-      const carro = JSON.parse(raw) as Producto[];
-      carro.push(p);
-      localStorage.setItem("carro", JSON.stringify(carro));
-    } catch {}
-    alert(`“${p.nombre}” agregado al carro`);
-  };
-
-  if (!items?.length) {
-    return <p className="text-gray-600">No hay productos disponibles en esta categoría por ahora.</p>;
-  }
-
+  if (!items?.length) return <p className="text-sm opacity-70">Sin resultados.</p>;
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
       {items.map((p) => (
-        <div key={p.id} className="border rounded-2xl p-4 shadow-sm hover:shadow-md transition">
-          <div className="relative w-full aspect-[4/3] overflow-hidden rounded-xl bg-gray-100">
-            <Image
-              src={p.imagen}
-              alt={p.nombre}
-              fill
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover"
-            />
+        <li key={p.id} className="rounded-xl border p-3 hover:shadow transition">
+          <div className="relative w-full aspect-square overflow-hidden rounded-lg bg-gray-50">
+            {/* Next.js ya optimiza. Con remotePatterns para Unsplash funciona en prod. */}
+            <Image src={p.imagen} alt={p.nombre} fill className="object-cover" sizes="(max-width:768px) 50vw, 25vw" />
           </div>
-          <div className="mt-3 space-y-1">
-            <h3 className="font-semibold leading-tight">{p.nombre}</h3>
-            <p className="text-lime-700 font-bold">${p.precio.toLocaleString("es-CL")}</p>
-          </div>
-          <button
-            onClick={() => agregar(p)}
-            className="mt-3 w-full rounded-xl px-4 py-2 bg-lime-600 text-white hover:bg-lime-700 transition"
-          >
-            Agregar al carro
-          </button>
-        </div>
+          <h3 className="mt-2 font-medium line-clamp-2">{p.nombre}</h3>
+          <p className="text-sm text-gray-600">${p.precio.toLocaleString('es-CL')}</p>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }

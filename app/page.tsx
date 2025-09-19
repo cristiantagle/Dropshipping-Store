@@ -30,3 +30,27 @@ export default function Page() {
     </section>
   );
 }
+
+// --- Bloque auxiliar: enlaces reales a categorías (no afecta tus botones actuales) ---
+export function CategoriasLinks() {
+  const links = [
+    { slug: 'hogar', label: 'Hogar' },
+    { slug: 'belleza', label: 'Belleza' },
+    { slug: 'tecnologia', label: 'Tecnología' },
+    { slug: 'bienestar', label: 'Bienestar' },
+    { slug: 'eco', label: 'Eco' },
+    { slug: 'mascotas', label: 'Mascotas' },
+  ];
+  return (
+    <div data-cats-links className="mt-10">
+      <h2 className="text-xl font-semibold mb-2">Explorar por categoría</h2>
+      <div className="flex flex-wrap gap-2">
+        {links.map(l => (
+          <a key={l.slug} href={`/categorias/${l.slug}`} className="px-3 py-1 border rounded-full text-sm hover:bg-gray-50">
+            {l.label}
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
