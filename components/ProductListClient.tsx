@@ -2,55 +2,47 @@
 
 import Image from "next/image";
 
-type Producto = {
-  id: string;
-  nombre: string;
-  precio: number;
-  imagen: string;
+type Item = {
+  id?: string | number;
+  nombre?: string;
+  imagen?: string;
+  precio?: number | string | null;
   categoria?: string;
-  destacado?: boolean;
 };
 
-export default function ProductListClient({ items }: { items: Producto[] }) {
-  const agregar = (p: Producto) => {
-    try {
-      const raw = localStorage.getItem("carro") || "[]";
-      const carro = JSON.parse(raw) as Producto[];
-      carro.push(p);
-      localStorage.setItem("carro", JSON.stringify(carro));
-    } catch {}
-    alert(`“${p.nombre}” agregado al carro`);
-  };
-
-  if (!items?.length) {
-    return <p className="text-gray-600">No hay productos disponibles en esta categoría por ahora.</p>;
+export default function ProductListClient({ items }: { items: Item[] }) {
+  if (!items || items.length === 0) {
+    return <p className="text-gray-500">No hay productos disponibles.</p>;
   }
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {items.map((p) => (
-        <div key={p.id} className="border rounded-2xl p-4 shadow-sm hover:shadow-md transition">
-          <div className="relative w-full aspect-[4/3] overflow-hidden rounded-xl bg-gray-100">
-            <Image
-              src={p.imagen}
-              alt={p.nombre}
-              fill
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover"
-            />
+    <ul className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+      {items.map((p, i) => (
+        <li key={String(p.id ?? i)} className="border rounded-2xl p-3 hover:shadow-sm transition bg-white">
+          <div className="aspect-square relative mb-2 rounded-xl overflow-hidden bg-gray-100">
+            {p.imagen ? (
+              <Image
+                src={p.imagen}
+                alt={p.nombre ?? "Producto"}
+                fill
+                sizes="(max-width: 768px) 50vw, 25vw"
+                className="object-cover"
+                priority={false}
+              />
+            ) : (
+              <div className="w-full h-full grid place-content-center text-xs text-gray-500">
+                Sin imagen
+              </div>
+            )}
           </div>
-          <div className="mt-3 space-y-1">
-            <h3 className="font-semibold leading-tight">{p.nombre}</h3>
-            <p className="text-lime-700 font-bold">${p.precio.toLocaleString("es-CL")}</p>
-          </div>
-          <button
-            onClick={() => agregar(p)}
-            className="mt-3 w-full rounded-xl px-4 py-2 bg-lime-600 text-white hover:bg-lime-700 transition"
-          >
-            Agregar al carro
-          </button>
-        </div>
+          <h3 className="font-semibold line-clamp-2 min-h-[2.5rem]">{p.nombre ?? "—"}</h3>
+          {p.precio !== undefined && p.precio !== null && (
+            <div className="mt-1 font-bold">
+              {typeof p.precio === 'number' ? `$${p.precio.toLocaleString()}` : String(p.precio)}
+            </div>
+          )}
+          {p.categoria && <div className="mt-2 text-xs text-gray-600">{String(p.categoria)}</div>}
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
