@@ -12,6 +12,11 @@ export async function generateStaticParams() {
 export const metadata = { title: "Categoría" };
 
 export default async function CategoriaPage({ params }: { params: { slug: string } }) {
+  // Guard auto-inyectado: oculta /categorias/bienestar
+  if (params?.slug === "bienestar") {
+    const { notFound } = await import("next/navigation");
+    return notFound();
+  }
   const cat = getCategoriaBySlug(params.slug);
   if (!cat) return notFound();
 
