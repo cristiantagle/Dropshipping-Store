@@ -11,7 +11,12 @@ export async function generateStaticParams() {
 
 export const metadata = { title: "Categoría" };
 
-export default async function CategoriaPage({ params }: { params: { slug: string } }) {
+
+  if (params?.slug === "bienestar") {
+    const { notFound } = await import("next/navigation");
+    return notFound();
+  }
+ params }: { params: { slug: string } }) {
   const cat = getCategoriaBySlug(params.slug);
   if (!cat) return notFound();
 

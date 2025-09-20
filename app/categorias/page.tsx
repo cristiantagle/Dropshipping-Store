@@ -2,6 +2,9 @@ import Link from "next/link";
 import { CATEGORIAS } from "@/lib/categorias";
 
 export const metadata = { title: "Categorías" };
+// auto-hide bienestar
+try{ if(Array.isArray(categorias)) categorias=categorias.filter(c=> (c?.slug||c) !== 'bienestar'); }catch{}
+
 
 export default async function CategoriasPage() {
   return (
