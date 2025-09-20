@@ -1,23 +1,32 @@
 import { notFound } from "next/navigation";
-import ProductListClient from "@/components/ProductListClient";
-import { productos } from "@/lib/products";
-import { getAllCategorySlugs, getCategoriaBySlug, normalizaCategoria } from "@/lib/categorias";
+import ProductListClient, { Producto } from "@/components/ProductListClient";
+import { createServerClient } from "@/lib/supabase/server";
+import { getCategoriaBySlug } from "@/lib/catalog";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
-export async function generateStaticParams() {
-  return getAllCategorySlugs().map(slug => ({ slug }));
-}
+type PageProps = { params: { slug: string } };
 
-export const metadata = { title: "Categoría" };
-
-export default async function CategoriaPage({ params }: { params: { slug: string } }) {
+export default async function CategoriaPage({ params }: PageProps) {
   const cat = getCategoriaBySlug(params.slug);
   if (!cat) return notFound();
 
-  const lista = productos
-    .filter(p => normalizaCategoria(p.categoria ?? "") === cat.slug)
-    .slice(0, 12);
+  const supabase = createServerClient();
+
+  const { data, error } = await supabase
+    .from("productos")
+    .select(
+      "id,nombre,precio,envio,imagen,imagen_url,image_url,image,categoria_slug"
+    )
+    .eq("categoria_slug", params.slug)
+    .order("id", { ascending: true })
+    .limit(12);
+
+  if (error) {
+    console.error("Supabase productos error:", error);
+  }
+
+  const items: Producto[] = Array.isArray(data) ? data : [];
 
   return (
     <section className="space-y-6">
@@ -25,7 +34,7 @@ export default async function CategoriaPage({ params }: { params: { slug: string
         <h1 className="text-2xl font-bold">{cat.nombre}</h1>
         <p className="text-gray-600">{cat.descripcion}</p>
       </div>
-      <ProductListClient items={lista} />
+      <ProductListClient items={items} />
     </section>
   );
 }
