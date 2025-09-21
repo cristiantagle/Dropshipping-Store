@@ -191,3 +191,142 @@ a[data-cat]:hover, .cat-tile:hover {
 .cat-chip {
   @apply inline-flex items-center gap-2 rounded-xl bg-lime-600/95 text-white px-3 py-1.5 shadow-md;
 }
+
+/* === LUNARIA: visual-pack-level4 (do not remove) === */
+/* Paleta y tokens */
+:root {
+  /* mismo verde que usamos en el Hero (lime-600 aprox) */
+  --brand-green: #65a30d;
+  --brand-green-600: #65a30d;
+  --brand-green-700: #4d7c0f;
+  --brand-ink: #0b0f19;
+  --card-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --card-shadow-hover: 0 16px 40px rgba(15, 23, 42, 0.12);
+}
+
+/* Micro-animaciones base */
+@keyframes lunaria-fade-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Botón/etiqueta de marca (para sobre-imagen o badges) */
+.lunaria-btn,
+.badge-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .45rem .8rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  color: #fff;
+  background-color: var(--brand-green);
+  box-shadow: 0 4px 16px rgba(101,163,13,.25);
+  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+}
+.lunaria-btn:hover,
+.badge-brand:hover {
+  transform: translateY(-1px);
+  background-color: var(--brand-green-700);
+  box-shadow: 0 8px 24px rgba(101,163,13,.35);
+}
+
+/* Cards genéricas (product tiles, etc.) */
+:where(.grid) :where(.border.rounded-2xl) {
+  border-color: rgba(2,6,23,.06); /* slate-950/6 */
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
+  box-shadow: var(--card-shadow);
+  background: #fff;
+}
+:where(.grid) :where(.border.rounded-2xl):hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
+  border-color: rgba(2,6,23,.10);
+}
+
+/* Imágenes en grillas 4:3 con zoom suave al hover */
+:where(.aspect-\[4\/3\]) img,
+:where(.aspect-\[4\/3\]) .object-cover {
+  transition: transform .35s ease, filter .35s ease;
+  will-change: transform;
+}
+:where(li,div).border.rounded-2xl:hover :where(.aspect-\[4\/3\]) img,
+:where(li,div).border.rounded-2xl:hover :where(.aspect-\[4\/3\]) .object-cover {
+  transform: scale(1.03);
+}
+
+/* Precio destacado y tipografía suave */
+.lunaria-price {
+  color: var(--brand-green-700);
+  font-weight: 800;
+  letter-spacing: .1px;
+}
+
+/* Títulos compactos y legibles */
+.lunaria-title {
+  font-weight: 700;
+  letter-spacing: .2px;
+  color: var(--brand-ink);
+}
+
+/* Sutil divider entre info y CTA */
+.lunaria-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(2,6,23,.08), transparent);
+  margin: .5rem 0;
+}
+
+/* Hover de CTA negro (coherente con el tema actual) */
+.lunaria-cta {
+  background: #0b0f19;
+  color: #fff;
+  border-radius: .75rem;
+  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+}
+.lunaria-cta:hover {
+  transform: translateY(-1px);
+  background: #111827;
+  box-shadow: 0 10px 24px rgba(17,24,39,.22);
+}
+
+/* Etiquetas sobre tiles de categorías: centradas y legibles */
+.lunaria-cat-chip {
+  position: absolute;
+  left: 50%;
+  bottom: .9rem;
+  transform: translateX(-50%);
+  z-index: 2;
+  backdrop-filter: saturate(120%) blur(4px);
+}
+.lunaria-cat-chip .icon {
+  display: inline-block;
+  width: 1rem; height: 1rem;
+}
+
+/* Pequeño efecto parallax óptico al pasar el mouse */
+.lunaria-tilt:hover { transform: perspective(900px) translateZ(0) rotateX(.6deg) rotateY(.6deg); }
+
+/* Animación de aparición para grids */
+.lunaria-grid-in > * {
+  animation: lunaria-fade-in-up .35s ease both;
+}
+.lunaria-grid-in > *:nth-child(2) { animation-delay: .02s; }
+.lunaria-grid-in > *:nth-child(3) { animation-delay: .04s; }
+.lunaria-grid-in > *:nth-child(4) { animation-delay: .06s; }
+.lunaria-grid-in > *:nth-child(5) { animation-delay: .08s; }
+.lunaria-grid-in > *:nth-child(6) { animation-delay: .10s; }
+
+/* Hero CTA: asegura el mismo verde global */
+.lunaria-hero-cta {
+  background-color: var(--brand-green) !important;
+}
+.lunaria-hero-cta:hover {
+  background-color: var(--brand-green-700) !important;
+}
+
+/* Protección por si el texto de categorías queda oscuro sobre imágenes */
+.lunaria-text-shadow {
+  text-shadow: 0 1px 8px rgba(0,0,0,.35), 0 0 1px rgba(0,0,0,.6);
+}
+
+/* === /LUNARIA: visual-pack-level4 === */
