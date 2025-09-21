@@ -5,7 +5,7 @@ export const CATEGORIAS: { slug: CategoriaSlug; nombre: string; descripcion?: st
   { slug:'tecnologia', nombre:'Tecnología' },
   { slug:'bienestar', nombre:'Bienestar' },
   { slug:'eco', nombre:'Eco' },
-  { slug:'mascotas', nombre:'Mascotas' },
+  { image_url: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?q=80&w=1200&auto=format&fit=crop', slug:'mascotas', nombre:'Mascotas' },
 ];
 export const isCategoria = (s: string): s is CategoriaSlug =>
   ['hogar','belleza','tecnologia','bienestar','eco','mascotas'].includes(s);
