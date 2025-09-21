@@ -330,3 +330,9 @@ a[data-cat]:hover, .cat-tile:hover {
 }
 
 /* === /LUNARIA: visual-pack-level4 === */
+
+/* LUNARIA: force light bg */
+:root { color-scheme: light; }
+html.dark, :root[class~="dark"] { color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { color-scheme: light; } }
+body { background:#ffffff !important; color:#0a0a0a; }
