@@ -330,3 +330,14 @@ a[data-cat]:hover, .cat-tile:hover {
 }
 
 /* === /LUNARIA: visual-pack-level4 === */
+
+/* L4 micro */
+:root {
+  --lunaria-green: #3eb489;      /* hero button */
+  --lunaria-green-hover: #36a178;
+}
+.btn-soft {
+  @apply rounded-xl shadow-sm ring-1 ring-black/5 transition;
+}
+.btn-soft:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,0,0,.08); }
+.btn-soft:active { transform: translateY(0); }
