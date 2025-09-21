@@ -1,20 +1,22 @@
+import React from "react";
+
 export default function TrustStrip() {
   const items = [
-    { icon: "🚚", text: "Envío rápido" },
-    { icon: "🔒", text: "Pago seguro" },
-    { icon: "⭐", text: "Clientes felices" },
-    { icon: "↩️", text: "Devoluciones fáciles" },
+    "🚚 Envíos rápidos",
+    "💳 Pagos seguros",
+    "🔄 Devoluciones 7 días",
+    "⭐ Productos bien evaluados",
+    "📦 Empaque responsable",
   ];
   return (
-    <section className="mt-10">
-      <ul className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {items.map((it, i) => (
-          <li key={i} className="rounded-2xl border bg-white shadow-sm px-4 py-3 flex items-center gap-2">
-            <span className="text-lg">{it.icon}</span>
-            <span className="font-semibold text-gray-800">{it.text}</span>
-          </li>
-        ))}
-      </ul>
+    <section aria-label="Confianza" className="lunaria-zoom">
+      <div className="lunaria-marquee py-3 border-y bg-white/70 dark:bg-neutral-900/50">
+        <div className="track">
+          {items.concat(items).map((t, i) => (
+            <span key={i} className="text-sm text-neutral-600 dark:text-neutral-300">{t}</span>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

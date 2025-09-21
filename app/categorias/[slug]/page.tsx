@@ -1,72 +1,56 @@
 import "server-only";
 import { notFound } from "next/navigation";
 import ProductListClient from "@/components/ProductListClient";
-import { createClient } from "@supabase/supabase-js";
+import { productos } from "@/lib/products";
+import { getAllCategorySlugs, getCategoriaBySlug } from "@/lib/categorias";
 
-// Mapa mínimo para títulos/desc
-const CATS: Record<string,{nombre:string, descripcion:string}> = {
-  hogar: { nombre: "Hogar", descripcion: "Cosas prácticas para tu casa" },
-  belleza: { nombre: "Belleza", descripcion: "Cuidado personal y maquillaje" },
-  tecnologia: { nombre: "Tecnología", descripcion: "Gadgets y accesorios" },
-  bienestar: { nombre: "Bienestar", descripcion: "Fitness, descanso y salud" },
-  eco: { nombre: "Eco", descripcion: "Opciones reutilizables y sustentables" },
-  mascotas: { nombre: "Mascotas", descripcion: "Para tus compañeros peludos" },
-};
+// Normaliza strings (mantener comportamiento original)
+function normalizeCat(s: string) {
+  return (s || "").toLowerCase()
+    .normalize("NFD").replace(/\p{Diacritic}/gu,"")
+    .replace(/\s+/g," ").trim();
+}
+export const dynamic = "force-static";
 
-type Producto = {
-  id: string;
-  nombre: string;
-  precio?: number | null;
-  imagen?: string | null;
-  imagen_url?: string | null;
-  image_url?: string | null;
-  image?: string | null;
-  envio?: string | null;
-  destacado?: boolean | null;
-  categoria?: string | null;
-  categoria_slug?: string | null;
-};
-
-export const dynamic = "force-dynamic"; // para evitar cache terco en previews
+export async function generateStaticParams() {
+  return getAllCategorySlugs().map(slug => ({ slug }));
+}
+export const metadata = { title: "Categoría" };
 
 export default async function CategoriaPage({ params }: { params: { slug: string } }) {
-  const slug = (params?.slug || "").toLowerCase();
-  const cat = CATS[slug];
+  const cat = getCategoriaBySlug(params.slug);
   if (!cat) return notFound();
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  if (!url || !anon) {
-    // Falla segura (mejor que "1 item sin imagen")
-    return (
-      <section className="space-y-6 lnr-appear">
-        <h1 className="text-2xl font-bold">{cat.nombre}</h1>
-        <p className="text-gray-600">{cat.descripcion}</p>
-        <p className="text-red-600">Faltan variables de entorno de Supabase.</p>
-      </section>
-    );
+  const nNombre = normalizeCat(cat.nombre);
+  const nSlug = normalizeCat((cat as any).slug ?? "");
+  let lista = productos.filter((p:any) => {
+    const nCat = normalizeCat(p.categoria);
+    return nCat === nNombre || nCat === nSlug;
+  }).slice(0,12);
+
+  if (lista.length === 0) {
+    lista = productos.filter((p:any) => {
+      const h = `${p.categoria||""} ${p.nombre||""}`.toLowerCase();
+      return h.includes(nNombre) || (nSlug && h.includes(nSlug));
+    }).slice(0,12);
   }
 
-  const supa = createClient(url, anon, { auth: { persistSession: false } });
-  const { data, error } = await supa
-    .from("productos")
-    .select("*")
-    .eq("categoria_slug", slug)
-    .order("id", { ascending: true })
-    .limit(12);
-
-  if (error) {
-    console.error("Supabase error:", error);
-  }
-
-  const items: Producto[] = Array.isArray(data) ? data : [];
   return (
-    <section className="space-y-6 lnr-appear">
+    <section className="space-y-6">
+      <nav className="text-sm text-neutral-500">
+        <a href="/" className="hover:underline">Inicio</a>
+        <span className="mx-2">›</span>
+        <a href="/categorias" className="hover:underline">Categorías</a>
+        <span className="mx-2">›</span>
+        <span className="text-neutral-800 dark:text-neutral-200">{cat.nombre}</span>
+      </nav>
+
       <div>
         <h1 className="text-2xl font-bold">{cat.nombre}</h1>
         <p className="text-gray-600">{cat.descripcion}</p>
       </div>
-      <ProductListClient items={items} />
+
+      <ProductListClient items={lista} />
     </section>
   );
 }

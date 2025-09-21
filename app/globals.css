@@ -2,331 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-gray-50 text-gray-900 antialiased;
-  font-family: 'Inter', sans-serif;
+/* ---------- Animaciones suaves ---------- */
+@keyframes lunaria-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes lunaria-zoom-in {
+  from { transform: scale(1.02); opacity: .0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes lunaria-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes lunaria-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-h1,h2,h3,h4,h5,h6 {
-  @apply font-bold text-gray-900;
+.lunaria-enter {
+  animation: lunaria-fade-in .4s ease-out both;
+}
+.lunaria-zoom {
+  animation: lunaria-zoom-in .45s ease-out both;
 }
 
-a {
-  @apply text-emerald-700 hover:text-emerald-800 transition;
-}
-
-/* === LUNARIA: nivel1-estetica === */
-/* Tipografías modernas sin tocar componentes: Inter (texto) + Poppins (titulares) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap');
-
-:root {
-  /* Paleta discreta y consistente (ajustable si ya usas Tailwind theming) */
-  --brand: #16a34a;         /* verde acción */
-  --brand-600: #16a34a;
-  --brand-700: #15803d;
-  --ink: #0f172a;           /* slate-900 */
-  --muted: #475569;         /* slate-600 */
-  --card: #ffffff;
-  --card-border: #e5e7eb;
-  --shadow: 0 8px 24px rgba(0,0,0,.06);
-  --shadow-lg: 0 12px 32px rgba(0,0,0,.10);
-}
-
-html, body {
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  color: var(--ink);
-}
-
-h1, h2, .hero-title, .section-title {
-  font-family: Poppins, Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  letter-spacing: -0.01em;
-}
-
-/* Header pegado con fondo traslúcido y blur */
-header, .site-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(255,255,255,0.7);
-  backdrop-filter: saturate(1.2) blur(8px);
-  border-bottom: 1px solid rgba(0,0,0,0.04);
-}
-
-/* Tarjetas (ProductListClient/ProductCard) — sombras y micro-animación */
-.border.rounded-2xl,
-.border.rounded-xl,
-.card,
-li.border.rounded-2xl,
-div.border.rounded-2xl {
-  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-  will-change: transform;
-  border-color: var(--card-border);
-}
-
-.border.rounded-2xl:hover,
-.border.rounded-xl:hover,
-.card:hover,
-li.border.rounded-2xl:hover,
-div.border.rounded-2xl:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
-  border-color: rgba(0,0,0,0.06);
-}
-
-/* Imagen dentro de la tarjeta: sutil zoom al hover */
-.border.rounded-2xl .object-cover,
-.border.rounded-xl .object-cover,
-.card .object-cover {
-  transition: transform .35s ease;
-}
-
-.border.rounded-2xl:hover .object-cover,
-.border.rounded-xl:hover .object-cover,
-.card:hover .object-cover {
-  transform: scale(1.03);
-}
-
-/* Botones principales: color consistente y feedback */
-button,
-a.button,
-.btn,
-[class*="bg-lime-600"],
-[class*="bg-green-600"] {
-  transition: background-color .15s ease, box-shadow .15s ease, transform .15s ease;
-}
-
-button:hover,
-a.button:hover,
-.btn:hover,
-[class*="bg-lime-600"]:hover,
-[class*="bg-green-600"]:hover {
-  filter: brightness(0.98);
-  box-shadow: 0 6px 16px rgba(22,163,74,0.18);
-}
-
-button:active,
-a.button:active,
-.btn:active {
-  transform: translateY(1px);
-}
-
-/* Links de categorías (tiles) — resalte al hover */
-a[data-cat], .cat-tile {
-  transition: transform .18s ease, box-shadow .18s ease;
-}
-
-a[data-cat]:hover, .cat-tile:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
-}
-
-/* Fajas de confianza: mejor legibilidad */
-.trust-strip, .trust-belt, .features-row {
-  color: var(--muted);
-}
-
-/* Fin nivel1-estetica */
-
-/* === Nivel 3 Visual: Animaciones y helpers === */
-@keyframes lnr-fade-up {
-  0% { opacity: 0; transform: translateY(10px) scale(.98); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes lnr-fade-in {
-  0% { opacity: 0 }
-  100% { opacity: 1 }
-}
-@keyframes lnr-shine {
-  0% { transform: translateX(-150%) }
-  100% { transform: translateX(150%) }
-}
-.lnr-appear { animation: lnr-fade-up .5s ease-out both; }
-.lnr-appear-slow { animation: lnr-fade-up .7s ease-out both; }
-.lnr-appear-delay { animation-delay: .12s }
-.lnr-appear-delay-lg { animation-delay: .2s }
-
-.card-3d {
-  transition: transform .25s ease, box-shadow .25s ease;
-  will-change: transform;
-}
-.card-3d:hover {
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 12px 30px -12px rgb(0 0 0 / .25);
-}
-.img-zoom {
-  transform: scale(1.02);
-  transition: transform .5s ease, filter .5s ease;
-}
-.group:hover .img-zoom { transform: scale(1.08); }
-
-.lnr-overlay-grad {
-  background: linear-gradient(180deg, rgba(0,0,0,.0) 30%, rgba(0,0,0,.35) 75%, rgba(0,0,0,.55) 100%);
-}
-
-.lnr-shimmer {
-  position: relative;
+.lunaria-marquee {
+  --marquee-speed: 18s;
+  display: flex;
+  white-space: nowrap;
   overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }
-.lnr-shimmer::after {
-  content: "";
-  position: absolute; inset: 0;
-  transform: translateX(-150%);
-  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.18) 45%, rgba(255,255,255,0) 70%);
-  animation: lnr-shine 1.25s ease-in-out infinite;
-}
-
-.badge-pill {
-  border-radius: 9999px;
-  padding: .35rem .6rem;
-  font-weight: 600;
-  font-size: .8rem;
-}
-
-/* Botón verde consistente con “Explorar categorías” */
-.btn-brand {
-  @apply inline-flex items-center gap-2 rounded-xl bg-lime-600 text-white px-3 py-2 hover:bg-lime-700 transition;
-}
-
-/* Etiqueta en tiles de categorías */
-.cat-chip {
-  @apply inline-flex items-center gap-2 rounded-xl bg-lime-600/95 text-white px-3 py-1.5 shadow-md;
-}
-
-/* === LUNARIA: visual-pack-level4 (do not remove) === */
-/* Paleta y tokens */
-:root {
-  /* mismo verde que usamos en el Hero (lime-600 aprox) */
-  --brand-green: #65a30d;
-  --brand-green-600: #65a30d;
-  --brand-green-700: #4d7c0f;
-  --brand-ink: #0b0f19;
-  --card-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-  --card-shadow-hover: 0 16px 40px rgba(15, 23, 42, 0.12);
-}
-
-/* Micro-animaciones base */
-@keyframes lunaria-fade-in-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Botón/etiqueta de marca (para sobre-imagen o badges) */
-.lunaria-btn,
-.badge-brand {
+.lunaria-marquee > .track {
   display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  padding: .45rem .8rem;
-  font-weight: 600;
-  border-radius: 9999px;
-  color: #fff;
-  background-color: var(--brand-green);
-  box-shadow: 0 4px 16px rgba(101,163,13,.25);
-  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
-}
-.lunaria-btn:hover,
-.badge-brand:hover {
-  transform: translateY(-1px);
-  background-color: var(--brand-green-700);
-  box-shadow: 0 8px 24px rgba(101,163,13,.35);
+  gap: 2rem;
+  padding-inline: 1rem;
+  animation: lunaria-marquee var(--marquee-speed) linear infinite;
 }
 
-/* Cards genéricas (product tiles, etc.) */
-:where(.grid) :where(.border.rounded-2xl) {
-  border-color: rgba(2,6,23,.06); /* slate-950/6 */
-  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
-  box-shadow: var(--card-shadow);
-  background: #fff;
-}
-:where(.grid) :where(.border.rounded-2xl):hover {
-  transform: translateY(-2px);
-  box-shadow: var(--card-shadow-hover);
-  border-color: rgba(2,6,23,.10);
+/* ---------- Shimmer skeleton ---------- */
+.skeleton {
+  position: relative;
+  background: linear-gradient(90deg, #efefef 25%, #f7f7f7 37%, #efefef 63%);
+  background-size: 400% 100%;
+  animation: lunaria-shimmer 1.2s ease-in-out infinite;
 }
 
-/* Imágenes en grillas 4:3 con zoom suave al hover */
-:where(.aspect-\[4\/3\]) img,
-:where(.aspect-\[4\/3\]) .object-cover {
-  transition: transform .35s ease, filter .35s ease;
-  will-change: transform;
+/* ---------- Botones/etiquetas coherentes ---------- */
+.btn-brand {
+  @apply bg-lime-600 text-white rounded-xl px-4 py-2 font-semibold shadow hover:bg-lime-700 transition;
 }
-:where(li,div).border.rounded-2xl:hover :where(.aspect-\[4\/3\]) img,
-:where(li,div).border.rounded-2xl:hover :where(.aspect-\[4\/3\]) .object-cover {
-  transform: scale(1.03);
+.badge-brand {
+  @apply inline-flex items-center gap-2 bg-lime-600 text-white text-sm px-3 py-1.5 rounded-full shadow;
 }
-
-/* Precio destacado y tipografía suave */
-.lunaria-price {
-  color: var(--brand-green-700);
-  font-weight: 800;
-  letter-spacing: .1px;
+.card {
+  @apply border rounded-2xl shadow-sm hover:shadow-md transition bg-white/90 dark:bg-neutral-900/60;
 }
-
-/* Títulos compactos y legibles */
-.lunaria-title {
-  font-weight: 700;
-  letter-spacing: .2px;
-  color: var(--brand-ink);
+.card-media {
+  @apply relative overflow-hidden rounded-xl bg-gray-100 dark:bg-neutral-800;
+}
+.card-media img {
+  @apply w-full h-full object-cover transition-transform duration-300;
+}
+.card:hover .card-media img {
+  @apply scale-105;
 }
 
-/* Sutil divider entre info y CTA */
-.lunaria-divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(2,6,23,.08), transparent);
-  margin: .5rem 0;
+/* ---------- Dark mode (toggle) ---------- */
+:root {
+  color-scheme: light;
 }
-
-/* Hover de CTA negro (coherente con el tema actual) */
-.lunaria-cta {
-  background: #0b0f19;
-  color: #fff;
-  border-radius: .75rem;
-  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+.dark {
+  color-scheme: dark;
 }
-.lunaria-cta:hover {
-  transform: translateY(-1px);
-  background: #111827;
-  box-shadow: 0 10px 24px rgba(17,24,39,.22);
-}
-
-/* Etiquetas sobre tiles de categorías: centradas y legibles */
-.lunaria-cat-chip {
-  position: absolute;
-  left: 50%;
-  bottom: .9rem;
-  transform: translateX(-50%);
-  z-index: 2;
-  backdrop-filter: saturate(120%) blur(4px);
-}
-.lunaria-cat-chip .icon {
-  display: inline-block;
-  width: 1rem; height: 1rem;
-}
-
-/* Pequeño efecto parallax óptico al pasar el mouse */
-.lunaria-tilt:hover { transform: perspective(900px) translateZ(0) rotateX(.6deg) rotateY(.6deg); }
-
-/* Animación de aparición para grids */
-.lunaria-grid-in > * {
-  animation: lunaria-fade-in-up .35s ease both;
-}
-.lunaria-grid-in > *:nth-child(2) { animation-delay: .02s; }
-.lunaria-grid-in > *:nth-child(3) { animation-delay: .04s; }
-.lunaria-grid-in > *:nth-child(4) { animation-delay: .06s; }
-.lunaria-grid-in > *:nth-child(5) { animation-delay: .08s; }
-.lunaria-grid-in > *:nth-child(6) { animation-delay: .10s; }
-
-/* Hero CTA: asegura el mismo verde global */
-.lunaria-hero-cta {
-  background-color: var(--brand-green) !important;
-}
-.lunaria-hero-cta:hover {
-  background-color: var(--brand-green-700) !important;
-}
-
-/* Protección por si el texto de categorías queda oscuro sobre imágenes */
-.lunaria-text-shadow {
-  text-shadow: 0 1px 8px rgba(0,0,0,.35), 0 0 1px rgba(0,0,0,.6);
-}
-
-/* === /LUNARIA: visual-pack-level4 === */
+.dark .card { @apply bg-neutral-900/60; }
+.dark body { @apply bg-neutral-950 text-neutral-100; }
