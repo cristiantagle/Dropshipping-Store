@@ -126,3 +126,68 @@ a[data-cat]:hover, .cat-tile:hover {
 }
 
 /* Fin nivel1-estetica */
+
+/* === Nivel 3 Visual: Animaciones y helpers === */
+@keyframes lnr-fade-up {
+  0% { opacity: 0; transform: translateY(10px) scale(.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes lnr-fade-in {
+  0% { opacity: 0 }
+  100% { opacity: 1 }
+}
+@keyframes lnr-shine {
+  0% { transform: translateX(-150%) }
+  100% { transform: translateX(150%) }
+}
+.lnr-appear { animation: lnr-fade-up .5s ease-out both; }
+.lnr-appear-slow { animation: lnr-fade-up .7s ease-out both; }
+.lnr-appear-delay { animation-delay: .12s }
+.lnr-appear-delay-lg { animation-delay: .2s }
+
+.card-3d {
+  transition: transform .25s ease, box-shadow .25s ease;
+  will-change: transform;
+}
+.card-3d:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 12px 30px -12px rgb(0 0 0 / .25);
+}
+.img-zoom {
+  transform: scale(1.02);
+  transition: transform .5s ease, filter .5s ease;
+}
+.group:hover .img-zoom { transform: scale(1.08); }
+
+.lnr-overlay-grad {
+  background: linear-gradient(180deg, rgba(0,0,0,.0) 30%, rgba(0,0,0,.35) 75%, rgba(0,0,0,.55) 100%);
+}
+
+.lnr-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.lnr-shimmer::after {
+  content: "";
+  position: absolute; inset: 0;
+  transform: translateX(-150%);
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.18) 45%, rgba(255,255,255,0) 70%);
+  animation: lnr-shine 1.25s ease-in-out infinite;
+}
+
+.badge-pill {
+  border-radius: 9999px;
+  padding: .35rem .6rem;
+  font-weight: 600;
+  font-size: .8rem;
+}
+
+/* Botón verde consistente con “Explorar categorías” */
+.btn-brand {
+  @apply inline-flex items-center gap-2 rounded-xl bg-lime-600 text-white px-3 py-2 hover:bg-lime-700 transition;
+}
+
+/* Etiqueta en tiles de categorías */
+.cat-chip {
+  @apply inline-flex items-center gap-2 rounded-xl bg-lime-600/95 text-white px-3 py-1.5 shadow-md;
+}
