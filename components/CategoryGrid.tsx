@@ -14,25 +14,25 @@ const CAT_IMAGES: Record<string, string> = {
 
 export default function CategoryGrid() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+    <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
       {CATEGORIAS.map((cat) => (
-        <Link
+        <Link data-cat-tile 
           key={cat.slug}
           href={`/categorias/${cat.slug}`}
-          className="group relative block rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition bg-white"
+          className="relative group relative block rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition bg-white"
         >
           <div className="relative w-full h-48">
             <Image
               src={CAT_IMAGES[cat.slug] || "/placeholder.png"}
               alt={cat.nombre}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              className="relative object-cover group-hover:scale-105 transition-transform duration-300"
             />
           </div>
-          <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition"></div>
-          <div className="absolute bottom-0 left-0 p-4 text-white">
-            <h3 className="text-lg font-bold drop-shadow">{cat.nombre}</h3>
-            <p className="text-sm opacity-90 drop-shadow">
+          <div className="relative absolute inset-0 bg-black/30 group-hover:bg-black/40 transition"></div>
+          <div className="relative absolute bottom-0 left-0 p-4 text-white">
+            <h3 className="cat-title relative text-lg font-bold drop-shadow">{cat.nombre}</h3>
+            <p className="relative text-sm opacity-90 drop-shadow">
               {cat.descripcion ?? "Explora lo mejor en esta categoría"}
             </p>
           </div>

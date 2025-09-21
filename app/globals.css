@@ -126,3 +126,51 @@ a[data-cat]:hover, .cat-tile:hover {
 }
 
 /* Fin nivel1-estetica */
+
+/* == CAT_TILE_OVERLAY_START == */
+/* Tarjetas de categorías: overlay + contraste + accesibilidad */
+[data-cat-tile] {
+  position: relative;
+  isolation: isolate; /* para que el overlay no afecte a otros efectos */
+}
+
+[data-cat-tile]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* gradiente de abajo hacia arriba, suficiente para leer el label */
+  background: linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,.15) 40%, rgba(0,0,0,0) 70%);
+  opacity: 1;
+  transition: opacity .25s ease;
+  z-index: 0;
+  pointer-events: none;
+}
+
+[data-cat-tile]:hover::after,
+[data-cat-tile]:focus-visible::after {
+  /* un poco más oscuro al pasar el mouse o con foco de teclado */
+  background: linear-gradient(to top, rgba(0,0,0,.65), rgba(0,0,0,.25) 40%, rgba(0,0,0,0) 70%);
+}
+
+.cat-title {
+  position: relative;
+  z-index: 1; /* sobre el overlay */
+  color: #fff !important;
+  /* sombra suave para bordes en fondos claros */
+  text-shadow:
+    0 1px 1px rgba(0,0,0,.7),
+    0 2px 8px rgba(0,0,0,.35);
+}
+
+/* Tipografía un poco más robusta para títulos sobre imagen */
+.cat-title {
+  letter-spacing: .2px;
+}
+
+/* Botón o link completo accesible al tab */
+[data-cat-tile]:focus-visible {
+  outline: 2px solid rgba(255,255,255,.9);
+  outline-offset: 3px;
+  border-radius: .75rem; /* si tus tiles tienen rounded-xl, visualmente acompaña */
+}
+/* == CAT_TILE_OVERLAY_END == */
