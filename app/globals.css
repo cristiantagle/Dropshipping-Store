@@ -330,3 +330,9 @@ a[data-cat]:hover, .cat-tile:hover {
 }
 
 /* === /LUNARIA: visual-pack-level4 === */
+
+/* tokens lunaria (idempotente) */
+:root{
+  --lunaria-green:#3eb489;
+  --lunaria-green-hover:#36a178;
+}
