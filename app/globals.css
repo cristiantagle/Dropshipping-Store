@@ -14,3 +14,115 @@ h1,h2,h3,h4,h5,h6 {
 a {
   @apply text-emerald-700 hover:text-emerald-800 transition;
 }
+
+/* === LUNARIA: nivel1-estetica === */
+/* Tipografías modernas sin tocar componentes: Inter (texto) + Poppins (titulares) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap');
+
+:root {
+  /* Paleta discreta y consistente (ajustable si ya usas Tailwind theming) */
+  --brand: #16a34a;         /* verde acción */
+  --brand-600: #16a34a;
+  --brand-700: #15803d;
+  --ink: #0f172a;           /* slate-900 */
+  --muted: #475569;         /* slate-600 */
+  --card: #ffffff;
+  --card-border: #e5e7eb;
+  --shadow: 0 8px 24px rgba(0,0,0,.06);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,.10);
+}
+
+html, body {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  color: var(--ink);
+}
+
+h1, h2, .hero-title, .section-title {
+  font-family: Poppins, Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  letter-spacing: -0.01em;
+}
+
+/* Header pegado con fondo traslúcido y blur */
+header, .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: saturate(1.2) blur(8px);
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+/* Tarjetas (ProductListClient/ProductCard) — sombras y micro-animación */
+.border.rounded-2xl,
+.border.rounded-xl,
+.card,
+li.border.rounded-2xl,
+div.border.rounded-2xl {
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  will-change: transform;
+  border-color: var(--card-border);
+}
+
+.border.rounded-2xl:hover,
+.border.rounded-xl:hover,
+.card:hover,
+li.border.rounded-2xl:hover,
+div.border.rounded-2xl:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+  border-color: rgba(0,0,0,0.06);
+}
+
+/* Imagen dentro de la tarjeta: sutil zoom al hover */
+.border.rounded-2xl .object-cover,
+.border.rounded-xl .object-cover,
+.card .object-cover {
+  transition: transform .35s ease;
+}
+
+.border.rounded-2xl:hover .object-cover,
+.border.rounded-xl:hover .object-cover,
+.card:hover .object-cover {
+  transform: scale(1.03);
+}
+
+/* Botones principales: color consistente y feedback */
+button,
+a.button,
+.btn,
+[class*="bg-lime-600"],
+[class*="bg-green-600"] {
+  transition: background-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+
+button:hover,
+a.button:hover,
+.btn:hover,
+[class*="bg-lime-600"]:hover,
+[class*="bg-green-600"]:hover {
+  filter: brightness(0.98);
+  box-shadow: 0 6px 16px rgba(22,163,74,0.18);
+}
+
+button:active,
+a.button:active,
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* Links de categorías (tiles) — resalte al hover */
+a[data-cat], .cat-tile {
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+a[data-cat]:hover, .cat-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+/* Fajas de confianza: mejor legibilidad */
+.trust-strip, .trust-belt, .features-row {
+  color: var(--muted);
+}
+
+/* Fin nivel1-estetica */
