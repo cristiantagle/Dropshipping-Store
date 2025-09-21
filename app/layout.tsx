@@ -1,37 +1,27 @@
+import type { Metadata } from "next";
 import "./globals.css";
-import PreviewBadge from "../components/PreviewBadge";
-import Link from "next/link";
+import { Inter } from "next/font/google";
 
-export const metadata = {
-  title: "Lunaria — Tienda en Chile",
-  description: "Lunaria: compra fácil, envíos a todo Chile y pagos con Mercado Pago."
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "Lunaria",
+  description: "Tienda simple y bonita",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body>
-        <header className="border-b bg-white/70 backdrop-blur">
-          <div className="container py-4 flex items-center justify-between">
-            <Link href="/" className="font-bold text-xl">Lunaria</Link>
-            <nav className="flex gap-4">
-              <Link href="/" className="hover:underline">Inicio</Link>
-              <Link href="/categorias" className="hover:underline">Categorías</Link>
-              <Link href="/carro" className="hover:underline">Carro</Link>
-            </nav>
-          </div>
-        </header>
-        <main className="container py-8 space-y-10">
+      <body className={`${inter.className} bg-gradient-to-b from-white to-gray-50 text-gray-800`}>
+        <div className="mx-auto max-w-6xl px-4 py-6">
           {children}
-        </main>
-
-        {/* Sello estilo Oretec: solo visible en PREVIEW */}
-        <PreviewBadge />
-        <footer className="border-t">
-          <div className="container py-8 text-sm text-gray-500">
-            © {new Date().getFullYear()} Lunaria · Envíos a todo Chile
-          </div>
-        </footer>
+          <footer className="mt-12 text-sm text-gray-500 flex items-center justify-between border-t pt-6">
+            <span>© {new Date().getFullYear()} Lunaria</span>
+            <a href="/categorias" className="text-emerald-700 hover:text-emerald-800 font-semibold">
+              Explorar categorías →
+            </a>
+          </footer>
+        </div>
       </body>
     </html>
   );
