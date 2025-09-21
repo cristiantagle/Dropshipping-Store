@@ -1,10 +1,20 @@
 export default function TrustStrip() {
+  const items = [
+    { icon: "🚚", text: "Envío rápido" },
+    { icon: "🔒", text: "Pago seguro" },
+    { icon: "⭐", text: "Clientes felices" },
+    { icon: "↩️", text: "Devoluciones fáciles" },
+  ];
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-700">
-      <div className="card p-4 text-center">💳 Pago seguro Mercado Pago</div>
-      <div className="card p-4 text-center">🚚 Envíos a todo Chile</div>
-      <div className="card p-4 text-center">🔄 Cambios simples</div>
-      <div className="card p-4 text-center">⭐ Selección curada</div>
-    </div>
+    <section className="mt-10">
+      <ul className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {items.map((it, i) => (
+          <li key={i} className="rounded-2xl border bg-white shadow-sm px-4 py-3 flex items-center gap-2">
+            <span className="text-lg">{it.icon}</span>
+            <span className="font-semibold text-gray-800">{it.text}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
