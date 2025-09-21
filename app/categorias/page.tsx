@@ -1,25 +1,17 @@
-import Link from "next/link";
-import { CATEGORIAS } from "@/lib/categorias";
+import CategoryGrid from "@/components/CategoryGrid";
 
-export const dynamic = "force-static";
+export const metadata = { title: "Categorías" };
 
 export default function CategoriasPage() {
   return (
-    <section className="space-y-6">
-      <h1 className="text-2xl font-bold">Categorías</h1>
-      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {CATEGORIAS.map(c => (
-          <li key={c.slug} className="border rounded-2xl p-4 hover:bg-gray-50 transition">
-            <h3 className="font-semibold">{c.nombre}</h3>
-            <Link
-              className="inline-block mt-2 text-sm underline"
-              href={`/categorias/${c.slug}`}
-            >
-              Ver {c.nombre}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <main className="space-y-8">
+      <header className="rounded-2xl p-6 md:p-8 bg-gradient-to-br from-lime-50 to-white border border-lime-100 lnr-appear">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Categorías</h1>
+        <p className="text-gray-600 mt-2 max-w-2xl">
+          Encuentra rápido lo que buscas: selecciona una categoría y explora nuestros productos.
+        </p>
+      </header>
+      <CategoryGrid />
+    </main>
   );
 }

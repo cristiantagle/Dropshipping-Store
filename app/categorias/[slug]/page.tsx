@@ -39,7 +39,7 @@ export default async function CategoriaPage({ params }: { params: { slug: string
   if (!url || !anon) {
     // Falla segura (mejor que "1 item sin imagen")
     return (
-      <section className="space-y-6">
+      <section className="space-y-6 lnr-appear">
         <h1 className="text-2xl font-bold">{cat.nombre}</h1>
         <p className="text-gray-600">{cat.descripcion}</p>
         <p className="text-red-600">Faltan variables de entorno de Supabase.</p>
@@ -61,7 +61,7 @@ export default async function CategoriaPage({ params }: { params: { slug: string
 
   const items: Producto[] = Array.isArray(data) ? data : [];
   return (
-    <section className="space-y-6">
+    <section className="space-y-6 lnr-appear">
       <div>
         <h1 className="text-2xl font-bold">{cat.nombre}</h1>
         <p className="text-gray-600">{cat.descripcion}</p>
