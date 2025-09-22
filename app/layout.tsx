@@ -1,4 +1,4 @@
-import Topbar from "@/components/Topbar";
+import Topbar from "@/components/TopBar";
 import type { Metadata } from "next";
 import "./globals.css";
 import BackNav from "@/components/BackNav";
@@ -8,12 +8,10 @@ import FloatingCart from "@/components/FloatingCart";
 import PreviewBadge from "@/components/PreviewBadge";
 
 const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
   title: "Lunaria",
   description: "Tienda simple y bonita",
 };
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
