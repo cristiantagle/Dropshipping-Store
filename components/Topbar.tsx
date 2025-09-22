@@ -1,52 +1,3 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-BR="preview/topbar-global-$(date +%Y%m%d-%H%M%S)"
-echo "🔧 Añadiendo Topbar global (volver + logo + usuario)…"
-git fetch origin --prune
-git checkout -B "$BR" origin/main || git checkout -b "$BR"
-
-# 1) BackButton (inteligente: back o fallback a /)
-mkdir -p components
-cat > components/BackButton.tsx <<'TSX'
-'use client';
-import { useCallback } from "react";
-
-export default function BackButton({
-  fallbackHref = "/",
-  className = "",
-}: { fallbackHref?: string; className?: string }) {
-  const goBack = useCallback(() => {
-    if (typeof window !== "undefined") {
-      try {
-        if (window.history && window.history.length > 1) {
-          window.history.back();
-          return;
-        }
-      } catch {}
-      window.location.href = fallbackHref;
-    }
-  }, [fallbackHref]);
-
-  return (
-    <button
-      type="button"
-      onClick={goBack}
-      className={`inline-flex items-center gap-2 rounded-xl bg-lime-600 px-3 py-2 text-white font-semibold hover:bg-lime-700 transition shadow-sm ${className}`}
-      aria-label="Volver"
-    >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2"
-          strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-      <span>Volver</span>
-    </button>
-  );
-}
-TSX
-
-# 2) Topbar (fija, con espacio de separación para no tapar contenido)
-cat > components/Topbar.tsx <<'TSX'
 'use client';
 import Link from "next/link";
 import BackButton from "./BackButton";
@@ -102,26 +53,3 @@ export default function Topbar() {
     </>
   );
 }
-TSX
-
-# 3) Inyectar Topbar en app/layout.tsx sin romper nada
-#    - Import al inicio
-#    - <Topbar /> justo después de la apertura de <body>
-if [ -f app/layout.tsx ]; then
-  # añade import al principio si no existe ya
-  if ! grep -q 'components/Topbar' app/layout.tsx; then
-    sed -i.bak '1s|^|import Topbar from "@/components/Topbar";\n|' app/layout.tsx
-  fi
-  # inserta <Topbar /> tras <body ...>
-  sed -i.bak -E '0,/<body[^>]*>/s//&\n      <Topbar \/>/' app/layout.tsx
-else
-  echo "❌ No se encontró app/layout.tsx — abortando para no romper nada."
-  exit 1
-fi
-
-git add -A
-git commit -m "feat(ui): Topbar fija global (volver + logo + usuario), consistente con carrito flotante"
-git push -u origin "$BR"
-
-echo "✅ Preview creado en rama: $BR"
-echo "👉 Revisa el preview en Vercel. Si te gusta: di “LUNARIA OK” y te doy el run.sh de merge (solo este commit)."
