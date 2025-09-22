@@ -2,19 +2,17 @@
 import Link from "next/link";
 
 export default function Hero() {
-  // Imagen hero: puedes cambiarla si quieres otro "mood"
   const bg = "url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1920&auto=format&fit=crop')";
   return (
-    <section className="relative h-[52vh] md:h-[64vh] lg:h-[68vh] overflow-hidden rounded-2xl bg-neutral-100">
-      <div className="parallax-root">
+    <section className="relative hero-clip h-[50vh] md:h-[62vh] lg:h-[66vh] bg-neutral-100">
+      <div className="parallax-root h-full">
         <div className="parallax-scene">
           <div
             className="parallax-bg parallax-bg-fixed"
             style={{ backgroundImage: bg }}
             aria-hidden="true"
           />
-          <div className="parallax-fg relative h-full">
-            <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-white/10" />
+          <div className="parallax-fg relative h-full hero-fade">
             <div className="relative z-10 h-full mx-auto max-w-6xl px-4 sm:px-6 flex flex-col items-start justify-end pb-10 md:pb-14">
               <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-neutral-900 drop-shadow-sm">
                 Descubre cosas útiles y bonitas
