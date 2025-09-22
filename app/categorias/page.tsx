@@ -1,3 +1,4 @@
+import Breadcrumbs from "@/components/Breadcrumbs";
 import CategoryGrid from "@/components/CategoryGrid";
 
 export const metadata = { title: "Categorías" };

@@ -740,3 +740,17 @@ html { scroll-behavior: smooth; }
     bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
   }
 }
+
+/* breadcrumbs */
+.breadcrumb-hero {
+  /* separador opcional si se usa sobre fondos */
+  text-shadow: 0 1px 0 rgba(255,255,255,.8);
+}
+
+/* títulos de sección home pro */
+.section-title {
+  @apply text-xl sm:text-2xl font-semibold tracking-tight;
+}
+.section-sub {
+  @apply text-gray-600 text-sm;
+}

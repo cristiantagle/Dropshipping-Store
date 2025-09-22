@@ -1,3 +1,4 @@
+import Breadcrumbs from "@/components/Breadcrumbs";
 import "server-only";
 import { notFound } from "next/navigation";
 import ProductListClient from "@/components/ProductListClient";
