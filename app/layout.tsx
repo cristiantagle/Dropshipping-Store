@@ -1,4 +1,5 @@
 import Topbar from "@/components/Topbar";
+import ClientEffects from "@/components/ClientEffects";
 import type { Metadata } from "next";
 import "./globals.css";
 import BackNav from "@/components/BackNav";
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es">
       <body className={`${inter.className} bg-gradient-to-b from-white to-gray-50 text-gray-800`}>
+      <ClientEffects />
       <Topbar />
         <div className="mx-auto max-w-6xl px-4 py-6">
           {children}
