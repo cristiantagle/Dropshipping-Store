@@ -740,3 +740,13 @@ html { scroll-behavior: smooth; }
     bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
   }
 }
+
+/* back-fab */
+:root {
+  /* Si ya tienes una custom property del verde del botón del hero, úsala.
+     Si no, dejamos este fallback */
+  --brand-green: #16a34a; /* aprox Tailwind green-600 (como tu CTA "Explorar categorías") */
+}
+.back-fab-bg {
+  background: var(--brand-green);
+}
