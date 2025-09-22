@@ -342,3 +342,152 @@ a[data-cat]:hover, .cat-tile:hover {
 [data-testid="floating-cart"]::before {
   content: none !important;
 }
+
+/* ========== Visual Pack Nivel 7–9 (no logic) ========== */
+:root {
+  --lunaria-radius-xl: 1.25rem;
+  --lunaria-shadow-sm: 0 2px 10px rgba(0,0,0,.06);
+  --lunaria-shadow-md: 0 6px 24px rgba(0,0,0,.08);
+  --lunaria-shadow-lg: 0 12px 40px rgba(0,0,0,.12);
+  --lunaria-anim-fast: 180ms;
+  --lunaria-anim-med: 280ms;
+}
+
+/* Tipografía un poco más “retail” */
+html {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tarjetas (categorías y productos) — hover sutil + elevación */
+.grid .border.rounded-2xl,
+.grid .rounded-2xl.border {
+  border-radius: var(--lunaria-radius-xl) !important;
+  box-shadow: var(--lunaria-shadow-sm);
+  transition: transform var(--lunaria-anim-med) ease, box-shadow var(--lunaria-anim-med) ease, filter var(--lunaria-anim-med) ease;
+  will-change: transform, box-shadow, filter;
+  background: #fff;
+}
+
+.grid .border.rounded-2xl:hover,
+.grid .rounded-2xl.border:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--lunaria-shadow-md);
+}
+
+/* Imágenes dentro de tarjetas: zoom y “shine” suave */
+.grid .border.rounded-2xl .bg-gray-100,
+.grid .rounded-2xl.border .bg-gray-100 {
+  overflow: hidden;
+  position: relative;
+}
+
+.grid .border.rounded-2xl img,
+.grid .rounded-2xl.border img {
+  transition: transform var(--lunaria-anim-med) ease, filter var(--lunaria-anim-med) ease;
+  will-change: transform, filter;
+}
+
+.grid .border.rounded-2xl:hover img,
+.grid .rounded-2xl.border:hover img {
+  transform: scale(1.03);
+  filter: saturate(1.05) contrast(1.03);
+}
+
+/* Efecto “shine” diagonal opcional */
+.grid .border.rounded-2xl .bg-gray-100::after,
+.grid .rounded-2xl.border .bg-gray-100::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, rgba(255,255,255,0) 20%, rgba(255,255,255,.18) 45%, rgba(255,255,255,0) 70%);
+  transform: translateX(-120%);
+  transition: transform 700ms ease;
+  pointer-events: none;
+}
+
+@media (hover:hover) {
+  .grid .border.rounded-2xl:hover .bg-gray-100::after,
+  .grid .rounded-2xl.border:hover .bg-gray-100::after {
+    transform: translateX(120%);
+  }
+}
+
+/* Botones primarios coherentes (verde oficial del Hero) */
+:root {
+  --lunaria-green: #16a34a;       /* Tailwind green-600 del botón "Explorar categorías" */
+  --lunaria-green-hover: #15803d; /* green-700 */
+}
+
+.btn-primary,
+button.bg-lime-600,
+a.bg-lime-600 {
+  background-color: var(--lunaria-green) !important;
+  color: #fff !important;
+  border-radius: 0.85rem !important;
+  box-shadow: 0 8px 18px rgba(22,163,74,.22);
+  transition: transform var(--lunaria-anim-fast) ease, box-shadow var(--lunaria-anim-fast) ease, background-color var(--lunaria-anim-fast) ease;
+}
+
+.btn-primary:hover,
+button.bg-lime-600:hover,
+a.bg-lime-600:hover {
+  background-color: var(--lunaria-green-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(21,128,61,.28);
+}
+
+/* Badges / chips (envío, destacado) */
+.badge,
+p.text-sm.text-gray-600 {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .18rem .6rem;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, .08); /* emerald-500/08 */
+  color: #065f46; /* emerald-800 */
+  font-weight: 600;
+}
+
+/* Header/sticky pulido (si existe sticky en tu layout) */
+.sticky-header {
+  backdrop-filter: saturate(1.2) blur(6px);
+  background-color: rgba(255,255,255,.72);
+  box-shadow: 0 2px 12px rgba(0,0,0,.05);
+}
+
+/* Micro animación para iconos (categorías) */
+.category-icon {
+  transition: transform var(--lunaria-anim-fast) ease;
+}
+.category-icon:hover {
+  transform: scale(1.08) rotate(-1deg);
+}
+
+/* CTA en hero: ligero “breathing” */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-cta-breathe {
+    animation: breathe 3.2s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%   { transform: translateY(0) scale(1); box-shadow: var(--lunaria-shadow-md); }
+    50%  { transform: translateY(-1px) scale(1.01); box-shadow: var(--lunaria-shadow-lg); }
+    100% { transform: translateY(0) scale(1); box-shadow: var(--lunaria-shadow-md); }
+  }
+}
+
+/* Sombra fine-grain al mover el mouse (soporte amplio usando :hover) */
+.card-hover:hover {
+  box-shadow: var(--lunaria-shadow-lg);
+}
+
+/* Foco accesible bonito */
+:focus-visible {
+  outline: 3px solid rgba(22,163,74,.45);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* ========== /Visual Pack Nivel 7–9 ========== */
