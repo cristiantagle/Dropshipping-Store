@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import BackNav from "@/components/BackNav";
 import BackToTopGuard from "@/components/BackToTopGuard";
 import { Inter } from "next/font/google";
 import FloatingCart from "@/components/FloatingCart";
@@ -27,7 +28,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </div>
         <FloatingCart />
   <BackToTopGuard />
-    </body>
+      <BackNav />
+</body>
     </html>
   );
 }

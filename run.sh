@@ -1,68 +1,94 @@
 #!/usr/bin/env bash
-# run.sh — Promoción de la rama preview actual a main (con respaldo) [LUNARIA]
-set -Eeuo pipefail
+set -euo pipefail
 
-say(){ printf "\n\033[1;36m%s\033[0m\n" "$*"; }
+BR="preview/restore-backbtn-$(date +%Y%m%d-%H%M%S)"
+echo "🔧 Restaurando botón Volver (BackNav) sin romper nada…"
+echo "🌱 Rama: $BR"
 
-REMOTE="origin"
-TS="$(date +%Y%m%d-%H%M%S)"
+git fetch origin --prune
+git checkout -B "$BR" origin/main || git checkout -b "$BR"
 
-# 1) Detectar rama fuente
-CURRENT="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")"
-if [[ "$CURRENT" != preview/* ]]; then
-  # Intentar tomar la última preview por fecha si no estamos parados en una
-  CANDIDATE="$(git for-each-ref --format='%(refname:short) %(committerdate:iso)' --sort=-committerdate refs/heads/preview/ | awk 'NR==1{print $1}')"
-  if [[ -z "${CANDIDATE:-}" ]]; then
-    echo "❌ No se encontró ninguna rama preview/*. Párete en la rama preview a promover y vuelve a correr."
-    exit 1
-  fi
-  CURRENT="$CANDIDATE"
-fi
+mkdir -p components
+cat > components/BackNav.tsx <<'TSX'
+'use client';
 
-say "🔎 Rama a promover: $CURRENT"
+import { useRouter, usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-# 2) Guardar cambios locales (si los hay)
-say "💾 Stash/commit WIP si hay cambios…"
-if ! git diff --quiet || ! git diff --cached --quiet; then
-  git add -A || true
-  git commit -m "WIP: autosave antes de promover $CURRENT ($TS)" || true
-fi
+export default function BackNav() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [canGoBack, setCanGoBack] = useState(false);
 
-# 3) Asegurar identidad git mínima
-git config user.email >/dev/null 2>&1 || git config user.email "bot@local"
-git config user.name  >/dev/null 2>&1 || git config user.name  "Automation Bot"
+  if (pathname === '/') return null;
 
-# 4) Actualizar main
-say "🌿 Checkout main (crear si no existe) y actualizar…"
-git checkout main >/dev/null 2>&1 || git checkout -b main
-git fetch "$REMOTE" --prune >/dev/null 2>&1 || true
-git merge --ff-only "refs/remotes/$REMOTE/main" >/dev/null 2>&1 || true
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCanGoBack(window.history.length > 1);
+    }
+  }, [pathname]);
 
-# 5) Respaldo
-BACKUP="legacy/backup-before-promote-${TS}"
-say "🛟 Creando respaldo ${BACKUP} desde main…"
-git branch -f "$BACKUP" main
-git push -u "$REMOTE" "$BACKUP" >/dev/null 2>&1 || true
+  const onClick = () => {
+    if (canGoBack) router.back();
+    else router.push('/categorias');
+  };
 
-# 6) Merge no-ff de la preview → main
-say "🔀 Haciendo merge no-ff de ${CURRENT} → main…"
-git merge --no-ff "$CURRENT" -m "merge: promote ${CURRENT} → main [LUNARIA]" || {
-  echo "❌ Conflictos en merge. Resuélvelos y vuelve a correr."
-  exit 1
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="Volver"
+      className="fixed top-20 left-4 z-[60] inline-flex items-center gap-2 rounded-full bg-lime-600 text-white px-4 py-2 shadow-lg hover:bg-lime-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-500/60"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" className="-ml-1">
+        <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      <span className="hidden sm:inline">Volver</span>
+    </button>
+  );
 }
+TSX
 
-# 7) Asegurar que .next no quede trackeado
-say "🧹 Asegurando que .next no quede en el índice…"
-echo -e "\n# Next build\n.next/" >> .gitignore || true
-git rm -r --cached .next >/dev/null 2>&1 || true
+LAYOUT="app/layout.tsx"
+if [ ! -f "$LAYOUT" ]; then
+  echo "❌ No encuentro $LAYOUT"
+  exit 1
+fi
 
-# 8) Push a main
-say "🚀 Push a origin/main…"
-git push "$REMOTE" main
+python3 - <<'PY'
+from pathlib import Path
+p = Path("app/layout.tsx")
+src = p.read_text(encoding="utf-8")
 
-# 9) Info final
-REPO_URL="$(git remote get-url "$REMOTE" | sed -E 's#(git@|https://)github.com[:/]{1}([^/]+/[^/.]+).*#https://github.com/\2#')"
-echo
-echo "✅ Promoción lista: ${CURRENT} → main"
-echo "🔗 Repo: ${REPO_URL}"
-echo "📝 Si Vercel está apuntado a main, desplegará producción automáticamente."
+# 1) Import BackNav tras import "./globals.css";
+if 'BackNav' not in src:
+    lines = src.splitlines()
+    out = []
+    inserted_import = False
+    for i, line in enumerate(lines):
+        out.append(line)
+        if not inserted_import and line.strip() == 'import "./globals.css";':
+            out.append('import BackNav from "@/components/BackNav";')
+            inserted_import = True
+    if not inserted_import:
+        # fallback: al inicio después de la primera línea de imports
+        out.insert(1, 'import BackNav from "@/components/BackNav";')
+    src = "\n".join(out)
+
+# 2) Insertar <BackNav /> antes de </body>
+if '<BackNav />' not in src:
+    idx = src.rfind("</body>")
+    if idx != -1:
+        src = src[:idx] + "  <BackNav />\n" + src[idx:]
+    else:
+        src = src + "\n  <BackNav />\n"
+
+Path("app/layout.tsx").write_text(src, encoding="utf-8")
+PY
+
+git add -A
+git commit -m "feat(ui): BackNav global (botón Volver flotante; no interfiere con FloatingCart)"
+git push -u origin "$BR"
+
+echo "✅ Preview listo en Vercel para $BR"
+echo "👉 Revisa. Cuando digas “LUNARIA OK”, te paso el script de merge a main."
