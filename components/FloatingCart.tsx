@@ -36,8 +36,7 @@ export default function FloatingCart() {
       <Link
         href="/carro"
         aria-label="Ir al carro"
-        className="group relative inline-flex items-center gap-2 rounded-full px-4 py-3 text-white shadow-lg transition
-                   bg-[var(--lunaria-green,#3eb489)] hover:bg-[var(--lunaria-green-hover,#36a178)]"
+        className="group relative inline-flex items-center gap-2 hidden"
         prefetch
       >
         {/* Icono carrito */}
@@ -49,7 +48,7 @@ export default function FloatingCart() {
         </svg>
         <span className="text-sm font-semibold">Carro</span>
         {/* Badge */}
-        <span className="absolute -top-2 -right-2 min-w-[1.75rem] rounded-full bg-black/90 px-2 py-1 text-center text-xs font-bold">
+        <span className="absolute -top-2 -right-2 min-w-[1.75rem] hidden">
           {count}
         </span>
       </Link>
