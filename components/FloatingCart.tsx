@@ -1,58 +1,53 @@
-'use client';
+"use client";
+import React from "react";
 
-import React from 'react';
-import Link from 'next/link';
+const LUNARIA_GREEN = "#2bb673";
 
-function readCount(): number {
+function getCount(): number {
+  if (typeof window === "undefined") return 0;
   try {
-    const raw = localStorage.getItem('carro') || '[]';
+    const raw = localStorage.getItem("carro") || "[]";
     const arr = JSON.parse(raw);
     return Array.isArray(arr) ? arr.length : 0;
-  } catch {
-    return 0;
-  }
+  } catch { return 0; }
 }
 
 export default function FloatingCart() {
-  const [count, setCount] = React.useState<number>(0);
+  const [count, setCount] = React.useState(0);
 
   React.useEffect(() => {
-    setCount(readCount());
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === 'carro') setCount(readCount());
-    };
-    window.addEventListener('storage', onStorage);
-    // parche simple: refrescar al volver de otra pestaña
-    const onFocus = () => setCount(readCount());
-    window.addEventListener('focus', onFocus);
+    setCount(getCount());
+    const onStorage = (e: StorageEvent) => { if (e.key === "carro") setCount(getCount()); };
+    const onCustom = () => setCount(getCount());
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("carro:updated", onCustom as EventListener);
     return () => {
-      window.removeEventListener('storage', onStorage);
-      window.removeEventListener('focus', onFocus);
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("carro:updated", onCustom as EventListener);
     };
   }, []);
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      <Link
-        href="/carro"
-        aria-label="Ir al carro"
-        className="group relative inline-flex items-center gap-2 rounded-full px-4 py-3 text-white shadow-lg transition
-                   bg-[var(--lunaria-green,#3eb489)] hover:bg-[var(--lunaria-green-hover,#36a178)]"
-        prefetch
-      >
-        {/* Icono carrito */}
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-             className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8">
-          <path d="M3 3h2l.4 2M7 13h9l3-7H6.4" strokeLinecap="round" strokeLinejoin="round"/>
-          <circle cx="9" cy="19" r="1.7"/>
-          <circle cx="17" cy="19" r="1.7"/>
-        </svg>
-        <span className="text-sm font-semibold">Carro</span>
-        {/* Badge */}
-        <span className="absolute -top-2 -right-2 min-w-[1.75rem] rounded-full bg-black/90 px-2 py-1 text-center text-xs font-bold">
+    <button
+      aria-label="Abrir carro"
+      onClick={() => (window.location.href = "/carro")}
+      className="fixed bottom-4 right-4 z-[9990] w-14 h-14 rounded-full shadow-lg border border-emerald-600/20 transition-transform hover:scale-105 active:scale-95"
+      style={{ background: `linear-gradient(180deg, ${LUNARIA_GREEN} 0%, #23a765 100%)`, WebkitTapHighlightColor: "transparent" }}
+      data-testid="floating-cart"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 mx-auto text-white drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path strokeWidth="2" d="M3 3h2l.4 2M7 13h10l2-7H6.4M7 13l-1.3 5H19M7 13l-1.6-6M10 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm8 21a1 1 0 1 0 .001-2.001A1 1 0 0 0 18 21Z"/>
+      </svg>
+      {count > 0 && (
+        <span
+          className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full text-[11px] font-semibold text-white ring-2 ring-white flex items-center justify-center shadow"
+          style={{ backgroundColor: LUNARIA_GREEN }}
+          aria-label={`Productos en el carro: ${count}`}
+          data-testid="cart-badge"
+        >
           {count}
         </span>
-      </Link>
-    </div>
+      )}
+    </button>
   );
 }
