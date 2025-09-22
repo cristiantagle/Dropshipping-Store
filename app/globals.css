@@ -754,3 +754,19 @@ html { scroll-behavior: smooth; }
 .section-sub {
   @apply text-gray-600 text-sm;
 }
+
+/* PARALLAX UTILITIES */
+.parallax-root { perspective: 1000px; }
+.parallax-scene { transform-style: preserve-3d; height: 100%; position: relative; }
+.parallax-bg {
+  position: absolute; inset: 0;
+  background-position: center; background-size: cover; background-repeat: no-repeat;
+  transform: translateZ(-300px) scale(1.35);
+  will-change: transform;
+  filter: saturate(105%) contrast(102%);
+}
+.parallax-fg { position: relative; z-index: 1; }
+@media (min-width: 768px) {
+  /* Fallback extra suave por si el navegador ignora 3D: */
+  .parallax-bg-fixed { background-attachment: fixed; }
+}

@@ -1,127 +1,90 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BR="preview/topbar-global-$(date +%Y%m%d-%H%M%S)"
-echo "🔧 Añadiendo Topbar global (volver + logo + usuario)…"
+BR="preview/fix-hero-parallax-$(date +%Y%m%d-%H%M%S)"
+echo "🌄 Restaurando Hero con parallax (compatible con Topbar)…"
 git fetch origin --prune
 git checkout -B "$BR" origin/main || git checkout -b "$BR"
 
-# 1) BackButton (inteligente: back o fallback a /)
-mkdir -p components
-cat > components/BackButton.tsx <<'TSX'
-'use client';
-import { useCallback } from "react";
+# 1) CSS de soporte para parallax (no rompe nada existente)
+mkdir -p app
+if ! grep -q "/* PARALLAX UTILITIES */" app/globals.css; then
+  cat >> app/globals.css <<'CSS'
 
-export default function BackButton({
-  fallbackHref = "/",
-  className = "",
-}: { fallbackHref?: string; className?: string }) {
-  const goBack = useCallback(() => {
-    if (typeof window !== "undefined") {
-      try {
-        if (window.history && window.history.length > 1) {
-          window.history.back();
-          return;
-        }
-      } catch {}
-      window.location.href = fallbackHref;
-    }
-  }, [fallbackHref]);
-
-  return (
-    <button
-      type="button"
-      onClick={goBack}
-      className={`inline-flex items-center gap-2 rounded-xl bg-lime-600 px-3 py-2 text-white font-semibold hover:bg-lime-700 transition shadow-sm ${className}`}
-      aria-label="Volver"
-    >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2"
-          strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-      <span>Volver</span>
-    </button>
-  );
+/* PARALLAX UTILITIES */
+.parallax-root { perspective: 1000px; }
+.parallax-scene { transform-style: preserve-3d; height: 100%; position: relative; }
+.parallax-bg {
+  position: absolute; inset: 0;
+  background-position: center; background-size: cover; background-repeat: no-repeat;
+  transform: translateZ(-300px) scale(1.35);
+  will-change: transform;
+  filter: saturate(105%) contrast(102%);
 }
-TSX
+.parallax-fg { position: relative; z-index: 1; }
+@media (min-width: 768px) {
+  /* Fallback extra suave por si el navegador ignora 3D: */
+  .parallax-bg-fixed { background-attachment: fixed; }
+}
+CSS
+fi
 
-# 2) Topbar (fija, con espacio de separación para no tapar contenido)
-cat > components/Topbar.tsx <<'TSX'
+# 2) Hero con parallax. Sustituimos el componente por una versión robusta.
+mkdir -p components
+cat > components/Hero.tsx <<'TSX'
 'use client';
 import Link from "next/link";
-import BackButton from "./BackButton";
 
-export default function Topbar() {
+export default function Hero() {
+  // Imagen hero: puedes cambiarla si quieres otro "mood"
+  const bg = "url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1920&auto=format&fit=crop')";
   return (
-    <>
-      <div className="fixed top-0 inset-x-0 z-40 bg-white/85 backdrop-blur border-b">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="h-16 flex items-center justify-between gap-3">
-            {/* Izquierda: Volver */}
-            <div className="min-w-0">
-              <BackButton className="hidden sm:inline-flex" />
-            </div>
-
-            {/* Centro/Izq: Logo + nombre (link al home) */}
-            <Link href="/" className="shrink-0 inline-flex items-center gap-2 group">
-              <div className="size-8 rounded-lg bg-lime-600 text-white grid place-items-center shadow-sm group-hover:scale-[1.03] transition">
-                <span className="font-black">L</span>
+    <section className="relative h-[52vh] md:h-[64vh] lg:h-[68vh] overflow-hidden rounded-2xl bg-neutral-100">
+      <div className="parallax-root">
+        <div className="parallax-scene">
+          <div
+            className="parallax-bg parallax-bg-fixed"
+            style={{ backgroundImage: bg }}
+            aria-hidden="true"
+          />
+          <div className="parallax-fg relative h-full">
+            <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-white/10" />
+            <div className="relative z-10 h-full mx-auto max-w-6xl px-4 sm:px-6 flex flex-col items-start justify-end pb-10 md:pb-14">
+              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-neutral-900 drop-shadow-sm">
+                Descubre cosas útiles y bonitas
+              </h1>
+              <p className="mt-2 md:mt-3 text-neutral-700 max-w-xl">
+                Productos prácticos, bien elegidos, con envío simple. Explora por categoría o mira lo nuevo.
+              </p>
+              <div className="mt-4 flex items-center gap-3">
+                <Link
+                  href="/categorias"
+                  className="inline-flex items-center gap-2 rounded-xl bg-lime-600 px-4 py-2.5 text-white font-semibold shadow-sm hover:bg-lime-700 transition"
+                >
+                  Explorar categorías
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </Link>
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 font-semibold text-neutral-800 hover:bg-white transition"
+                >
+                  Ver novedades
+                </Link>
               </div>
-              <div className="leading-tight">
-                <div className="font-extrabold tracking-tight">Lunaria</div>
-                <div className="text-xs text-neutral-500 -mt-0.5">Tu tienda simple y bonita</div>
-              </div>
-            </Link>
-
-            {/* Derecha: Nav mínima + Usuario (placeholder) */}
-            <div className="flex items-center gap-2">
-              <Link
-                href="/categorias"
-                className="hidden sm:inline-flex rounded-xl px-3 py-2 text-sm font-semibold hover:bg-neutral-100 transition"
-              >
-                Categorías
-              </Link>
-              <button
-                type="button"
-                onClick={() => alert('Pronto: login/usuario')}
-                className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold hover:bg-white/60 transition"
-                aria-label="Iniciar sesión"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM3 22a9 9 0 1118 0" stroke="currentColor" strokeWidth="2"
-                    strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span className="hidden sm:inline">Entrar</span>
-              </button>
             </div>
           </div>
         </div>
       </div>
-      {/* Separador para que el contenido no quede bajo la barra */}
-      <div className="h-16" aria-hidden="true" />
-    </>
+    </section>
   );
 }
 TSX
 
-# 3) Inyectar Topbar en app/layout.tsx sin romper nada
-#    - Import al inicio
-#    - <Topbar /> justo después de la apertura de <body>
-if [ -f app/layout.tsx ]; then
-  # añade import al principio si no existe ya
-  if ! grep -q 'components/Topbar' app/layout.tsx; then
-    sed -i.bak '1s|^|import Topbar from "@/components/Topbar";\n|' app/layout.tsx
-  fi
-  # inserta <Topbar /> tras <body ...>
-  sed -i.bak -E '0,/<body[^>]*>/s//&\n      <Topbar \/>/' app/layout.tsx
-else
-  echo "❌ No se encontró app/layout.tsx — abortando para no romper nada."
-  exit 1
-fi
-
 git add -A
-git commit -m "feat(ui): Topbar fija global (volver + logo + usuario), consistente con carrito flotante"
+git commit -m "fix(ui): restaura Hero con parallax (3D translateZ + fixed fallback) compatible con Topbar"
 git push -u origin "$BR"
 
-echo "✅ Preview creado en rama: $BR"
-echo "👉 Revisa el preview en Vercel. Si te gusta: di “LUNARIA OK” y te doy el run.sh de merge (solo este commit)."
+echo "✅ Preview listo en rama: $BR"
+echo "👉 Pruébalo. Si te gusta, dime LUNARIA OK y te paso el run.sh de merge SOLO de este commit."

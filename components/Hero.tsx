@@ -2,29 +2,45 @@
 import Link from "next/link";
 
 export default function Hero() {
+  // Imagen hero: puedes cambiarla si quieres otro "mood"
+  const bg = "url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1920&auto=format&fit=crop')";
   return (
-    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-lime-50 to-emerald-50 border p-6 sm:p-10 mb-8">
-      <div className="max-w-2xl space-y-4">
-        <h1 className="font-black text-3xl sm:text-4xl tracking-tight">
-          Encuentra cosas útiles y bonitas para tu día a día
-        </h1>
-        <p className="text-neutral-600">
-          Descubre categorías curadas con productos que funcionan de verdad.
-        </p>
-        <div className="flex gap-3">
-          <Link
-            href="/categorias"
-            prefetch={false}
-            className="inline-flex items-center justify-center rounded-xl bg-lime-600 px-5 py-3 text-white font-semibold shadow-sm hover:bg-lime-700 transition"
-          >
-            Explorar categorías
-          </Link>
-          <a
-            href="#tendencias"
-            className="inline-flex items-center justify-center rounded-xl border px-5 py-3 font-semibold hover:bg-white/60 transition"
-          >
-            Ver tendencias
-          </a>
+    <section className="relative h-[52vh] md:h-[64vh] lg:h-[68vh] overflow-hidden rounded-2xl bg-neutral-100">
+      <div className="parallax-root">
+        <div className="parallax-scene">
+          <div
+            className="parallax-bg parallax-bg-fixed"
+            style={{ backgroundImage: bg }}
+            aria-hidden="true"
+          />
+          <div className="parallax-fg relative h-full">
+            <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-white/10" />
+            <div className="relative z-10 h-full mx-auto max-w-6xl px-4 sm:px-6 flex flex-col items-start justify-end pb-10 md:pb-14">
+              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-neutral-900 drop-shadow-sm">
+                Descubre cosas útiles y bonitas
+              </h1>
+              <p className="mt-2 md:mt-3 text-neutral-700 max-w-xl">
+                Productos prácticos, bien elegidos, con envío simple. Explora por categoría o mira lo nuevo.
+              </p>
+              <div className="mt-4 flex items-center gap-3">
+                <Link
+                  href="/categorias"
+                  className="inline-flex items-center gap-2 rounded-xl bg-lime-600 px-4 py-2.5 text-white font-semibold shadow-sm hover:bg-lime-700 transition"
+                >
+                  Explorar categorías
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </Link>
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 font-semibold text-neutral-800 hover:bg-white transition"
+                >
+                  Ver novedades
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
