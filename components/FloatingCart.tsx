@@ -49,9 +49,7 @@ export default function FloatingCart() {
         </svg>
         <span className="text-sm font-semibold">Carro</span>
         {/* Badge */}
-        <span className="absolute -top-2 -right-2 min-w-[1.75rem] rounded-full bg-black/90 px-2 py-1 text-center text-xs font-bold">
-          {count}
-        </span>
+        
       </Link>
     </div>
   );
