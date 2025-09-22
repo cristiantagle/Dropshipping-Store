@@ -336,3 +336,9 @@ a[data-cat]:hover, .cat-tile:hover {
   --lunaria-green:#3eb489;
   --lunaria-green-hover:#36a178;
 }
+
+/* --- Neutraliza cualquier pseudo-badge que duplique el contador del carrito --- */
+[data-testid="floating-cart"]::after,
+[data-testid="floating-cart"]::before {
+  content: none !important;
+}

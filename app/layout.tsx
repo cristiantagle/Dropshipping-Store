@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Inter } from "next/font/google";
 import FloatingCart from "@/components/FloatingCart";
+import PreviewBadge from "@/components/PreviewBadge";
 
 const inter = Inter({ subsets: ["latin"] });
 
