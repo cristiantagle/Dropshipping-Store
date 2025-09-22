@@ -491,3 +491,120 @@ p.text-sm.text-gray-600 {
 }
 
 /* ========== /Visual Pack Nivel 7–9 ========== */
+
+/* === NIVEL100:BEGIN === */
+/* Paleta y motion helpers (no invasivo) */
+:root {
+  --lnr-green: #3e8e41; /* verde hero */
+  --lnr-green-ink: #2f6b32;
+  --lnr-ink: #0f172a;   /* neutral-900 */
+  --lnr-card: 255,255,255;
+  --lnr-shadow: 15 23 42; /* slate-900 */
+}
+
+/* Suaviza todo */
+html { scroll-behavior: smooth; }
+
+/* Cards genéricas: .border.rounded-2xl */
+.border.rounded-2xl {
+  transition:
+    transform 220ms cubic-bezier(.2,.7,.2,1),
+    box-shadow 220ms cubic-bezier(.2,.7,.2,1),
+    background-color 220ms ease;
+  will-change: transform, box-shadow;
+  background-color: rgba(var(--lnr-card),1);
+  box-shadow:
+    0 1px 2px rgba(var(--lnr-shadow)/0.06),
+    0 8px 24px rgba(var(--lnr-shadow)/0.04);
+}
+.border.rounded-2xl:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 6px 16px rgba(var(--lnr-shadow)/0.06),
+    0 18px 48px rgba(var(--lnr-shadow)/0.08);
+}
+
+/* Imágenes dentro de cards: zoom sutil al hover del contenedor */
+.border.rounded-2xl img,
+.border.rounded-2xl picture img {
+  transition: transform 300ms ease, filter 300ms ease, opacity 200ms ease;
+  will-change: transform, filter;
+}
+.border.rounded-2xl:hover img {
+  transform: scale(1.03);
+  filter: saturate(1.05);
+}
+
+/* Botones “primarios” por patrón de color verde hero */
+button.bg-lime-600,
+a.bg-lime-600,
+[class*="bg-lime-600"] {
+  background-color: var(--lnr-green) !important;
+  border-color: var(--lnr-green-ink) !important;
+  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+  box-shadow: 0 4px 14px rgba(62,142,65,.15);
+}
+button.bg-lime-600:hover,
+a.bg-lime-600:hover,
+[class*="bg-lime-600"]:hover {
+  background-color: var(--lnr-green-ink) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(62,142,65,.25);
+}
+button.bg-lime-600:active,
+a.bg-lime-600:active,
+[class*="bg-lime-600"]:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 10px rgba(62,142,65,.18);
+}
+
+/* Etiquetas de categoría “pill” si van dentro de tiles */
+.badge-pill,
+[class*="badge"][class*="pill"] {
+  background: linear-gradient(180deg, var(--lnr-green), var(--lnr-green-ink));
+  color: #fff;
+  border-radius: 9999px;
+  box-shadow: 0 6px 20px rgba(62,142,65,.25);
+}
+
+/* Skeleton shimmer reutilizable (añade class="skeleton" a placeholders si lo necesitas) */
+@keyframes lnr-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg,
+    rgba(226,232,240,.7) 0%,
+    rgba(241,245,249,.9) 20%,
+    rgba(226,232,240,.7) 40%,
+    rgba(226,232,240,.7) 100%);
+  background-size: 200% 100%;
+  animation: lnr-shimmer 1.2s infinite linear;
+}
+
+/* Micro bounce al agregar al carro (aplica a .added-bounce si la pones en el botón tras click) */
+@keyframes lnr-bounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.08); }
+  60% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+.added-bounce { animation: lnr-bounce 360ms cubic-bezier(.2,.7,.2,1); }
+
+/* Back-to-top si existe un #backToTop */
+#backToTop {
+  transition: opacity .2s ease, transform .2s ease;
+  box-shadow: 0 8px 24px rgba(15,23,42,.18);
+}
+#backToTop:hover { transform: translateY(-2px); }
+
+/* Grid hover: realzar item activo */
+.grid > *:hover { position: relative; z-index: 2; }
+
+/* Hero: sutil parallax sobre imágenes directas */
+.hero img { transition: transform 600ms cubic-bezier(.2,.7,.2,1); will-change: transform; }
+.hero:hover img { transform: scale(1.02); }
+/* === NIVEL100:END === */
+
