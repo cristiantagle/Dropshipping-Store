@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* --- UI Polish bundle --- */
+.page-fade{opacity:0;transform:translateY(6px);transition:opacity .35s ease,transform .35s ease}
+.page-fade--in{opacity:1;transform:none}
+.skeleton{position:relative;overflow:hidden;background:linear-gradient(to right, rgba(0,0,0,.06) 0%, rgba(0,0,0,.08) 20%, rgba(0,0,0,.06) 40%);background-size:200% 100%;animation:skeleton-move 1.2s linear infinite}
+@keyframes skeleton-move{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes toast-in{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+.animate-toast-in{animation:toast-in .25s ease forwards}
+
+
 body {
   @apply bg-gray-50 text-gray-900 antialiased;
   font-family: 'Inter', sans-serif;
