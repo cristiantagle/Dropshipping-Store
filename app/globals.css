@@ -754,3 +754,53 @@ html { scroll-behavior: smooth; }
 .section-sub {
   @apply text-gray-600 text-sm;
 }
+
+/* PARALLAX UTILITIES */
+.parallax-root { perspective: 1000px; }
+.parallax-scene { transform-style: preserve-3d; height: 100%; position: relative; }
+.parallax-bg {
+  position: absolute; inset: 0;
+  background-position: center; background-size: cover; background-repeat: no-repeat;
+  transform: translateZ(-300px) scale(1.35);
+  will-change: transform;
+  filter: saturate(105%) contrast(102%);
+}
+.parallax-fg { position: relative; z-index: 1; }
+@media (min-width: 768px) {
+  /* Fallback extra suave por si el navegador ignora 3D: */
+  .parallax-bg-fixed { background-attachment: fixed; }
+}
+
+/* PARALLAX UTILITIES v2 */
+.parallax-root { perspective: 800px; }
+.parallax-scene { transform-style: preserve-3d; height: 100%; position: relative; }
+.parallax-bg {
+  position: absolute; inset: 0;
+  background-position: center 30%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  transform: translateZ(-120px) scale(1.12);
+  will-change: transform;
+  transition: transform 300ms ease-out;
+  filter: saturate(104%) contrast(102%);
+}
+/* Suaviza bordes y da respiro visual */
+.hero-clip { border-radius: 1rem; overflow: hidden; }
+/* Degradado más sutil (menos “leche” sobre la foto) */
+.hero-fade::after{
+  content:"";
+  position:absolute; inset:0;
+  background: linear-gradient(to top, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.55) 45%, rgba(255,255,255,0.15) 100%);
+  pointer-events:none;
+}
+/* En móviles desactivamos 3D: se ve más limpio */
+@media (max-width: 767px) {
+  .parallax-root { perspective: none; }
+  .parallax-scene { transform-style: flat; }
+  .parallax-bg { transform: none; }
+  .parallax-bg-fixed { background-attachment: scroll; }
+}
+/* Respeto a usuarios con reduce-motion */
+@media (prefers-reduced-motion: reduce) {
+  .parallax-bg { transition: none; transform: none; }
+}
