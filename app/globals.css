@@ -608,3 +608,67 @@ a.bg-lime-600:active,
 .hero:hover img { transform: scale(1.02); }
 /* === NIVEL100:END === */
 
+
+/* === Nivel 9999999: Parallax + Gradiente Animado (solo visual) === */
+@keyframes lunariaGradientPulse {
+  0%   { opacity: .65; }
+  50%  { opacity: .85; }
+  100% { opacity: .65; }
+}
+
+.lunaria-parallax {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.lunaria-parallax::before {
+  /* Imagen de fondo – puedes cambiarla cuando quieras */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1920&auto=format&fit=crop");
+  background-size: cover;
+  background-position: center;
+  /* Parallax nativo y suave */
+  background-attachment: fixed;
+  transform: translateZ(0);
+  z-index: -2;
+  filter: saturate(1.05) contrast(1.02);
+}
+
+.lunaria-parallax::after {
+  /* Gradiente animado para dar profundidad */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(1000px 500px at 20% 10%, rgba(255,255,255,.25), transparent 50%),
+    radial-gradient(900px 480px at 80% 20%, rgba(16,185,129,.18), transparent 55%),
+    linear-gradient(to bottom, rgba(255,255,255,.65), rgba(255,255,255,.92) 60%);
+  z-index: -1;
+  animation: lunariaGradientPulse 9s ease-in-out infinite;
+}
+
+/* Respeto accesibilidad (reduce motion) */
+@media (prefers-reduced-motion: reduce) {
+  .lunaria-parallax::after { animation: none; }
+  .lunaria-parallax::before { background-attachment: scroll; }
+}
+
+/* Botón “Explorar categorías” – reforzamos feeling premium sin cambiar tu verde */
+.lunaria-cta {
+  transition: transform .2s ease, box-shadow .2s ease;
+  box-shadow: 0 8px 20px rgba(101,163,13,0.25);
+}
+.lunaria-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(101,163,13,0.33);
+}
+
+/* Copete del hero con un toque de brillo sutil */
+.lunaria-hero-subtle {
+  text-shadow: 0 1px 0 rgba(255,255,255,.6);
+}
+/* === Fin Nivel 9999999 === */

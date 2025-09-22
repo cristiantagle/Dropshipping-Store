@@ -1,36 +1,44 @@
 "use client";
+import React from "react";
 import Link from "next/link";
 
+/**
+ * Hero parallax animado — Nivel 9999999
+ * - Imagen de fondo via CSS (::before) con background-attachment: fixed
+ * - Gradiente animado que respira
+ * - Mantiene CTA “Explorar categorías” con el mismo verde de tu marca
+ * - Sin dependencias nuevas, sin tocar lógica de datos
+ */
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-50 via-white to-emerald-50 border shadow-md">
-      <div className="mx-auto max-w-7xl px-6 py-14 md:py-20 text-center">
-        <p className="text-xs md:text-sm uppercase tracking-widest text-emerald-700/90 font-semibold">
-          Bienvenido a Lunaria
-        </p>
+    <section className="lunaria-parallax min-h-[68vh] flex items-center">
+      <div className="relative mx-auto w-full max-w-6xl px-6 py-16 sm:py-24">
+        <div className="max-w-3xl">
+          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-neutral-900">
+            Descubre productos útiles, lindos y listos para ti ✨
+          </h1>
+          <p className="mt-4 text-lg text-neutral-700 lunaria-hero-subtle">
+            Seleccionamos lo mejor para tu casa, tu rutina y tus ideas. Compra fácil, entrega rápida y soporte humano.
+          </p>
 
-        <h1 className="mt-3 text-3xl md:text-5xl font-extrabold leading-tight text-gray-900">
-          Inspira tu día a día con productos que realmente importan
-        </h1>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Link
+              href="/categorias"
+              className="lunaria-cta inline-flex items-center gap-2 rounded-2xl bg-lime-600 px-5 py-3 text-white font-semibold hover:bg-lime-700 transition"
+            >
+              Explorar categorías
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="inline-block">
+                <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Link>
 
-        <p className="mt-5 text-gray-700 md:text-lg max-w-2xl mx-auto">
-          Encuentra calidad, estilo y utilidad sin complicaciones.
-          Explora por categorías y descubre tus próximos favoritos.
-        </p>
-
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <Link
-            href="/categorias"
-            className="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-6 py-3 text-white font-medium hover:bg-emerald-700 transition"
-          >
-            Explorar categorías
-          </Link>
-          <Link
-            href="/categorias/hogar"
-            className="inline-flex items-center justify-center rounded-xl border px-6 py-3 text-gray-900 hover:bg-gray-50 transition"
-          >
-            Ver lo nuevo
-          </Link>
+            <a
+              href="#destacados"
+              className="inline-flex items-center gap-2 rounded-2xl border border-neutral-300 bg-white/80 backdrop-blur px-5 py-3 text-neutral-800 hover:bg-white transition"
+            >
+              Ver destacados
+            </a>
+          </div>
         </div>
       </div>
     </section>
