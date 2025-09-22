@@ -3,6 +3,8 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import FloatingCart from "@/components/FloatingCart";
 import PreviewBadge from "@/components/PreviewBadge";
+import ShippingBanner from "@/components/ShippingBanner";
+import BackToTop from "@/components/BackToTop";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es">
       <body className={`${inter.className} bg-gradient-to-b from-white to-gray-50 text-gray-800`}>
+      <ShippingBanner />
         <div className="mx-auto max-w-6xl px-4 py-6">
           {children}
           <footer className="mt-12 text-sm text-gray-500 flex items-center justify-between border-t pt-6">
@@ -25,7 +28,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </footer>
         </div>
         <FloatingCart />
-</body>
+  <BackToTop />
+    </body>
     </html>
   );
 }
