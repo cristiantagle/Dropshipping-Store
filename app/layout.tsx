@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import PreviewBadge from "@/components/PreviewBadge";
 import "./globals.css";
 import { Inter } from "next/font/google";
 import FloatingCart from "@/components/FloatingCart";
@@ -24,7 +25,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </footer>
         </div>
         <FloatingCart />
-</body>
+  <PreviewBadge />
+    </body>
     </html>
   );
 }
