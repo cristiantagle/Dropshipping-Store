@@ -1,3 +1,4 @@
+import BackButton from "@/components/BackButton";
 import "server-only";
 import { notFound } from "next/navigation";
 import ProductListClient from "@/components/ProductListClient";
@@ -41,6 +42,7 @@ export default async function CategoriaPage({ params }: { params: { slug: string
     return (
       <section className="space-y-6 lnr-appear">
         <h1 className="text-2xl font-bold">{cat.nombre}</h1>
+<div className="back-row"><BackButton /></div>
         <p className="text-gray-600">{cat.descripcion}</p>
         <p className="text-red-600">Faltan variables de entorno de Supabase.</p>
       </section>

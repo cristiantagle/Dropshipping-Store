@@ -740,3 +740,11 @@ html { scroll-behavior: smooth; }
     bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
   }
 }
+
+/* back-button */
+.back-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0.5rem 0 0.25rem 0;
+}
