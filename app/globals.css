@@ -711,3 +711,26 @@ html { scroll-behavior: smooth; }
 @keyframes skeleton-shimmer {
   100% { transform: translateX(100%); }
 }
+
+/* === BackToTop overlap fix (no rompe reglas anteriores) === */
+.back-to-top{
+  /* más alto que tooltips/modales ligeros y que el FloatingCart por si acaso */
+  z-index: 90;
+  /* en móviles: muévete a la izquierda para no tapar el carro */
+  right: auto;
+  left: 1rem;
+}
+
+@media (min-width: 768px){
+  .back-to-top{
+    /* en desktop vuelve a la derecha, pero deja espacio para el carrito flotante */
+    left: auto;
+    right: 6.5rem; /* ~64px del carrito + margen de respiro */
+  }
+}
+
+@supports (padding: env(safe-area-inset-bottom)){
+  .back-to-top{
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+}
