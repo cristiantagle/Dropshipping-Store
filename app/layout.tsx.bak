@@ -1,4 +1,4 @@
-import Topbar from "@/components/Topbar";
+import Topbar from "@/components/TopBar";
 import type { Metadata } from "next";
 import "./globals.css";
 import BackNav from "@/components/BackNav";
