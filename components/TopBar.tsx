@@ -1,55 +1,43 @@
-'use client';
-import Link from "next/link";
+"use client";
+
 import BackButton from "./BackButton";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-export default function Topbar() {
+export default function TopBar() {
+  const pathname = usePathname();
+
   return (
-    <>
-      <div className="fixed top-0 inset-x-0 z-40 bg-white/85 backdrop-blur border-b">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="h-16 flex items-center justify-between gap-3">
-            {/* Izquierda: Volver */}
-            <div className="min-w-0">
-              <BackButton className="hidden sm:inline-flex" />
-            </div>
+    <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+      <div className="container-lunaria h-14 flex items-center justify-between">
+        {/* Izquierda: Volver + marca */}
+        <div className="flex items-center gap-2">
+          <BackButton className="btn px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-700" />
+          <Link href="/" className="ml-2 text-lg font-semibold tracking-tight text-gray-900 hover:opacity-90">
+            Lunaria
+          </Link>
+        </div>
 
-            {/* Centro/Izq: Logo + nombre (link al home) */}
-            <Link href="/" className="shrink-0 inline-flex items-center gap-2 group">
-              <div className="size-8 rounded-lg bg-lime-600 text-white grid place-items-center shadow-sm group-hover:scale-[1.03] transition">
-                <span className="font-black">L</span>
-              </div>
-              <div className="leading-tight">
-                <div className="font-extrabold tracking-tight">Lunaria</div>
-                <div className="text-xs text-neutral-500 -mt-0.5">Tu tienda simple y bonita</div>
-              </div>
-            </Link>
+        {/* Centro: nav mínima */}
+        <nav className="hidden md:flex items-center gap-6 text-sm">
+          <Link href="/" className={`hover:text-emerald-700 ${pathname === "/" ? "text-emerald-700 font-medium" : "text-gray-600"}`}>
+            Inicio
+          </Link>
+          <Link href="/categorias" className={`hover:text-emerald-700 ${pathname?.startsWith("/categorias") ? "text-emerald-700 font-medium" : "text-gray-600"}`}>
+            Categorías
+          </Link>
+          <Link href="/carro" className={`hover:text-emerald-700 ${pathname === "/carro" ? "text-emerald-700 font-medium" : "text-gray-600"}`}>
+            Carro
+          </Link>
+        </nav>
 
-            {/* Derecha: Nav mínima + Usuario (placeholder) */}
-            <div className="flex items-center gap-2">
-              <Link
-                href="/categorias"
-                className="hidden sm:inline-flex rounded-xl px-3 py-2 text-sm font-semibold hover:bg-neutral-100 transition"
-              >
-                Categorías
-              </Link>
-              <button
-                type="button"
-                onClick={() => alert('Pronto: login/usuario')}
-                className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold hover:bg-white/60 transition"
-                aria-label="Iniciar sesión"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM3 22a9 9 0 1118 0" stroke="currentColor" strokeWidth="2"
-                    strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span className="hidden sm:inline">Entrar</span>
-              </button>
-            </div>
-          </div>
+        {/* Derecha: CTA carro (FloatingCart flota aparte) */}
+        <div className="w-[88px] md:w-[140px] flex justify-end">
+          <Link href="/carro" className="btn bg-gray-50 hover:bg-gray-100 text-gray-700 px-3 py-1.5">
+            Ver carro
+          </Link>
         </div>
       </div>
-      {/* Separador para que el contenido no quede bajo la barra */}
-      <div className="h-16" aria-hidden="true" />
-    </>
+    </header>
   );
 }

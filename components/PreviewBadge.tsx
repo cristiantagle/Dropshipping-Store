@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 
 function isPreview(): boolean {
   const env = (process.env.NEXT_PUBLIC_VERCEL_ENV || "").toLowerCase();
@@ -16,8 +15,8 @@ export default function PreviewBadge() {
   const ref = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF || "preview";
   const sha = (process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || "").slice(0,7) || "no-sha";
   return (
-    <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none" data-testid="preview-badge">
-      <span className="pointer-events-auto select-none rounded-full bg-black/80 text-white text-xs px-3 py-1.5 shadow-md backdrop-blur">
+    <div data-testid="preview-badge">
+      <span className="select-none rounded-full bg-black/80 text-white text-xs px-3 py-1.5 shadow-md backdrop-blur">
         preview • <strong>{ref}</strong> • {sha}
       </span>
     </div>
