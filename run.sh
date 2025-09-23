@@ -1,106 +1,126 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BR="preview/tune-hero-parallax-$(date +%Y%m%d-%H%M%S)"
-echo "🎯 Suavizando parallax del Hero (menos profundidad, mejor encuadre, móvil sin 3D)…"
-git fetch origin --prune
-git checkout -B "$BR" origin/main || git checkout -b "$BR"
+BR="preview/ui-mini-pack-$(date +%Y%m%d-%H%M%S)"
+echo "🎨 UI Mini-Pack (solo CSS, sin tocar TS/TSX)…"
+echo "🌱 Rama: $BR"
 
-# 1) Ajustes CSS de parallax (menor profundidad/escala, mejor overlay, mobile fallback)
-mkdir -p app
-if ! grep -q "/* PARALLAX UTILITIES v2 */" app/globals.css; then
-  cat >> app/globals.css <<'CSS'
+# Asegura estado limpio y crea rama desde main remoto
+git add -A >/dev/null 2>&1 || true
+git checkout -B "$BR" origin/main
 
-/* PARALLAX UTILITIES v2 */
-.parallax-root { perspective: 800px; }
-.parallax-scene { transform-style: preserve-3d; height: 100%; position: relative; }
-.parallax-bg {
-  position: absolute; inset: 0;
-  background-position: center 30%;
-  background-size: cover;
-  background-repeat: no-repeat;
-  transform: translateZ(-120px) scale(1.12);
-  will-change: transform;
-  transition: transform 300ms ease-out;
-  filter: saturate(104%) contrast(102%);
+CSS_FILE="app/globals.css"
+MARKER="/* === LUNARIA MINI-PACK SAFE 20250923 === */"
+
+if grep -q "$MARKER" "$CSS_FILE"; then
+  echo "ℹ️  Mini-pack ya estaba aplicado (marcador encontrado). No duplico."
+else
+  cat >> "$CSS_FILE" <<'EOF'
+/* === LUNARIA MINI-PACK SAFE 20250923 === */
+/* Ajustes muy suaves: tipografía, sombras, botones y hovers. Solo CSS. */
+
+:root{
+  --lnr-shadow-xs: 0 1px 3px rgba(15,23,42,.06);
+  --lnr-shadow-sm: 0 4px 14px rgba(15,23,42,.07);
+  --lnr-shadow-md: 0 10px 28px rgba(15,23,42,.10);
+  --lnr-green: #16a34a;
+  --lnr-green-700: #15803d;
 }
-/* Suaviza bordes y da respiro visual */
-.hero-clip { border-radius: 1rem; overflow: hidden; }
-/* Degradado más sutil (menos “leche” sobre la foto) */
-.hero-fade::after{
-  content:"";
-  position:absolute; inset:0;
-  background: linear-gradient(to top, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.55) 45%, rgba(255,255,255,0.15) 100%);
-  pointer-events:none;
+
+/* Tipografía más consistente (ligero ajuste de tracking en títulos) */
+h1,h2,.section-title{
+  letter-spacing: -0.01em;
 }
-/* En móviles desactivamos 3D: se ve más limpio */
-@media (max-width: 767px) {
-  .parallax-root { perspective: none; }
-  .parallax-scene { transform-style: flat; }
-  .parallax-bg { transform: none; }
-  .parallax-bg-fixed { background-attachment: scroll; }
+
+/* Elevación sutil por defecto y al hover para tiles existentes */
+.grid .border.rounded-2xl,
+.grid .rounded-2xl.border {
+  box-shadow: var(--lnr-shadow-xs);
+  transition: transform .22s cubic-bezier(.2,.7,.2,1), box-shadow .22s ease, filter .22s ease;
+  background: #fff;
 }
-/* Respeto a usuarios con reduce-motion */
-@media (prefers-reduced-motion: reduce) {
-  .parallax-bg { transition: none; transform: none; }
+.grid .border.rounded-2xl:hover,
+.grid .rounded-2xl.border:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--lnr-shadow-sm);
 }
-CSS
+
+/* Imágenes: zoom suave al hover del contenedor (sin cambiar el markup) */
+.grid .border.rounded-2xl img,
+.grid .rounded-2xl.border img {
+  transition: transform .32s ease, filter .32s ease, opacity .2s ease;
+  will-change: transform, filter;
+}
+.grid .border.rounded-2xl:hover img,
+.grid .rounded-2xl.border:hover img {
+  transform: scale(1.025);
+  filter: saturate(1.04) contrast(1.02);
+}
+
+/* Botón “verde” coherente, sin romper utilidades existentes */
+button.bg-lime-600,
+a.bg-lime-600 {
+  background-color: var(--lnr-green) !important;
+  color: #fff !important;
+  border-radius: .9rem !important;
+  box-shadow: var(--lnr-shadow-sm);
+  transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease;
+}
+button.bg-lime-600:hover,
+a.bg-lime-600:hover {
+  background-color: var(--lnr-green-700) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--lnr-shadow-md);
+}
+
+/* Chips/badges suaves (mantiene tu look actual) */
+.badge,
+.badge-pill,
+p.text-sm.text-gray-600 {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .2rem .6rem;
+  border-radius: 999px;
+  background: rgba(16,185,129,.08);
+  color: #065f46;
+  font-weight: 600;
+}
+
+/* Sombra y blur más sutil para barras pegadas que ya existen */
+.sticky-header,
+header.site-header,
+.fixed.top-0.inset-x-0 {
+  backdrop-filter: saturate(1.1) blur(6px);
+  box-shadow: 0 2px 10px rgba(0,0,0,.04);
+}
+
+/* Botón back-to-top: asegura visibilidad y offset con el carrito flotante */
+:where(.back-to-top, #backtotop, [data-backtotop], a[href="#top"]){
+  z-index: 95 !important;
+}
+@media (min-width: 768px){
+  :where(.back-to-top, #backtotop, [data-backtotop], a[href="#top"]){
+    right: 6.5rem !important; /* evita solape con FloatingCart */
+  }
+}
+
+/* Micro-animación de aparición para grids ya existentes */
+.lunaria-grid-in > * {
+  animation: lunaria-fade-in-up .28s ease both;
+}
+@keyframes lunaria-fade-in-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* === /LUNARIA MINI-PACK SAFE 20250923 === */
+EOF
+  echo "✍️  CSS mini-pack añadido a $CSS_FILE"
 fi
 
-# 2) Hero con parallax suavizado y encuadre mejorado (compat con Topbar)
-mkdir -p components
-cat > components/Hero.tsx <<'TSX'
-'use client';
-import Link from "next/link";
-
-export default function Hero() {
-  const bg = "url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1920&auto=format&fit=crop')";
-  return (
-    <section className="relative hero-clip h-[50vh] md:h-[62vh] lg:h-[66vh] bg-neutral-100">
-      <div className="parallax-root h-full">
-        <div className="parallax-scene">
-          <div
-            className="parallax-bg parallax-bg-fixed"
-            style={{ backgroundImage: bg }}
-            aria-hidden="true"
-          />
-          <div className="parallax-fg relative h-full hero-fade">
-            <div className="relative z-10 h-full mx-auto max-w-6xl px-4 sm:px-6 flex flex-col items-start justify-end pb-10 md:pb-14">
-              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-neutral-900 drop-shadow-sm">
-                Descubre cosas útiles y bonitas
-              </h1>
-              <p className="mt-2 md:mt-3 text-neutral-700 max-w-xl">
-                Productos prácticos, bien elegidos, con envío simple. Explora por categoría o mira lo nuevo.
-              </p>
-              <div className="mt-4 flex items-center gap-3">
-                <Link
-                  href="/categorias"
-                  className="inline-flex items-center gap-2 rounded-xl bg-lime-600 px-4 py-2.5 text-white font-semibold shadow-sm hover:bg-lime-700 transition"
-                >
-                  Explorar categorías
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </Link>
-                <Link
-                  href="/"
-                  className="inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 font-semibold text-neutral-800 hover:bg-white transition"
-                >
-                  Ver novedades
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-TSX
-
-git add -A
-git commit -m "style(hero): parallax suavizado (menos profundidad), mejor encuadre y mobile fallback; overlay refinado"
+git add "$CSS_FILE"
+git commit -m "style(ui): mini-pack visual seguro (solo CSS): elevación, botones, hover, sombras"
 git push -u origin "$BR"
 
-echo "✅ Preview listo en rama: $BR"
-echo "👉 Si te gusta, dime LUNARIA OK y te paso el run.sh de merge SOLO de este commit."
+echo "✅ Rama subida: $BR"
+echo "➡ Revisa el preview en Vercel."
