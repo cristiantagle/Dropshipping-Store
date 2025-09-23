@@ -4,6 +4,7 @@ import SectionHeader from "@/components/SectionHeader";
 import ProductSkeleton from "@/components/ProductSkeleton";
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabaseServer";
+import PreviewDebug from "@/components/PreviewDebug";
 
 export const dynamic = "force-dynamic";
 
@@ -121,6 +122,8 @@ async function getHomeData() {
 
 
 export default async function Home() {
+  const isPreview = process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
+  const hasSupabase = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
   const { destacados, nuevos, top } = await getHomeData();
 
   return (
@@ -238,6 +241,10 @@ export default async function Home() {
           </ul>
         )}
       </section>
+      {/* Debug sólo en preview */}
+      <PreviewDebug isPreview={isPreview} hasSupabase={hasSupabase} counts={{
+        nuevos: nuevos.length, destacados: destacados.length, top: top.length
+      }} />
     </main>
   );
 }
