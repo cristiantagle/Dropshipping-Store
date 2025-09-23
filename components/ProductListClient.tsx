@@ -1,5 +1,6 @@
 'use client';
 import React from "react";
+import Link from "next/link";
 
 export type Producto = {
   id: string;
@@ -63,29 +64,26 @@ export default function ProductListClient({ items }: Props) {
           }
         };
         return (
-          <li key={p.id} className="border rounded-2xl p-4 hover:bg-gray-50 transition">
-            <div className="aspect-[4/3] w-full mb-3 overflow-hidden rounded-xl bg-gray-100">
-              <img
-                src={src || FALLBACK}
-                alt={p.nombre || "Producto"}
-                className="w-full h-full object-cover"
-                loading="lazy"
-                decoding="async"
-                referrerPolicy="no-referrer"
-                onError={onErr}
-              />
-            </div>
-            <h3 className="font-semibold">{p.nombre}</h3>
-            <p className="text-sm text-gray-600">{p.envio || "Envío estándar"}</p>
-            <div className="mt-2 flex items-center justify-between">
-              <span className="font-bold">{fmtCLP(p.precio ?? null)}</span>
-              <button
-                className="px-3 py-1 rounded-xl bg-black text-white text-sm"
-                onClick={() => alert(`Agregado: ${p.nombre}`)}
-              >
-                Agregar
-              </button>
-            </div>
+          <li key={p.id} className="border rounded-2xl hover:bg-gray-50 transition">
+            <Link href={`/producto/${p.id}`} className="block p-4">
+              <div className="aspect-[4/3] w-full mb-3 overflow-hidden rounded-xl bg-gray-100">
+                <img
+                  src={src || FALLBACK}
+                  alt={p.nombre || "Producto"}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                  referrerPolicy="no-referrer"
+                  onError={onErr}
+                />
+              </div>
+              <h3 className="font-semibold">{p.nombre}</h3>
+              <p className="text-sm text-gray-600">{p.envio || "Envío estándar"}</p>
+              <div className="mt-2 flex items-center justify-between">
+                <span className="font-bold">{fmtCLP(p.precio ?? null)}</span>
+                <span className="px-3 py-1 rounded-xl bg-black text-white text-sm">Ver</span>
+              </div>
+            </Link>
           </li>
         );
       })}
