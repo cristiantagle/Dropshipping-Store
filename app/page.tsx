@@ -48,68 +48,77 @@ function pickImg(p: Partial<Producto> & {
 }
 
 async function getHomeData() {
-  const supa = supabaseServer();
-  if (!supa) {
-    return { destacados: [] as Producto[], nuevos: [] as Producto[], top: [] as Producto[] };
-  }
-
-  // Tendencias = destacados(true)
-  let destacados: Producto[] = [];
-  {
-    const { data, error } = await supa
-      .from("productos")
-      .select(SELECT_COLS)
-      .eq("destacado", true)
-      .order("id", { ascending: true })
-      .limit(6);
-    if (error) console.error("Supabase destacados:", error);
-    destacados = (data ?? []) as Producto[];
-  }
-
-  // Nuevos: created_at desc → fallback id desc
-  let nuevos: Producto[] = [];
-  {
-    const r1 = await supa
-      .from("productos")
-      .select(SELECT_COLS)
-      .order("created_at", { ascending: false })
-      .limit(6);
-    if (r1.error) console.error("Supabase nuevos(created_at):", r1.error);
-    nuevos = (r1.data ?? []) as Producto[];
-    if (nuevos.length === 0) {
-      const r2 = await supa
-        .from("productos")
-        .select(SELECT_COLS)
-        .order("id", { ascending: false })
-        .limit(6);
-      if (r2.error) console.error("Supabase nuevos(id):", r2.error);
-      nuevos = (r2.data ?? []) as Producto[];
+  try {
+    const supa = supabaseServer();
+    if (!supa) {
+      return { destacados: [] as Producto[], nuevos: [] as Producto[], top: [] as Producto[] };
     }
-  }
 
-  // Top ventas: ventas desc → fallback id asc
-  let top: Producto[] = [];
-  {
-    const r1 = await supa
-      .from("productos")
-      .select(SELECT_COLS)
-      .order("ventas", { ascending: false })
-      .limit(6);
-    if (r1.error) console.error("Supabase top(ventas):", r1.error);
-    top = (r1.data ?? []) as Producto[];
-    if (top.length === 0) {
-      const r2 = await supa
+    // Usa SELECT_COLS definido arriba del archivo
+    let destacados: Producto[] = [];
+    try {
+      const { data } = await supa
         .from("productos")
         .select(SELECT_COLS)
+        .eq("destacado", true)
         .order("id", { ascending: true })
         .limit(6);
-      if (r2.error) console.error("Supabase top(id):", r2.error);
-      top = (r2.data ?? []) as Producto[];
+      destacados = (data ?? []) as Producto[];
+    } catch (e) {
+      console.error("Supabase destacados:", e);
+      destacados = [];
     }
-  }
 
-  return { destacados, nuevos, top };
+    let nuevos: Producto[] = [];
+    try {
+      const r1 = await supa
+        .from("productos")
+        .select(SELECT_COLS)
+        .order("created_at", { ascending: false })
+        .limit(6);
+      nuevos = (r1.data ?? []) as Producto[];
+      if (nuevos.length === 0) {
+        const r2 = await supa
+          .from("productos")
+          .select(SELECT_COLS)
+          .order("id", { ascending: false })
+          .limit(6);
+        nuevos = (r2.data ?? []) as Producto[];
+      }
+    } catch (e) {
+      console.error("Supabase nuevos:", e);
+      nuevos = [];
+    }
+
+    let top: Producto[] = [];
+    try {
+      const r1 = await supa
+        .from("productos")
+        .select(SELECT_COLS)
+        .order("ventas", { ascending: false })
+        .limit(6);
+      top = (r1.data ?? []) as Producto[];
+      if (top.length === 0) {
+        const r2 = await supa
+          .from("productos")
+          .select(SELECT_COLS)
+          .order("id", { ascending: true })
+          .limit(6);
+        top = (r2.data ?? []) as Producto[];
+      }
+    } catch (e) {
+      console.error("Supabase top:", e);
+      top = [];
+    }
+
+    return { destacados, nuevos, top };
+  } catch (e) {
+    console.error("getHomeData fatal:", e);
+    return { destacados: [] as Producto[], nuevos: [] as Producto[], top: [] as Producto[] };
+  }
 }
+
+
 
 export default async function Home() {
   const { destacados, nuevos, top } = await getHomeData();
