@@ -1,106 +1,155 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BR="preview/tune-hero-parallax-$(date +%Y%m%d-%H%M%S)"
-echo "🎯 Suavizando parallax del Hero (menos profundidad, mejor encuadre, móvil sin 3D)…"
+BR="preview/lookfeel-polish-$(date +%Y%m%d-%H%M%S)"
+echo "🎨 Look&Feel polish (TopBar activo + Footer + ClientShell ordenado)"
+echo "🌱 Rama: $BR"
+
+# Aseguramos estado limpio y base en origin/main
 git fetch origin --prune
-git checkout -B "$BR" origin/main || git checkout -b "$BR"
+git checkout -B "$BR" origin/main
 
-# 1) Ajustes CSS de parallax (menor profundidad/escala, mejor overlay, mobile fallback)
-mkdir -p app
-if ! grep -q "/* PARALLAX UTILITIES v2 */" app/globals.css; then
-  cat >> app/globals.css <<'CSS'
+# --- 1) TopBar: resaltar link activo "Categorías" ---
+cat > components/TopBar.tsx.bak <<'EOF'
+$(cat components/TopBar.tsx)
+EOF
 
-/* PARALLAX UTILITIES v2 */
-.parallax-root { perspective: 800px; }
-.parallax-scene { transform-style: preserve-3d; height: 100%; position: relative; }
-.parallax-bg {
-  position: absolute; inset: 0;
-  background-position: center 30%;
-  background-size: cover;
-  background-repeat: no-repeat;
-  transform: translateZ(-120px) scale(1.12);
-  will-change: transform;
-  transition: transform 300ms ease-out;
-  filter: saturate(104%) contrast(102%);
-}
-/* Suaviza bordes y da respiro visual */
-.hero-clip { border-radius: 1rem; overflow: hidden; }
-/* Degradado más sutil (menos “leche” sobre la foto) */
-.hero-fade::after{
-  content:"";
-  position:absolute; inset:0;
-  background: linear-gradient(to top, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.55) 45%, rgba(255,255,255,0.15) 100%);
-  pointer-events:none;
-}
-/* En móviles desactivamos 3D: se ve más limpio */
-@media (max-width: 767px) {
-  .parallax-root { perspective: none; }
-  .parallax-scene { transform-style: flat; }
-  .parallax-bg { transform: none; }
-  .parallax-bg-fixed { background-attachment: scroll; }
-}
-/* Respeto a usuarios con reduce-motion */
-@media (prefers-reduced-motion: reduce) {
-  .parallax-bg { transition: none; transform: none; }
-}
-CSS
-fi
-
-# 2) Hero con parallax suavizado y encuadre mejorado (compat con Topbar)
-mkdir -p components
-cat > components/Hero.tsx <<'TSX'
+cat > components/TopBar.tsx <<'EOF'
 'use client';
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-export default function Hero() {
-  const bg = "url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1920&auto=format&fit=crop')";
+export default function TopBar() {
+  const pathname = usePathname();
+  const catActive = pathname?.startsWith("/categorias");
+
   return (
-    <section className="relative hero-clip h-[50vh] md:h-[62vh] lg:h-[66vh] bg-neutral-100">
-      <div className="parallax-root h-full">
-        <div className="parallax-scene">
-          <div
-            className="parallax-bg parallax-bg-fixed"
-            style={{ backgroundImage: bg }}
-            aria-hidden="true"
-          />
-          <div className="parallax-fg relative h-full hero-fade">
-            <div className="relative z-10 h-full mx-auto max-w-6xl px-4 sm:px-6 flex flex-col items-start justify-end pb-10 md:pb-14">
-              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-neutral-900 drop-shadow-sm">
-                Descubre cosas útiles y bonitas
-              </h1>
-              <p className="mt-2 md:mt-3 text-neutral-700 max-w-xl">
-                Productos prácticos, bien elegidos, con envío simple. Explora por categoría o mira lo nuevo.
-              </p>
-              <div className="mt-4 flex items-center gap-3">
-                <Link
-                  href="/categorias"
-                  className="inline-flex items-center gap-2 rounded-xl bg-lime-600 px-4 py-2.5 text-white font-semibold shadow-sm hover:bg-lime-700 transition"
-                >
-                  Explorar categorías
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </Link>
-                <Link
-                  href="/"
-                  className="inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 font-semibold text-neutral-800 hover:bg-white transition"
-                >
-                  Ver novedades
-                </Link>
+    <>
+      <div className="fixed top-0 inset-x-0 z-40 bg-white/85 backdrop-blur border-b">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="h-16 flex items-center justify-between gap-3">
+            {/* Left: Back (si existe BackNav/BackButton lo puedes poner aquí luego) */}
+            <div className="min-w-0" />
+
+            {/* Center: Logo + nombre */}
+            <Link href="/" className="shrink-0 inline-flex items-center gap-2 group">
+              <div className="size-8 rounded-lg bg-lime-600 text-white grid place-items-center shadow-sm group-hover:scale-[1.03] transition">
+                <span className="font-black">L</span>
               </div>
-            </div>
+              <div className="leading-tight">
+                <div className="font-extrabold tracking-tight">Lunaria</div>
+                <div className="text-xs text-neutral-500 -mt-0.5">Tienda simple y bonita</div>
+              </div>
+            </Link>
+
+            {/* Right: Nav mínima */}
+            <nav className="flex items-center gap-1.5">
+              <Link
+                href="/categorias"
+                aria-current={catActive ? "page" : undefined}
+                className={[
+                  "inline-flex rounded-xl px-3 py-2 text-sm font-semibold transition",
+                  catActive
+                    ? "bg-neutral-900 text-white"
+                    : "text-neutral-800 hover:bg-neutral-100"
+                ].join(" ")}
+              >
+                Categorías
+              </Link>
+              <button
+                type="button"
+                onClick={() => alert('Pronto: login/usuario')}
+                className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold hover:bg-white/60 transition"
+                aria-label="Iniciar sesión"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM3 22a9 9 0 1118 0" stroke="currentColor" strokeWidth="2"
+                    strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span className="hidden sm:inline">Entrar</span>
+              </button>
+            </nav>
           </div>
         </div>
       </div>
-    </section>
+      {/* Spacer para que el contenido no quede bajo la barra */}
+      <div className="h-16" aria-hidden="true" />
+    </>
   );
 }
-TSX
+EOF
 
+# --- 2) Footer minimal consistente ---
+cat > components/Footer.tsx <<'EOF'
+export default function Footer() {
+  return (
+    <footer className="mt-12 border-t bg-white">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 text-sm text-neutral-600">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="size-7 rounded-md bg-lime-600 text-white grid place-items-center shadow-sm">
+              <span className="font-black">L</span>
+            </div>
+            <span className="font-semibold text-neutral-800">Lunaria</span>
+          </div>
+          <nav className="flex items-center gap-4 text-neutral-600">
+            <a href="/categorias" className="hover:text-neutral-900 transition">Categorías</a>
+            <a href="/carro" className="hover:text-neutral-900 transition">Carro</a>
+            <a href="/diag" className="hover:text-neutral-900 transition">Diag</a>
+          </nav>
+        </div>
+        <p className="mt-4 text-xs text-neutral-500">
+          © {new Date().getFullYear()} Lunaria. Todos los derechos reservados.
+        </p>
+      </div>
+    </footer>
+  );
+}
+EOF
+
+# --- 3) ClientShell: orquesta TopBar + content + FloatingCart + BackToTopGuard + PreviewBadge + Footer ---
+cat > components/ClientShell.tsx.bak <<'EOF'
+$(cat components/ClientShell.tsx)
+EOF
+
+cat > components/ClientShell.tsx <<'EOF'
+'use client';
+import TopBar from "@/components/TopBar";
+import FloatingCart from "@/components/FloatingCart";
+import BackToTopGuard from "@/components/BackToTopGuard";
+import PreviewBadge from "@/components/PreviewBadge";
+import Footer from "@/components/Footer";
+import React from "react";
+
+export default function ClientShell({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <BackToTopGuard />
+      <TopBar />
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-6">
+        {children}
+      </main>
+      <Footer />
+      <FloatingCart />
+      <PreviewBadge />
+    </>
+  );
+}
+EOF
+
+# --- 4) Asegurar import en layout (ya existente) se mantiene minimal ---
+# (No tocamos app/layout.tsx: ya envuelve con ClientShell y define Inter+html/body.)
+
+# --- 5) Commit y push preview ---
 git add -A
-git commit -m "style(hero): parallax suavizado (menos profundidad), mejor encuadre y mobile fallback; overlay refinado"
+if ! git diff --cached --quiet; then
+  git commit -m "feat(ui): TopBar activo + Footer consistente + ClientShell ordenado (sin tocar lógica)"
+else
+  echo "ℹ️ No hay cambios para commitear (¿ya estaban aplicados?)."
+fi
+
 git push -u origin "$BR"
 
-echo "✅ Preview listo en rama: $BR"
-echo "👉 Si te gusta, dime LUNARIA OK y te paso el run.sh de merge SOLO de este commit."
+echo
+echo "✅ Rama subida: $BR"
+echo "➡ Revisa el preview en Vercel. Cuando digas 'LUNARIA ok', te doy el script de merge."
