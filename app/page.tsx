@@ -5,6 +5,7 @@ import ProductSkeleton from "@/components/ProductSkeleton";
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabaseServer";
 import PreviewDebug from "@/components/PreviewDebug";
+import ProductCard from "@/components/ProductCard";
 
 export const dynamic = "force-dynamic";
 
@@ -55,7 +56,6 @@ async function getHomeData() {
       return { destacados: [] as Producto[], nuevos: [] as Producto[], top: [] as Producto[] };
     }
 
-    // Usa SELECT_COLS definido arriba del archivo
     let destacados: Producto[] = [];
     try {
       const { data } = await supa
@@ -119,8 +119,6 @@ async function getHomeData() {
   }
 }
 
-
-
 export default async function Home() {
   const isPreview = process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
   const hasSupabase = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
@@ -132,26 +130,22 @@ export default async function Home() {
 
       {/* NUEVOS */}
       <section className="mx-auto max-w-6xl px-4 sm:px-6">
-        <SectionHeader
-          title="Nuevos"
-          subtitle="Lo último que estamos destacando en la tienda"
-        />
+        <SectionHeader title="Nuevos" subtitle="Lo último que estamos destacando en la tienda" />
         {nuevos.length > 0 ? (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lunaria-grid-in">
             {nuevos.map((m) => (
-              <li key={m.id} className="rounded-xl border overflow-hidden bg-white group">
-                <div className="aspect-[4/3] overflow-hidden bg-gray-100">
-                  <img
-                    src={pickImg(m)}
-                    alt={m.nombre ?? "Producto"}
-                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                <div className="p-3">
-                  <div className="text-sm font-semibold line-clamp-1">{m.nombre}</div>
-                </div>
+              <li key={m.id}>
+                <ProductCard
+                  id={m.id}
+                  nombre={m.nombre}
+                  precio={m.precio}
+                  envio={m.envio ?? undefined}
+                  imagen={m.imagen ?? undefined}
+                  imagen_url={m.imagen_url ?? undefined}
+                  image_url={m.image_url ?? undefined}
+                  image={m.image ?? undefined}
+                  href={`/producto/${m.id}`}
+                />
               </li>
             ))}
           </ul>
@@ -175,21 +169,20 @@ export default async function Home() {
       <section className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeader title="Tendencias" subtitle="Se mueven mucho estos días" />
         {destacados.length > 0 ? (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lunaria-grid-in">
             {destacados.map((m) => (
-              <li key={m.id} className="rounded-xl border overflow-hidden bg-white group">
-                <div className="aspect-[4/3] overflow-hidden bg-gray-100">
-                  <img
-                    src={pickImg(m)}
-                    alt={m.nombre ?? "Producto"}
-                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                <div className="p-3">
-                  <div className="text-sm font-semibold line-clamp-1">{m.nombre}</div>
-                </div>
+              <li key={m.id}>
+                <ProductCard
+                  id={m.id}
+                  nombre={m.nombre}
+                  precio={m.precio}
+                  envio={m.envio ?? undefined}
+                  imagen={m.imagen ?? undefined}
+                  imagen_url={m.imagen_url ?? undefined}
+                  image_url={m.image_url ?? undefined}
+                  image={m.image ?? undefined}
+                  href={`/producto/${m.id}`}
+                />
               </li>
             ))}
           </ul>
@@ -215,21 +208,20 @@ export default async function Home() {
           </Link>
         </div>
         {top.length > 0 ? (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lunaria-grid-in">
             {top.map((m) => (
-              <li key={m.id} className="rounded-xl border overflow-hidden bg-white group">
-                <div className="aspect-[4/3] overflow-hidden bg-gray-100">
-                  <img
-                    src={pickImg(m)}
-                    alt={m.nombre ?? "Producto"}
-                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                <div className="p-3">
-                  <div className="text-sm font-semibold line-clamp-1">{m.nombre}</div>
-                </div>
+              <li key={m.id}>
+                <ProductCard
+                  id={m.id}
+                  nombre={m.nombre}
+                  precio={m.precio}
+                  envio={m.envio ?? undefined}
+                  imagen={m.imagen ?? undefined}
+                  imagen_url={m.imagen_url ?? undefined}
+                  image_url={m.image_url ?? undefined}
+                  image={m.image ?? undefined}
+                  href={`/producto/${m.id}`}
+                />
               </li>
             ))}
           </ul>
@@ -241,6 +233,7 @@ export default async function Home() {
           </ul>
         )}
       </section>
+
       {/* Debug sólo en preview */}
       <PreviewDebug isPreview={isPreview} hasSupabase={hasSupabase} counts={{
         nuevos: nuevos.length, destacados: destacados.length, top: top.length
