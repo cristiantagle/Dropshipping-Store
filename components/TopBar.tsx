@@ -1,34 +1,41 @@
 'use client';
 import Link from "next/link";
-import BackButton from "./BackButton";
+import { usePathname } from "next/navigation";
 
-export default function Topbar() {
+export default function TopBar() {
+  const pathname = usePathname();
+  const catActive = pathname?.startsWith("/categorias");
+
   return (
     <>
       <div className="fixed top-0 inset-x-0 z-40 bg-white/85 backdrop-blur border-b">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="h-16 flex items-center justify-between gap-3">
-            {/* Izquierda: Volver */}
-            <div className="min-w-0">
-              <BackButton className="hidden sm:inline-flex" />
-            </div>
+            {/* Left: Back (si existe BackNav/BackButton lo puedes poner aquí luego) */}
+            <div className="min-w-0" />
 
-            {/* Centro/Izq: Logo + nombre (link al home) */}
+            {/* Center: Logo + nombre */}
             <Link href="/" className="shrink-0 inline-flex items-center gap-2 group">
               <div className="size-8 rounded-lg bg-lime-600 text-white grid place-items-center shadow-sm group-hover:scale-[1.03] transition">
                 <span className="font-black">L</span>
               </div>
               <div className="leading-tight">
                 <div className="font-extrabold tracking-tight">Lunaria</div>
-                <div className="text-xs text-neutral-500 -mt-0.5">Tu tienda simple y bonita</div>
+                <div className="text-xs text-neutral-500 -mt-0.5">Tienda simple y bonita</div>
               </div>
             </Link>
 
-            {/* Derecha: Nav mínima + Usuario (placeholder) */}
-            <div className="flex items-center gap-2">
+            {/* Right: Nav mínima */}
+            <nav className="flex items-center gap-1.5">
               <Link
                 href="/categorias"
-                className="hidden sm:inline-flex rounded-xl px-3 py-2 text-sm font-semibold hover:bg-neutral-100 transition"
+                aria-current={catActive ? "page" : undefined}
+                className={[
+                  "inline-flex rounded-xl px-3 py-2 text-sm font-semibold transition",
+                  catActive
+                    ? "bg-neutral-900 text-white"
+                    : "text-neutral-800 hover:bg-neutral-100"
+                ].join(" ")}
               >
                 Categorías
               </Link>
@@ -44,11 +51,11 @@ export default function Topbar() {
                 </svg>
                 <span className="hidden sm:inline">Entrar</span>
               </button>
-            </div>
+            </nav>
           </div>
         </div>
       </div>
-      {/* Separador para que el contenido no quede bajo la barra */}
+      {/* Spacer para que el contenido no quede bajo la barra */}
       <div className="h-16" aria-hidden="true" />
     </>
   );
