@@ -1,54 +1,72 @@
-import { productos } from "@/lib/products";
-import ProductListClient from "@/components/ProductListClient";
 import Hero from "@/components/Hero";
-import CategoryGrid from "@/components/CategoryGrid";
-import TrustStrip from "@/components/TrustStrip";
+import SectionHeader from "@/components/SectionHeader";
+import ProductSkeleton from "@/components/ProductSkeleton";
+import Link from "next/link";
 
-export default function HomePage() {
+const MOCKS = [
+  { id: "m1", nombre: "Organizador minimal", imagen: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop" },
+  { id: "m2", nombre: "Botella térmica", imagen: "https://images.unsplash.com/photo-1502741126161-b048400d085a?q=80&w=1200&auto=format&fit=crop" },
+  { id: "m3", nombre: "Auriculares", imagen: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop" },
+  { id: "m4", nombre: "Silla ergonómica", imagen: "https://images.unsplash.com/photo-1503602642458-232111445657?q=80&w=1200&auto=format&fit=crop" },
+  { id: "m5", nombre: "Lámpara cálida", imagen: "https://images.unsplash.com/photo-1493666438817-866a91353ca9?q=80&w=1200&auto=format&fit=crop" },
+  { id: "m6", nombre: "Mochila urbana", imagen: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop" }
+];
+
+export default function Home() {
   return (
-    <main className="space-y-8">
+    <main className="space-y-12">
       <Hero />
-      <CategoryGrid />
-      <TrustStrip />
-    
-      <section className="mt-10">
-        <div className="flex items-end justify-between mb-4">
-          <div>
-            <h2 className="section-title">Tendencias</h2>
-            <p className="section-sub">Lo más visto esta semana</p>
-          </div>
-        </div>
-        {(() => {
-          const src = Array.isArray(productos) ? productos : [];
-          const items = src.slice(0, 12);
-          return <ProductListClient items={items} />;
-        })()}
+
+      {/* NUEVOS */}
+      <section className="mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeader
+          title="Nuevos"
+          subtitle="Lo último que estamos destacando en la tienda"
+        />
+        <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          {MOCKS.slice(0,6).map((m) => (
+            <li key={m.id} className="rounded-xl border overflow-hidden bg-white group">
+              <div className="aspect-[4/3] overflow-hidden bg-gray-100">
+                <img src={m.imagen} alt={m.nombre} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" />
+              </div>
+              <div className="p-3">
+                <div className="text-sm font-semibold line-clamp-1">{m.nombre}</div>
+              </div>
+            </li>
+          ))}
+        </ul>
       </section>
-      <section className="mt-12">
-        <div className="flex items-end justify-between mb-4">
-          <div>
-            <h2 className="section-title">Nuevos</h2>
-            <p className="section-sub">Acaban de llegar</p>
-          </div>
-        </div>
-        {(() => {
-          const src = Array.isArray(productos) ? productos : [];
-          const items = src.slice(-12);
-          return <ProductListClient items={items} />;
-        })()}
+
+      {/* TENDENCIAS */}
+      <section className="mx-auto max-w-6xl px-4 sm:px-6">
+        <SectionHeader
+          title="Tendencias"
+          subtitle="Se mueven mucho estos días"
+        />
+        <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <li key={i}><ProductSkeleton /></li>
+          ))}
+        </ul>
       </section>
-      <section className="mt-12">
-        <div className="flex items-end justify-between mb-4">
-          <div>
-            <h2 className="section-title">Mejor valorados</h2>
-            <p className="section-sub">Selección destacada</p>
-          </div>
+
+      {/* TOP VENTAS */}
+      <section className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="flex items-end justify-between">
+          <SectionHeader
+            title="Top Ventas"
+            subtitle="Los favoritos de la comunidad"
+            className="mb-0"
+          />
+          <Link href="/categorias" className="text-sm font-semibold rounded-xl px-3 py-1.5 hover:bg-neutral-100">
+            Ver todas las categorías →
+          </Link>
         </div>
-        {(() => {
-          const src = Array.isArray(productos) ? productos : [];
-          const items = src.slice(6, 18);
-          return <ProductListClient items={items} />;
-        })()}
+        <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <li key={i}><ProductSkeleton /></li>
+          ))}
+        </ul>
       </section>
     </main>
   );
