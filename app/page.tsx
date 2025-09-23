@@ -36,14 +36,15 @@ const MOCKS = [
 
 const IMG_FALLBACK = "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?q=80&w=1200&auto=format&fit=crop";
 
-function pickImg(p: Partial<Producto> & { imagen?: string }) {
-  return (
-    (p.imagen && p.imagen.trim()) ||
-    (p.imagen_url && p.imagen_url.trim()) ||
-    (p.image_url && p.image_url.trim()) ||
-    (p.image && p.image.trim()) ||
-    IMG_FALLBACK
-  );
+function pickImg(p: Partial<Producto> & {
+  imagen?: string | null;
+  imagen_url?: string | null;
+  image_url?: string | null;
+  image?: string | null;
+}) {
+  const toStr = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+  const cands = [p.imagen, p.imagen_url, p.image_url, p.image].map(toStr).filter(Boolean);
+  return cands[0] || IMG_FALLBACK;
 }
 
 async function getHomeData() {
