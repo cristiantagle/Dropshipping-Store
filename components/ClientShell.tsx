@@ -1,23 +1,25 @@
 'use client';
+import React from "react";
+import TopBar from "@/components/TopBar";
+import FloatingCart from "@/components/FloatingCart";
+import BackToTop from "@/components/BackToTop";
+import PreviewBadge from "@/components/PreviewBadge";
 
-import React from 'react';
-import TopBar from '@/components/TopBar';
-import FloatingCart from '@/components/FloatingCart';
-import BackToTop from '@/components/BackToTop';
-import BackToTopGuard from '@/components/BackToTopGuard';
-
-type Props = { children: React.ReactNode };
-
-export default function ClientShell({ children }: Props) {
+export default function ClientShell({ children }: { children: React.ReactNode }) {
   return (
     <>
+      {/* Barra superior fija con botón Volver condicional (dentro de TopBar) */}
       <TopBar />
-      <div className="mx-auto max-w-6xl px-4 py-6 pt-20">
+
+      {/* Contenedor de página (respeta el spacer de TopBar con h-16) */}
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6">
         {children}
       </div>
+
+      {/* UI flotante existente */}
       <FloatingCart />
-      <BackToTopGuard />
       <BackToTop />
+      <PreviewBadge />
     </>
   );
 }
