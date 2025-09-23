@@ -17,13 +17,13 @@ export default function Hero() {
               <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-neutral-900 drop-shadow-sm">
                 Descubre cosas útiles y bonitas
               </h1>
-              <p className="mt-2 md:mt-3 text-neutral-700 max-w-xl">
+              <p className="mt-2 md:mt-3 text-neutral-700 max-w-xl lunaria-hero-subtle">
                 Productos prácticos, bien elegidos, con envío simple. Explora por categoría o mira lo nuevo.
               </p>
               <div className="mt-4 flex items-center gap-3">
                 <Link
                   href="/categorias"
-                  className="inline-flex items-center gap-2 rounded-xl bg-lime-600 px-4 py-2.5 text-white font-semibold shadow-sm hover:bg-lime-700 transition"
+                  className="inline-flex items-center gap-2 rounded-xl bg-lime-600 px-4 py-2.5 text-white font-semibold shadow-sm hover:bg-lime-700 transition lunaria-cta hero-cta-breathe"
                 >
                   Explorar categorías
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
