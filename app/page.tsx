@@ -1,8 +1,12 @@
+import "server-only";
 import Hero from "@/components/Hero";
 import SectionHeader from "@/components/SectionHeader";
 import ProductSkeleton from "@/components/ProductSkeleton";
+import ProductListClient, { type Producto } from "@/components/ProductListClient";
 import Link from "next/link";
+import { supabaseServer } from "@/lib/supabaseServer";
 
+/** Mocks que ya usabas para "Nuevos" (se conservan) */
 const MOCKS = [
   { id: "m1", nombre: "Organizador minimal", imagen: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop" },
   { id: "m2", nombre: "Botella térmica", imagen: "https://images.unsplash.com/photo-1502741126161-b048400d085a?q=80&w=1200&auto=format&fit=crop" },
@@ -12,12 +16,53 @@ const MOCKS = [
   { id: "m6", nombre: "Mochila urbana", imagen: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop" }
 ];
 
-export default function Home() {
+/**
+ * Helper seguro que tolera:
+ * - Falta de envs (cuando supabaseServer() es null)
+ * - Errores de consulta
+ * - Tipos "thenables" de supabase (v2) sin pelear con TypeScript
+ */
+async function q<T = any>(promiseLike: any): Promise<T> {
+  try {
+    const { data, error } = await (promiseLike as Promise<{ data: T | null; error: any }>);
+    if (error) return [] as T;
+    return (data ?? []) as T;
+  } catch {
+    return [] as T;
+  }
+}
+
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const supa = supabaseServer();
+
+  // Por defecto vacías → skeletons
+  let tendencias: Producto[] = [];
+  let top: Producto[] = [];
+
+  if (supa) {
+    // Tendencias: los "más nuevos" por created_at desc (si esa columna existe en tu tabla)
+    tendencias = await q<Producto[]>(
+      supa.from("productos").select("*").order("created_at", { ascending: false }).limit(6)
+    );
+
+    // Top ventas: por 'ventas' desc si existe; si viene vacío, cae a id asc
+    top = await q<Producto[]>(
+      supa.from("productos").select("*").order("ventas", { ascending: false }).limit(6)
+    );
+    if (!Array.isArray(top) || top.length === 0) {
+      top = await q<Producto[]>(
+        supa.from("productos").select("*").order("id", { ascending: true }).limit(6)
+      );
+    }
+  }
+
   return (
     <main className="space-y-12">
       <Hero />
 
-      {/* NUEVOS */}
+      {/* NUEVOS: conserva tu UI con mocks */}
       <section className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeader
           title="Nuevos"
@@ -43,11 +88,15 @@ export default function Home() {
           title="Tendencias"
           subtitle="Se mueven mucho estos días"
         />
-        <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <li key={i}><ProductSkeleton /></li>
-          ))}
-        </ul>
+        {Array.isArray(tendencias) && tendencias.length > 0 ? (
+          <ProductListClient items={tendencias} />
+        ) : (
+          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <li key={i}><ProductSkeleton /></li>
+            ))}
+          </ul>
+        )}
       </section>
 
       {/* TOP VENTAS */}
@@ -62,11 +111,15 @@ export default function Home() {
             Ver todas las categorías →
           </Link>
         </div>
-        <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <li key={i}><ProductSkeleton /></li>
-          ))}
-        </ul>
+        {Array.isArray(top) && top.length > 0 ? (
+          <ProductListClient items={top} />
+        ) : (
+          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <li key={i}><ProductSkeleton /></li>
+            ))}
+          </ul>
+        )}
       </section>
     </main>
   );
