@@ -46,12 +46,22 @@ function pickImg(p: Partial<Producto> & {
   const cands = [p.imagen, p.imagen_url, p.image_url, p.image].map(toStr).filter(Boolean);
   return cands[0] || IMG_FALLBACK;
 }
+function fmtCLP(v?: number | null) {
+  if (v == null) return "$—";
+  try {
+    return new Intl.NumberFormat("es-CL", {
+      style: "currency",
+      currency: "CLP",
+      maximumFractionDigits: 0,
+    }).format(v);
+  } catch {
+    return `$${v}`;
+  }
+}
 
 async function getHomeData() {
   const supa = supabaseServer();
-  if (!supa) {
-    return { destacados: [] as Producto[], nuevos: [] as Producto[], top: [] as Producto[] };
-  }
+  if (!supa) return { destacados: [] as Producto[], nuevos: [] as Producto[], top: [] as Producto[] };
 
   // Tendencias = destacados(true)
   let destacados: Producto[] = [];
@@ -69,19 +79,11 @@ async function getHomeData() {
   // Nuevos: created_at desc → fallback id desc
   let nuevos: Producto[] = [];
   {
-    const r1 = await supa
-      .from("productos")
-      .select(SELECT_COLS)
-      .order("created_at", { ascending: false })
-      .limit(6);
+    const r1 = await supa.from("productos").select(SELECT_COLS).order("created_at", { ascending: false }).limit(6);
     if (r1.error) console.error("Supabase nuevos(created_at):", r1.error);
     nuevos = (r1.data ?? []) as Producto[];
     if (nuevos.length === 0) {
-      const r2 = await supa
-        .from("productos")
-        .select(SELECT_COLS)
-        .order("id", { ascending: false })
-        .limit(6);
+      const r2 = await supa.from("productos").select(SELECT_COLS).order("id", { ascending: false }).limit(6);
       if (r2.error) console.error("Supabase nuevos(id):", r2.error);
       nuevos = (r2.data ?? []) as Producto[];
     }
@@ -90,25 +92,54 @@ async function getHomeData() {
   // Top ventas: ventas desc → fallback id asc
   let top: Producto[] = [];
   {
-    const r1 = await supa
-      .from("productos")
-      .select(SELECT_COLS)
-      .order("ventas", { ascending: false })
-      .limit(6);
+    const r1 = await supa.from("productos").select(SELECT_COLS).order("ventas", { ascending: false }).limit(6);
     if (r1.error) console.error("Supabase top(ventas):", r1.error);
     top = (r1.data ?? []) as Producto[];
     if (top.length === 0) {
-      const r2 = await supa
-        .from("productos")
-        .select(SELECT_COLS)
-        .order("id", { ascending: true })
-        .limit(6);
+      const r2 = await supa.from("productos").select(SELECT_COLS).order("id", { ascending: true }).limit(6);
       if (r2.error) console.error("Supabase top(id):", r2.error);
       top = (r2.data ?? []) as Producto[];
     }
   }
 
   return { destacados, nuevos, top };
+}
+
+function ProductTile({ m }: { m: Partial<Producto> }) {
+  const src = pickImg(m);
+  const envio = (m.envio || "").toString().trim();
+  return (
+    <li className="rounded-2xl border overflow-hidden bg-white group hover:shadow-md transition">
+      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+        <img
+          src={src}
+          alt={m.nombre ?? "Producto"}
+          className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
+          loading="lazy"
+          decoding="async"
+        />
+        {envio ? (
+          <span className="absolute left-2 top-2 text-[11px] font-semibold px-2 py-1 rounded-full bg-black/75 text-white shadow">
+            {envio}
+          </span>
+        ) : null}
+      </div>
+      <div className="p-3">
+        <div className="lunaria-title text-sm line-clamp-1">{m.nombre}</div>
+        <div className="lunaria-divider" />
+        <div className="mt-1 flex items-center justify-between">
+          <span className="lunaria-price text-[15px]">{fmtCLP(m.precio ?? null)}</span>
+          <button
+            type="button"
+            onClick={() => alert(`Agregado: ${m.nombre ?? "Producto"}`)}
+            className="lunaria-cta px-3 py-1.5 text-xs font-semibold"
+          >
+            Agregar
+          </button>
+        </div>
+      </div>
+    </li>
+  );
 }
 
 export default async function Home() {
@@ -120,33 +151,15 @@ export default async function Home() {
 
       {/* NUEVOS */}
       <section className="mx-auto max-w-6xl px-4 sm:px-6">
-        <SectionHeader
-          title="Nuevos"
-          subtitle="Lo último que estamos destacando en la tienda"
-        />
+        <SectionHeader title="Nuevos" subtitle="Lo último que estamos destacando en la tienda" />
         {nuevos.length > 0 ? (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {nuevos.map((m) => (
-              <li key={m.id} className="rounded-xl border overflow-hidden bg-white group">
-                <div className="aspect-[4/3] overflow-hidden bg-gray-100">
-                  <img
-                    src={pickImg(m)}
-                    alt={m.nombre ?? "Producto"}
-                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                <div className="p-3">
-                  <div className="text-sm font-semibold line-clamp-1">{m.nombre}</div>
-                </div>
-              </li>
-            ))}
+          <ul className="lunaria-grid-in grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {nuevos.map((m) => <ProductTile key={m.id} m={m} />)}
           </ul>
         ) : (
           <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             {MOCKS.slice(0,6).map((m) => (
-              <li key={m.id} className="rounded-xl border overflow-hidden bg-white group">
+              <li key={m.id} className="rounded-2xl border overflow-hidden bg-white group">
                 <div className="aspect-[4/3] overflow-hidden bg-gray-100">
                   <img src={m.imagen} alt={m.nombre} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" />
                 </div>
@@ -163,23 +176,8 @@ export default async function Home() {
       <section className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeader title="Tendencias" subtitle="Se mueven mucho estos días" />
         {destacados.length > 0 ? (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {destacados.map((m) => (
-              <li key={m.id} className="rounded-xl border overflow-hidden bg-white group">
-                <div className="aspect-[4/3] overflow-hidden bg-gray-100">
-                  <img
-                    src={pickImg(m)}
-                    alt={m.nombre ?? "Producto"}
-                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                <div className="p-3">
-                  <div className="text-sm font-semibold line-clamp-1">{m.nombre}</div>
-                </div>
-              </li>
-            ))}
+          <ul className="lunaria-grid-in grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {destacados.map((m) => <ProductTile key={m.id} m={m} />)}
           </ul>
         ) : (
           <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -193,33 +191,14 @@ export default async function Home() {
       {/* TOP VENTAS */}
       <section className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex items-end justify-between">
-          <SectionHeader
-            title="Top Ventas"
-            subtitle="Los favoritos de la comunidad"
-            className="mb-0"
-          />
+          <SectionHeader title="Top Ventas" subtitle="Los favoritos de la comunidad" className="mb-0" />
           <Link href="/categorias" className="text-sm font-semibold rounded-xl px-3 py-1.5 hover:bg-neutral-100">
             Ver todas las categorías →
           </Link>
         </div>
         {top.length > 0 ? (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {top.map((m) => (
-              <li key={m.id} className="rounded-xl border overflow-hidden bg-white group">
-                <div className="aspect-[4/3] overflow-hidden bg-gray-100">
-                  <img
-                    src={pickImg(m)}
-                    alt={m.nombre ?? "Producto"}
-                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                <div className="p-3">
-                  <div className="text-sm font-semibold line-clamp-1">{m.nombre}</div>
-                </div>
-              </li>
-            ))}
+          <ul className="lunaria-grid-in grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {top.map((m) => <ProductTile key={m.id} m={m} />)}
           </ul>
         ) : (
           <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
