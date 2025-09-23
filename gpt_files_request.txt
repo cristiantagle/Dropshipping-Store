@@ -1,0 +1,10 @@
+# 📂 LISTA DE ARCHIVOS A ENVIAR (cópialos en un GPT BUNDLE completo):
+
+app/page.tsx
+app/globals.css
+
+# (Si quieres, también estos opcionales para polish extra)
+# components/ProductListClient.tsx
+# components/SectionHeader.tsx
+# components/ProductSkeleton.tsx
+# components/Hero.tsx

@@ -1,28 +1,7 @@
-#!/usr/bin/env bash
-set -euo pipefail
+=== GPT BUNDLE | mar 23 sep 2025 19:37:34 -03 ===
+Repo: dropshipping-store
 
-stamp="$(date +%Y%m%d-%H%M%S)"
-branch="preview/lunaria-product-detail-${stamp}"
-
-echo "🚀 Lunaria: fixing product detail routing + polish"
-echo "🧹 Checking working tree…"
-
-# Si hay cambios sin commit, los metemos en un commit WIP para no frenar el flujo.
-if ! git diff --quiet || ! git diff --cached --quiet; then
-  echo "💾 Working tree sucio → commit WIP"
-  git add -A
-  git commit -m "WIP: auto-save before lunaria product detail update (${stamp})" || true
-fi
-
-echo "🌿 Creando rama desde HEAD → ${branch}"
-git checkout -b "${branch}"
-
-# ==== Escribir archivos ====
-
-mkdir -p app/producto/[id]
-
-# app/page.tsx
-cat > app/page.tsx <<'TS'
+===== BEGIN app/page.tsx =====
 import "server-only";
 import Hero from "@/components/Hero";
 import SectionHeader from "@/components/SectionHeader";
@@ -266,10 +245,10 @@ export default async function Home() {
     </main>
   );
 }
-TS
 
-# app/globals.css
-cat > app/globals.css <<'CSS'
+===== END app/page.tsx =====
+
+===== BEGIN app/globals.css =====
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -1076,10 +1055,10 @@ html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) {
   .parallax-bg { transition: none; transform: none; }
 }
-CSS
 
-# components/ProductCard.tsx
-cat > components/ProductCard.tsx <<'TS'
+===== END app/globals.css =====
+
+===== BEGIN components/ProductCard.tsx =====
 'use client';
 import Link from "next/link";
 
@@ -1137,13 +1116,12 @@ export default function ProductCard(props: Props){
     </Link>
   );
 }
-TS
 
-# components/ProductListClient.tsx — ahora linkea a /producto/[id]
-cat > components/ProductListClient.tsx <<'TS'
+===== END components/ProductCard.tsx =====
+
+===== BEGIN components/ProductListClient.tsx =====
 'use client';
 import React from "react";
-import Link from "next/link";
 
 export type Producto = {
   id: string;
@@ -1207,36 +1185,39 @@ export default function ProductListClient({ items }: Props) {
           }
         };
         return (
-          <li key={p.id} className="border rounded-2xl hover:bg-gray-50 transition">
-            <Link href={`/producto/${p.id}`} className="block p-4">
-              <div className="aspect-[4/3] w-full mb-3 overflow-hidden rounded-xl bg-gray-100">
-                <img
-                  src={src || FALLBACK}
-                  alt={p.nombre || "Producto"}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  decoding="async"
-                  referrerPolicy="no-referrer"
-                  onError={onErr}
-                />
-              </div>
-              <h3 className="font-semibold">{p.nombre}</h3>
-              <p className="text-sm text-gray-600">{p.envio || "Envío estándar"}</p>
-              <div className="mt-2 flex items-center justify-between">
-                <span className="font-bold">{fmtCLP(p.precio ?? null)}</span>
-                <span className="px-3 py-1 rounded-xl bg-black text-white text-sm">Ver</span>
-              </div>
-            </Link>
+          <li key={p.id} className="border rounded-2xl p-4 hover:bg-gray-50 transition">
+            <div className="aspect-[4/3] w-full mb-3 overflow-hidden rounded-xl bg-gray-100">
+              <img
+                src={src || FALLBACK}
+                alt={p.nombre || "Producto"}
+                className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
+                referrerPolicy="no-referrer"
+                onError={onErr}
+              />
+            </div>
+            <h3 className="font-semibold">{p.nombre}</h3>
+            <p className="text-sm text-gray-600">{p.envio || "Envío estándar"}</p>
+            <div className="mt-2 flex items-center justify-between">
+              <span className="font-bold">{fmtCLP(p.precio ?? null)}</span>
+              <button
+                className="px-3 py-1 rounded-xl bg-black text-white text-sm"
+                onClick={() => alert(`Agregado: ${p.nombre}`)}
+              >
+                Agregar
+              </button>
+            </div>
           </li>
         );
       })}
     </ul>
   );
 }
-TS
 
-# components/SectionHeader.tsx
-cat > components/SectionHeader.tsx <<'TS'
+===== END components/ProductListClient.tsx =====
+
+===== BEGIN components/SectionHeader.tsx =====
 'use client';
 type Props = { title: string; subtitle?: string; className?: string };
 export default function SectionHeader({ title, subtitle, className="" }: Props){
@@ -1247,10 +1228,10 @@ export default function SectionHeader({ title, subtitle, className="" }: Props){
     </header>
   );
 }
-TS
 
-# components/ProductSkeleton.tsx
-cat > components/ProductSkeleton.tsx <<'TS'
+===== END components/SectionHeader.tsx =====
+
+===== BEGIN components/ProductSkeleton.tsx =====
 'use client';
 export default function ProductSkeleton(){
   return (
@@ -1264,10 +1245,10 @@ export default function ProductSkeleton(){
     </div>
   );
 }
-TS
 
-# components/Hero.tsx
-cat > components/Hero.tsx <<'TS'
+===== END components/ProductSkeleton.tsx =====
+
+===== BEGIN components/Hero.tsx =====
 'use client';
 import Link from "next/link";
 
@@ -1314,10 +1295,10 @@ export default function Hero() {
     </section>
   );
 }
-TS
 
-# components/PreviewDebug.tsx
-cat > components/PreviewDebug.tsx <<'TS'
+===== END components/Hero.tsx =====
+
+===== BEGIN components/PreviewDebug.tsx =====
 'use client';
 type Props = {
   isPreview: boolean;
@@ -1344,10 +1325,10 @@ export default function PreviewDebug({ isPreview, hasSupabase, counts }: Props) 
     </div>
   );
 }
-TS
 
-# app/producto/[id]/page.tsx
-cat > "app/producto/[id]/page.tsx" <<'TS'
+===== END components/PreviewDebug.tsx =====
+
+===== BEGIN app/producto/[id]/page.tsx =====
 import "server-only";
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabaseServer";
@@ -1445,10 +1426,10 @@ export default async function ProductoPage({ params }: { params: { id: string } 
     </main>
   );
 }
-TS
 
-# app/producto/[id]/loading.tsx
-cat > "app/producto/[id]/loading.tsx" <<'TS'
+===== END app/producto/[id]/page.tsx =====
+
+===== BEGIN app/producto/[id]/loading.tsx =====
 export default function LoadingProduct(){
   return (
     <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
@@ -1467,16 +1448,9 @@ export default function LoadingProduct(){
     </main>
   );
 }
-TS
 
-echo "🧾 Archivos escritos."
+===== END app/producto/[id]/loading.tsx =====
 
-# ==== Commit & push ====
-git add -A
-git commit -m "LUNARIA: detalle de producto /producto/[id] + ProductCard + links desde categorías + polish visual"
-git push -u origin "${branch}"
-
-echo "✅ Listo. Se subió ${branch}."
-echo "🔗 Vercel debería levantar un Preview automáticamente para esta rama."
-echo "👉 Si tu flujo es merge directo: "
-echo "   git checkout main && git merge --no-ff ${branch} && git push origin main"
+=== SUMMARY ===
+Todos los archivos listados fueron volcados en este bundle.
+Si ves /* MISSING */ arriba, ese archivo no existe actualmente.
