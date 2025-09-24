@@ -1,243 +1,34 @@
-import "server-only";
-import Hero from "@/components/Hero";
-import SectionHeader from "@/components/SectionHeader";
-import ProductSkeleton from "@/components/ProductSkeleton";
+"use client";
 import Link from "next/link";
-import { supabaseServer } from "@/lib/supabaseServer";
-import PreviewDebug from "@/components/PreviewDebug";
-import ProductCard from "@/components/ProductCard";
+import { Producto } from "../lib/products";
+import ProductCard from "../components/ProductCard";
 
-export const dynamic = "force-dynamic";
+export default function HomePage() {
+  // Aquí deberías traer tus productos desde Supabase o props
+  const mockData: any[] = []; // reemplazar con fetch real
 
-type Producto = {
-  id: string;
-  nombre: string;
-  precio?: number | null;
-  imagen?: string | null;
-  imagen_url?: string | null;
-  image_url?: string | null;
-  image?: string | null;
-  envio?: string | null;
-  categoria_slug?: string | null;
-  destacado?: boolean | null;
-  created_at?: string | null;
-  ventas?: number | null;
-};
-
-const SELECT_COLS =
-  "id,nombre,precio,imagen,imagen_url,image_url,image,envio,categoria_slug,destacado,created_at,ventas";
-
-const MOCKS = [
-  { id: "m1", nombre: "Organizador minimal", imagen: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop" },
-  { id: "m2", nombre: "Botella térmica", imagen: "https://images.unsplash.com/photo-1502741126161-b048400d085a?q=80&w=1200&auto=format&fit=crop" },
-  { id: "m3", nombre: "Auriculares", imagen: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop" },
-  { id: "m4", nombre: "Silla ergonómica", imagen: "https://images.unsplash.com/photo-1503602642458-232111445657?q=80&w=1200&auto=format&fit=crop" },
-  { id: "m5", nombre: "Lámpara cálida", imagen: "https://images.unsplash.com/photo-1493666438817-866a91353ca9?q=80&w=1200&auto=format&fit=crop" },
-  { id: "m6", nombre: "Mochila urbana", imagen: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop" }
-];
-
-const IMG_FALLBACK = "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?q=80&w=1200&auto=format&fit=crop";
-
-function pickImg(p: Partial<Producto> & {
-  imagen?: string | null;
-  imagen_url?: string | null;
-  image_url?: string | null;
-  image?: string | null;
-}) {
-  const toStr = (v: unknown) => (typeof v === "string" ? v.trim() : "");
-  const cands = [p.imagen, p.imagen_url, p.image_url, p.image].map(toStr).filter(Boolean);
-  return cands[0] || IMG_FALLBACK;
-}
-
-async function getHomeData() {
-  try {
-    const supa = supabaseServer();
-    if (!supa) {
-      return { destacados: [] as Producto[], nuevos: [] as Producto[], top: [] as Producto[] };
-    }
-
-    let destacados: Producto[] = [];
-    try {
-      const { data } = await supa
-        .from("productos")
-        .select(SELECT_COLS)
-        .eq("destacado", true)
-        .order("id", { ascending: true })
-        .limit(6);
-      destacados = (data ?? []) as Producto[];
-    } catch (e) {
-      console.error("Supabase destacados:", e);
-      destacados = [];
-    }
-
-    let nuevos: Producto[] = [];
-    try {
-      const r1 = await supa
-        .from("productos")
-        .select(SELECT_COLS)
-        .order("created_at", { ascending: false })
-        .limit(6);
-      nuevos = (r1.data ?? []) as Producto[];
-      if (nuevos.length === 0) {
-        const r2 = await supa
-          .from("productos")
-          .select(SELECT_COLS)
-          .order("id", { ascending: false })
-          .limit(6);
-        nuevos = (r2.data ?? []) as Producto[];
-      }
-    } catch (e) {
-      console.error("Supabase nuevos:", e);
-      nuevos = [];
-    }
-
-    let top: Producto[] = [];
-    try {
-      const r1 = await supa
-        .from("productos")
-        .select(SELECT_COLS)
-        .order("ventas", { ascending: false })
-        .limit(6);
-      top = (r1.data ?? []) as Producto[];
-      if (top.length === 0) {
-        const r2 = await supa
-          .from("productos")
-          .select(SELECT_COLS)
-          .order("id", { ascending: true })
-          .limit(6);
-        top = (r2.data ?? []) as Producto[];
-      }
-    } catch (e) {
-      console.error("Supabase top:", e);
-      top = [];
-    }
-
-    return { destacados, nuevos, top };
-  } catch (e) {
-    console.error("getHomeData fatal:", e);
-    return { destacados: [] as Producto[], nuevos: [] as Producto[], top: [] as Producto[] };
-  }
-}
-
-export default async function Home() {
-  const isPreview = process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
-  const hasSupabase = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-  const { destacados, nuevos, top } = await getHomeData();
+  const productos: Producto[] = mockData.map((m) => ({
+    id: m.id,
+    name: m.nombre ?? m.name ?? "",
+    description: m.descripcion ?? m.description ?? "",
+    price: m.precio ?? m.price ?? 0,
+    image: m.imagen || m.imagen_url || m.image_url || m.image || "",
+    category_slug: m.category_slug ?? "",
+  }));
 
   return (
-    <main className="space-y-12">
-      <Hero />
-
-      {/* NUEVOS */}
-      <section className="mx-auto max-w-6xl px-4 sm:px-6">
-        <SectionHeader title="Nuevos" subtitle="Lo último que estamos destacando en la tienda" />
-        {nuevos.length > 0 ? (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lunaria-grid-in">
-            {nuevos.map((m) => (
-              <li key={m.id}>
-                <ProductCard
-                  id={m.id}
-                  nombre={m.nombre}
-                  precio={m.precio}
-                  envio={m.envio ?? undefined}
-                  imagen={m.imagen ?? undefined}
-                  imagen_url={m.imagen_url ?? undefined}
-                  image_url={m.image_url ?? undefined}
-                  image={m.image ?? undefined}
-                  href={`/producto/${m.id}`}
-                />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {MOCKS.slice(0,6).map((m) => (
-              <li key={m.id} className="rounded-xl border overflow-hidden bg-white group">
-                <div className="aspect-[4/3] overflow-hidden bg-gray-100">
-                  <img src={m.imagen} alt={m.nombre} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" />
-                </div>
-                <div className="p-3">
-                  <div className="text-sm font-semibold line-clamp-1">{m.nombre}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* TENDENCIAS (destacados) */}
-      <section className="mx-auto max-w-6xl px-4 sm:px-6">
-        <SectionHeader title="Tendencias" subtitle="Se mueven mucho estos días" />
-        {destacados.length > 0 ? (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lunaria-grid-in">
-            {destacados.map((m) => (
-              <li key={m.id}>
-                <ProductCard
-                  id={m.id}
-                  nombre={m.nombre}
-                  precio={m.precio}
-                  envio={m.envio ?? undefined}
-                  imagen={m.imagen ?? undefined}
-                  imagen_url={m.imagen_url ?? undefined}
-                  image_url={m.image_url ?? undefined}
-                  image={m.image ?? undefined}
-                  href={`/producto/${m.id}`}
-                />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <li key={i}><ProductSkeleton /></li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* TOP VENTAS */}
-      <section className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="flex items-end justify-between">
-          <SectionHeader
-            title="Top Ventas"
-            subtitle="Los favoritos de la comunidad"
-            className="mb-0"
-          />
-          <Link href="/categorias" className="text-sm font-semibold rounded-xl px-3 py-1.5 hover:bg-neutral-100">
-            Ver todas las categorías →
-          </Link>
-        </div>
-        {top.length > 0 ? (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lunaria-grid-in">
-            {top.map((m) => (
-              <li key={m.id}>
-                <ProductCard
-                  id={m.id}
-                  nombre={m.nombre}
-                  precio={m.precio}
-                  envio={m.envio ?? undefined}
-                  imagen={m.imagen ?? undefined}
-                  imagen_url={m.imagen_url ?? undefined}
-                  image_url={m.image_url ?? undefined}
-                  image={m.image ?? undefined}
-                  href={`/producto/${m.id}`}
-                />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <li key={i}><ProductSkeleton /></li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* Debug sólo en preview */}
-      <PreviewDebug isPreview={isPreview} hasSupabase={hasSupabase} counts={{
-        nuevos: nuevos.length, destacados: destacados.length, top: top.length
-      }} />
+    <main className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Productos destacados</h1>
+      <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {productos.map((p) => (
+          <li key={p.id}>
+            <ProductCard product={p} />
+          </li>
+        ))}
+      </ul>
+      <Link href="/categorias" className="mt-6 inline-block bg-black text-white px-4 py-2 rounded">
+        Ver todas las categorías
+      </Link>
     </main>
   );
 }
