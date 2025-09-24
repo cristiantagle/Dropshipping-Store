@@ -1,43 +1,49 @@
 "use client";
-import { productos } from "../../lib/products";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Producto } from "@/lib/products";
+import { getCart, removeFromCart } from "@/components/useCart";
+
 export default function Carro() {
-  const key = "carro";
-  const items = typeof window !== "undefined" ? JSON.parse(localStorage.getItem(key) || "[]") as string[] : [];
-  const detalle = items.map(id => productos.find(p => p.id === id)).filter(Boolean) as typeof productos;
-  const total = detalle.reduce((acc, p) => acc + (p?.precio || 0), 0);
-  function limpiar() { localStorage.removeItem(key); location.reload(); }
-  async function pagar() {
-    try {
-      const r = await fetch("/api/checkout/mercadopago", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ items: detalle }) });
-      if (!r.ok) { const txt = await r.text(); alert("No se pudo iniciar el pago (API 404/500).\n\nDetalle:\n" + txt); return; }
-      const { init_point } = await r.json();
-      if (!init_point) { alert("Preferencia sin init_point. Verifica MERCADOPAGO_ACCESS_TOKEN y NEXT_PUBLIC_SITE_URL."); return; }
-      location.href = init_point;
-    } catch (e: any) { alert("Error de red al iniciar pago. Detalle: " + (e?.message || e)); }
-  }
+  const [productos, setProductos] = useState<Producto[]>([]);
+
+  useEffect(() => {
+    const sync = () => setProductos(getCart());
+    sync();
+    window.addEventListener("carro:updated", sync);
+    return () => window.removeEventListener("carro:updated", sync);
+  }, []);
+
+  const eliminar = (id: string) => {
+    removeFromCart(id);
+    setProductos(getCart());
+  };
+
   return (
-    <section className="space-y-6">
-      <h1 className="text-2xl font-bold">Tu carro</h1>
-      {detalle.length === 0 ? (
-        <p>Tu carro está vacío. <Link className="underline" href="/">Volver a la tienda</Link></p>
+    <main className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Tu carrito</h1>
+      {productos.length === 0 ? (
+        <p>No hay productos en el carrito.</p>
       ) : (
-        <>
-          <ul className="space-y-2">
-            {detalle.map((p) => (
-              <li key={p.id} className="flex items-center justify-between border p-3 rounded-xl">
-                <span>{p.nombre}</span>
-                <span className="font-semibold">${p.precio.toLocaleString("es-CL")}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="flex items-center justify-between text-lg"><span>Total</span><strong>${total.toLocaleString("es-CL")}</strong></div>
-          <div className="flex gap-3">
-            <button onClick={pagar} className="btn btn-primary">Pagar con Mercado Pago</button>
-            <button onClick={limpiar} className="btn border">Limpiar</button>
-          </div>
-        </>
+        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {productos.map((p) => (
+            <li key={p.id}>
+              <div className="border p-4 rounded shadow">
+                <img src={p.imagen || ""} alt={p.nombre} className="w-full h-40 object-cover mb-2" />
+                <h2 className="text-lg font-semibold">{p.nombre}</h2>
+                <p className="text-md font-bold mt-2">${p.precio}</p>
+                <p className="text-xs text-gray-500">{p.envio}</p>
+                <button onClick={() => eliminar(p.id)} className="mt-2 text-red-600 underline text-sm">
+                  Eliminar del carrito
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
-    </section>
+      <Link href="/checkout" className="mt-6 inline-block bg-black text-white px-4 py-2 rounded">
+        Ir al checkout
+      </Link>
+    </main>
   );
 }
