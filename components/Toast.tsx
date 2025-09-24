@@ -1,12 +1,21 @@
-'use client';
-import React from "react";
+"use client";
+import { useState } from "react";
 
-export function Toast({ message }: { message: string }) {
+let listeners: ((msg: string) => void)[] = [];
+
+export function toast(msg: string) {
+  listeners.forEach((fn) => fn(msg));
+}
+
+export default function Toast() {
+  const [message, setMessage] = useState<string | null>(null);
+
+  listeners = [setMessage];
+
+  if (!message) return null;
+
   return (
-    <div
-      aria-live="polite"
-      className="fixed right-4 bottom-4 bg-black/80 text-white px-4 py-2 rounded-xl shadow-lg text-sm"
-    >
+    <div className="fixed bottom-4 right-4 bg-black text-white px-4 py-2 rounded">
       {message}
     </div>
   );
