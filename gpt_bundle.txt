@@ -1,7 +1,9 @@
-=== GPT BUNDLE | mié 24 sep 2025 05:25:26 -03 ===
-Repo: dropshipping-store
+# gpt_bundle.txt — Lunaria
+# Fecha: 2025-09-24 06:34:19
+# Total de rutas: 51
 
-===== BEGIN app/api/checkout/mercadopago/route.ts =====
+=== FILE: app/api/checkout/mercadopago/route.ts ===
+```ts
 import { NextRequest, NextResponse } from "next/server";
 import { MercadoPagoConfig, Preference } from "mercadopago";
 export const runtime = "nodejs";
@@ -40,9 +42,10 @@ export async function POST(req: NextRequest) {
   }
 }
 
-===== END app/api/checkout/mercadopago/route.ts =====
+```
 
-===== BEGIN app/api/health/route.ts =====
+=== FILE: app/api/health/route.ts ===
+```ts
 import { NextResponse } from "next/server";
 export const runtime = "edge";
 export async function GET() {
@@ -53,9 +56,10 @@ export async function GET() {
   return NextResponse.json({ ok: true, env: normalized, branch, commit, ts: Date.now() });
 }
 
-===== END app/api/health/route.ts =====
+```
 
-===== BEGIN app/api/imgcheck/route.ts =====
+=== FILE: app/api/imgcheck/route.ts ===
+```ts
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -69,9 +73,10 @@ export async function GET(req: NextRequest) {
   }
 }
 
-===== END app/api/imgcheck/route.ts =====
+```
 
-===== BEGIN app/carro/page.tsx =====
+=== FILE: app/carro/page.tsx ===
+```ts
 "use client";
 import { productos } from "../../lib/products";
 import Link from "next/link";
@@ -116,39 +121,10 @@ export default function Carro() {
   );
 }
 
-===== END app/carro/page.tsx =====
+```
 
-===== BEGIN app/categorias/page.tsx =====
-import Breadcrumbs from "@/components/Breadcrumbs";
-import CategoryGrid from "@/components/CategoryGrid";
-
-export const metadata = { title: "Categorías" };
-
-export default function CategoriasPage() {
-  const crumbs = [
-    { label: "Inicio", href: "/" },
-    { label: "Categorías", href: "/categorias" }, // ⟵ ahora con href
-  ];
-
-  return (
-    <main className="space-y-8">
-      <header className="rounded-2xl p-6 md:p-8 bg-gradient-to-br from-lime-50 to-white border border-lime-100">
-        <div className="mb-2">
-          <Breadcrumbs items={crumbs} />
-        </div>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Categorías</h1>
-        <p className="text-gray-600 mt-2 max-w-2xl">
-          Encuentra rápido lo que buscas: selecciona una categoría y explora nuestros productos.
-        </p>
-      </header>
-      <CategoryGrid />
-    </main>
-  );
-}
-
-===== END app/categorias/page.tsx =====
-
-===== BEGIN app/categorias/[slug]/page.tsx =====
+=== FILE: app/categorias/[slug]/page.tsx ===
+```ts
 import "server-only";
 import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -219,38 +195,41 @@ export default async function CategoriaPage({ params }: { params: { slug: string
   );
 }
 
-===== END app/categorias/[slug]/page.tsx =====
+```
 
-===== BEGIN app/debug/images/page.tsx =====
-import Image from "next/image";
+=== FILE: app/categorias/page.tsx ===
+```ts
+import Breadcrumbs from "@/components/Breadcrumbs";
+import CategoryGrid from "@/components/CategoryGrid";
 
-const urls = [
-  "https://images.unsplash.com/photo-1541562232579-512a21360020?q=80&w=1200&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?q=80&w=1200&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop",
-];
+export const metadata = { title: "Categorías" };
 
-export const metadata = { title: "Debug imágenes — Lunaria" };
+export default function CategoriasPage() {
+  const crumbs = [
+    { label: "Inicio", href: "/" },
+    { label: "Categorías", href: "/categorias" }, // ⟵ ahora con href
+  ];
 
-export default function DebugImages() {
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-semibold">Debug imágenes (Unsplash)</h1>
-      <p className="text-sm text-gray-600">Si alguna no carga, es config de imágenes y no UI.</p>
-      <div className="grid md:grid-cols-3 gap-4">
-        {urls.map((u,i)=>(
-          <div key={i} className="relative w-full h-48 border rounded overflow-hidden">
-            <Image src={u} alt={`img-${i}`} fill className="object-cover" />
-          </div>
-        ))}
-      </div>
-    </div>
+    <main className="space-y-8">
+      <header className="rounded-2xl p-6 md:p-8 bg-gradient-to-br from-lime-50 to-white border border-lime-100">
+        <div className="mb-2">
+          <Breadcrumbs items={crumbs} />
+        </div>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Categorías</h1>
+        <p className="text-gray-600 mt-2 max-w-2xl">
+          Encuentra rápido lo que buscas: selecciona una categoría y explora nuestros productos.
+        </p>
+      </header>
+      <CategoryGrid />
+    </main>
   );
 }
 
-===== END app/debug/images/page.tsx =====
+```
 
-===== BEGIN app/diag/page.tsx =====
+=== FILE: app/diag/page.tsx ===
+```ts
 "use client";
 import { useEffect, useState } from "react";
 
@@ -282,9 +261,40 @@ export default function DiagImages() {
   );
 }
 
-===== END app/diag/page.tsx =====
+```
 
-===== BEGIN app/error.tsx =====
+=== FILE: app/debug/images/page.tsx ===
+```ts
+import Image from "next/image";
+
+const urls = [
+  "https://images.unsplash.com/photo-1541562232579-512a21360020?q=80&w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?q=80&w=1200&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop",
+];
+
+export const metadata = { title: "Debug imágenes — Lunaria" };
+
+export default function DebugImages() {
+  return (
+    <div className="space-y-6">
+      <h1 className="text-xl font-semibold">Debug imágenes (Unsplash)</h1>
+      <p className="text-sm text-gray-600">Si alguna no carga, es config de imágenes y no UI.</p>
+      <div className="grid md:grid-cols-3 gap-4">
+        {urls.map((u,i)=>(
+          <div key={i} className="relative w-full h-48 border rounded overflow-hidden">
+            <Image src={u} alt={`img-${i}`} fill className="object-cover" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+```
+
+=== FILE: app/error.tsx ===
+```ts
 'use client';
 export default function GlobalError({ error }: { error: Error & { digest?: string } }) {
   console.error(error);
@@ -303,36 +313,92 @@ export default function GlobalError({ error }: { error: Error & { digest?: strin
   );
 }
 
-===== END app/error.tsx =====
+```
 
-===== BEGIN app/global-error.tsx =====
-'use client';
-
-export default function GlobalError({ error, reset }: { error: Error; reset: () => void }) {
-  console.error('Global Error Boundary:', error);
+=== FILE: app/not-found.tsx ===
+```ts
+export default function NotFound() {
   return (
-    <html>
-      <body>
-        <div className="mx-auto max-w-2xl px-4 sm:px-6 py-16 text-center">
-          <h2 className="text-2xl font-bold">Algo salió mal (global)</h2>
-          <p className="mt-2 text-gray-600">Estamos trabajando en solucionarlo.</p>
-          <div className="mt-6">
-            <button
-              onClick={() => reset()}
-              className="inline-flex items-center gap-2 rounded-xl bg-lime-600 px-4 py-2.5 text-white font-semibold shadow-sm hover:bg-lime-700 transition"
-            >
-              Reintentar
-            </button>
-          </div>
+    <main className="max-w-5xl mx-auto px-4 py-20 text-center">
+      <h1 className="text-3xl md:text-4xl font-bold mb-3">No encontramos esa página</h1>
+      <p className="text-gray-600 mb-8">Puede que el enlace esté roto o que la página haya sido movida.</p>
+      <a href="/" className="inline-block rounded-xl px-5 py-2.5 bg-[#2ECC71] text-white hover:opacity-90 transition">
+        Ir al inicio
+      </a>
+    </main>
+  );
+}
+
+```
+
+=== FILE: app/layout.tsx.bak ===
+```
+import Topbar from "@/components/TopBar";
+import type { Metadata } from "next";
+import "./globals.css";
+import BackNav from "@/components/BackNav";
+import BackToTopGuard from "@/components/BackToTopGuard";
+import { Inter } from "next/font/google";
+import FloatingCart from "@/components/FloatingCart";
+import PreviewBadge from "@/components/PreviewBadge";
+
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "Lunaria",
+  description: "Tienda simple y bonita",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="es">
+      <body className={`${inter.className} bg-gradient-to-b from-white to-gray-50 text-gray-800`}>
+        <div className="mx-auto max-w-6xl px-4 py-6">
+          {children}
+          <footer className="mt-12 text-sm text-gray-500 flex items-center justify-between border-t pt-6">
+            <span>© {new Date().getFullYear()} Lunaria</span>
+            <a href="/categorias" className="text-emerald-700 hover:text-emerald-800 font-semibold">
+              Explorar categorías →
+            </a>
+          </footer>
         </div>
+        <FloatingCart />
+  <BackToTopGuard />
+      <BackNav />
+</body>
+    </html>
+  );
+}
+```
+
+=== FILE: app/layout.tsx ===
+```ts
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import ClientShell from "@/components/ClientShell";
+
+export const metadata: Metadata = {
+  title: "Lunaria",
+  description: "Tienda simple y bonita",
+};
+
+const inter = Inter({ subsets: ["latin"] });
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="es">
+      <body className={`${inter.className} bg-white text-neutral-900`}>
+        <ClientShell>{children}</ClientShell>
       </body>
     </html>
   );
 }
 
-===== END app/global-error.tsx =====
+```
 
-===== BEGIN app/globals.css =====
+=== FILE: app/globals.css ===
+```css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -1140,109 +1206,38 @@ html { scroll-behavior: smooth; }
   .parallax-bg { transition: none; transform: none; }
 }
 
-===== END app/globals.css =====
+```
 
-===== BEGIN app/head.tsx =====
-export default function Head() {
-  // Head global (App Router) — no duplica metadata de layout.tsx
+=== FILE: app/global-error.tsx ===
+```ts
+'use client';
+
+export default function GlobalError({ error, reset }: { error: Error; reset: () => void }) {
+  console.error('Global Error Boundary:', error);
   return (
-    <>
-      {/* Performance hints */}
-      <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="" />
-      <link rel="dns-prefetch" href="https://images.unsplash.com" />
-      <link rel="preconnect" href="https://images.ctfassets.net" crossOrigin="" />
-      <link rel="dns-prefetch" href="https://images.ctfassets.net" />
-
-      {/* PWA / SEO */}
-      <link rel="manifest" href="/manifest.webmanifest" />
-      <meta name="theme-color" content="#2ECC71" />
-      <meta name="format-detection" content="telephone=no" />
-    </>
-  );
-}
-
-===== END app/head.tsx =====
-
-===== BEGIN app/layout.tsx =====
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import ClientShell from "@/components/ClientShell";
-
-export const metadata: Metadata = {
-  title: "Lunaria",
-  description: "Tienda simple y bonita",
-};
-
-const inter = Inter({ subsets: ["latin"] });
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="es">
-      <body className={`${inter.className} bg-white text-neutral-900`}>
-        <ClientShell>{children}</ClientShell>
+    <html>
+      <body>
+        <div className="mx-auto max-w-2xl px-4 sm:px-6 py-16 text-center">
+          <h2 className="text-2xl font-bold">Algo salió mal (global)</h2>
+          <p className="mt-2 text-gray-600">Estamos trabajando en solucionarlo.</p>
+          <div className="mt-6">
+            <button
+              onClick={() => reset()}
+              className="inline-flex items-center gap-2 rounded-xl bg-lime-600 px-4 py-2.5 text-white font-semibold shadow-sm hover:bg-lime-700 transition"
+            >
+              Reintentar
+            </button>
+          </div>
+        </div>
       </body>
     </html>
   );
 }
 
-===== END app/layout.tsx =====
+```
 
-===== BEGIN app/layout.tsx.bak =====
-import Topbar from "@/components/TopBar";
-import type { Metadata } from "next";
-import "./globals.css";
-import BackNav from "@/components/BackNav";
-import BackToTopGuard from "@/components/BackToTopGuard";
-import { Inter } from "next/font/google";
-import FloatingCart from "@/components/FloatingCart";
-import PreviewBadge from "@/components/PreviewBadge";
-
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "Lunaria",
-  description: "Tienda simple y bonita",
-};
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="es">
-      <body className={`${inter.className} bg-gradient-to-b from-white to-gray-50 text-gray-800`}>
-        <div className="mx-auto max-w-6xl px-4 py-6">
-          {children}
-          <footer className="mt-12 text-sm text-gray-500 flex items-center justify-between border-t pt-6">
-            <span>© {new Date().getFullYear()} Lunaria</span>
-            <a href="/categorias" className="text-emerald-700 hover:text-emerald-800 font-semibold">
-              Explorar categorías →
-            </a>
-          </footer>
-        </div>
-        <FloatingCart />
-  <BackToTopGuard />
-      <BackNav />
-</body>
-    </html>
-  );
-}
-===== END app/layout.tsx.bak =====
-
-===== BEGIN app/not-found.tsx =====
-export default function NotFound() {
-  return (
-    <main className="max-w-5xl mx-auto px-4 py-20 text-center">
-      <h1 className="text-3xl md:text-4xl font-bold mb-3">No encontramos esa página</h1>
-      <p className="text-gray-600 mb-8">Puede que el enlace esté roto o que la página haya sido movida.</p>
-      <a href="/" className="inline-block rounded-xl px-5 py-2.5 bg-[#2ECC71] text-white hover:opacity-90 transition">
-        Ir al inicio
-      </a>
-    </main>
-  );
-}
-
-===== END app/not-found.tsx =====
-
-===== BEGIN app/page.tsx =====
+=== FILE: app/page.tsx ===
+```ts
 import "server-only";
 import Hero from "@/components/Hero";
 import SectionHeader from "@/components/SectionHeader";
@@ -1487,9 +1482,10 @@ export default async function Home() {
   );
 }
 
-===== END app/page.tsx =====
+```
 
-===== BEGIN app/producto/[id]/loading.tsx =====
+=== FILE: app/producto/[id]/loading.tsx ===
+```ts
 export default function LoadingProduct(){
   return (
     <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
@@ -1509,9 +1505,10 @@ export default function LoadingProduct(){
   );
 }
 
-===== END app/producto/[id]/loading.tsx =====
+```
 
-===== BEGIN app/producto/[id]/page.tsx =====
+=== FILE: app/producto/[id]/page.tsx ===
+```ts
 import "server-only";
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabaseServer";
@@ -1610,9 +1607,145 @@ export default async function ProductoPage({ params }: { params: { id: string } 
   );
 }
 
-===== END app/producto/[id]/page.tsx =====
+```
 
-===== BEGIN components/BackButton.tsx =====
+=== FILE: app/head.tsx ===
+```ts
+export default function Head() {
+  return (
+    <>
+      <title>Lunaria — Tienda</title>
+      <meta name="description" content="Tienda dropshipping simple y bonita" />
+      <meta property="og:title" content="Lunaria" />
+      <meta property="og:description" content="Productos útiles y bonitos con envío simple" />
+      <meta property="og:type" content="website" />
+      <link rel="manifest" href="/manifest.webmanifest" />
+      <meta name="theme-color" content="#2ECC71" />
+    </>
+  );
+}
+
+```
+
+=== FILE: components/TrustStrip.tsx ===
+```ts
+export default function TrustStrip() {
+  const items = [
+    { icon: "🚚", text: "Envío rápido" },
+    { icon: "🔒", text: "Pago seguro" },
+    { icon: "⭐", text: "Clientes felices" },
+    { icon: "↩️", text: "Devoluciones fáciles" },
+  ];
+  return (
+    <section className="mt-10">
+      <ul className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {items.map((it, i) => (
+          <li key={i} className="rounded-2xl border bg-white shadow-sm px-4 py-3 flex items-center gap-2">
+            <span className="text-lg">{it.icon}</span>
+            <span className="font-semibold text-gray-800">{it.text}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+```
+
+=== FILE: components/FloatingCart.tsx ===
+```ts
+"use client";
+import React from "react";
+
+const LUNARIA_GREEN = "#2bb673";
+
+function getCount(): number {
+  if (typeof window === "undefined") return 0;
+  try {
+    const raw = localStorage.getItem("carro") || "[]";
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr.length : 0;
+  } catch { return 0; }
+}
+
+export default function FloatingCart() {
+  const [count, setCount] = React.useState(0);
+
+  React.useEffect(() => {
+    setCount(getCount());
+    const onStorage = (e: StorageEvent) => { if (e.key === "carro") setCount(getCount()); };
+    const onCustom = () => setCount(getCount());
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("carro:updated", onCustom as EventListener);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("carro:updated", onCustom as EventListener);
+    };
+  }, []);
+
+  return (
+    <button
+      aria-label="Abrir carro"
+      onClick={() => (window.location.href = "/carro")}
+      className="fixed bottom-4 right-4 z-[9990] w-14 h-14 rounded-full shadow-lg border border-emerald-600/20 transition-transform hover:scale-105 active:scale-95"
+      style={{ background: `linear-gradient(180deg, ${LUNARIA_GREEN} 0%, #23a765 100%)`, WebkitTapHighlightColor: "transparent" }}
+      data-testid="floating-cart"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 mx-auto text-white drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path strokeWidth="2" d="M3 3h2l.4 2M7 13h10l2-7H6.4M7 13l-1.3 5H19M7 13l-1.6-6M10 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm8 21a1 1 0 1 0 .001-2.001A1 1 0 0 0 18 21Z"/>
+      </svg>
+      <span
+        className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full text-[11px] font-semibold text-white ring-2 ring-white flex items-center justify-center shadow"
+        style={{ backgroundColor: LUNARIA_GREEN }}
+        aria-label={`Productos en el carro: ${count}`}
+        data-testid="cart-badge"
+      >
+        {count}
+      </span>
+    </button>
+  );
+}
+
+```
+
+=== FILE: components/Breadcrumbs.tsx ===
+```ts
+import Link from "next/link";
+
+export type Crumb = { href: string; label: string };
+
+export default function Breadcrumbs({ items }: { items: Crumb[] }) {
+  if (!items?.length) return null;
+  return (
+    <nav
+      aria-label="Breadcrumb"
+      className="w-full my-4 text-sm text-gray-600 overflow-x-auto"
+    >
+      <ol className="flex items-center gap-2 whitespace-nowrap">
+        {items.map((c, i) => (
+          <li key={c.href} className="flex items-center gap-2">
+            {i > 0 && <span aria-hidden>›</span>}
+            {i < items.length - 1 ? (
+              <Link
+                href={c.href}
+                className="hover:text-gray-900 hover:underline underline-offset-4"
+              >
+                {c.label}
+              </Link>
+            ) : (
+              <span className="font-medium text-gray-900">{c.label}</span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
+```
+
+=== FILE: components/BackButton.tsx ===
+```ts
 'use client';
 import { useCallback } from "react";
 
@@ -1648,9 +1781,10 @@ export default function BackButton({
   );
 }
 
-===== END components/BackButton.tsx =====
+```
 
-===== BEGIN components/BackNav.tsx =====
+=== FILE: components/BackNav.tsx ===
+```ts
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
@@ -1710,15 +1844,10 @@ export default function BackNav() {
   );
 }
 
-===== END components/BackNav.tsx =====
+```
 
-===== BEGIN components/BackToTopGuard.tsx =====
-'use client';
-export default function BackToTopGuard() { return null; }
-
-===== END components/BackToTopGuard.tsx =====
-
-===== BEGIN components/BackToTop.tsx =====
+=== FILE: components/BackToTop.tsx ===
+```ts
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -1753,44 +1882,17 @@ export default function BackToTop() {
   );
 }
 
-===== END components/BackToTop.tsx =====
+```
 
-===== BEGIN components/Breadcrumbs.tsx =====
-import Link from "next/link";
+=== FILE: components/BackToTopGuard.tsx ===
+```ts
+'use client';
+export default function BackToTopGuard() { return null; }
 
-export type Crumb = { href: string; label: string };
+```
 
-export default function Breadcrumbs({ items }: { items: Crumb[] }) {
-  if (!items?.length) return null;
-  return (
-    <nav
-      aria-label="Breadcrumb"
-      className="w-full my-4 text-sm text-gray-600 overflow-x-auto"
-    >
-      <ol className="flex items-center gap-2 whitespace-nowrap">
-        {items.map((c, i) => (
-          <li key={c.href} className="flex items-center gap-2">
-            {i > 0 && <span aria-hidden>›</span>}
-            {i < items.length - 1 ? (
-              <Link
-                href={c.href}
-                className="hover:text-gray-900 hover:underline underline-offset-4"
-              >
-                {c.label}
-              </Link>
-            ) : (
-              <span className="font-medium text-gray-900">{c.label}</span>
-            )}
-          </li>
-        ))}
-      </ol>
-    </nav>
-  );
-}
-
-===== END components/Breadcrumbs.tsx =====
-
-===== BEGIN components/CategoryGrid.tsx =====
+=== FILE: components/CategoryGrid.tsx ===
+```ts
 'use client';
 import Link from "next/link";
 
@@ -1871,9 +1973,40 @@ export default function CategoryGrid() {
   );
 }
 
-===== END components/CategoryGrid.tsx =====
+```
 
-===== BEGIN components/ClientShell.tsx =====
+=== FILE: components/PreviewBadge.tsx ===
+```ts
+"use client";
+import React from "react";
+
+function isPreview(): boolean {
+  const env = (process.env.NEXT_PUBLIC_VERCEL_ENV || "").toLowerCase();
+  if (env && env !== "production") return true;
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname || "";
+    if (host.includes("-git-") || host.includes(".vercel.app") || host.includes("localhost")) return true;
+  }
+  return false;
+}
+
+export default function PreviewBadge() {
+  if (!isPreview()) return null;
+  const ref = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF || "preview";
+  const sha = (process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || "").slice(0,7) || "no-sha";
+  return (
+    <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none" data-testid="preview-badge">
+      <span className="pointer-events-auto select-none rounded-full bg-black/80 text-white text-xs px-3 py-1.5 shadow-md backdrop-blur">
+        preview • <strong>{ref}</strong> • {sha}
+      </span>
+    </div>
+  );
+}
+
+```
+
+=== FILE: components/ClientShell.tsx ===
+```ts
 'use client';
 import React from "react";
 import TopBar from "@/components/TopBar";
@@ -1904,64 +2037,10 @@ export default function ClientShell({ children }: { children: React.ReactNode })
   );
 }
 
-===== END components/ClientShell.tsx =====
+```
 
-===== BEGIN components/FloatingCart.tsx =====
-"use client";
-import React from "react";
-
-const LUNARIA_GREEN = "#2bb673";
-
-function getCount(): number {
-  if (typeof window === "undefined") return 0;
-  try {
-    const raw = localStorage.getItem("carro") || "[]";
-    const arr = JSON.parse(raw);
-    return Array.isArray(arr) ? arr.length : 0;
-  } catch { return 0; }
-}
-
-export default function FloatingCart() {
-  const [count, setCount] = React.useState(0);
-
-  React.useEffect(() => {
-    setCount(getCount());
-    const onStorage = (e: StorageEvent) => { if (e.key === "carro") setCount(getCount()); };
-    const onCustom = () => setCount(getCount());
-    window.addEventListener("storage", onStorage);
-    window.addEventListener("carro:updated", onCustom as EventListener);
-    return () => {
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener("carro:updated", onCustom as EventListener);
-    };
-  }, []);
-
-  return (
-    <button
-      aria-label="Abrir carro"
-      onClick={() => (window.location.href = "/carro")}
-      className="fixed bottom-4 right-4 z-[9990] w-14 h-14 rounded-full shadow-lg border border-emerald-600/20 transition-transform hover:scale-105 active:scale-95"
-      style={{ background: `linear-gradient(180deg, ${LUNARIA_GREEN} 0%, #23a765 100%)`, WebkitTapHighlightColor: "transparent" }}
-      data-testid="floating-cart"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 mx-auto text-white drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path strokeWidth="2" d="M3 3h2l.4 2M7 13h10l2-7H6.4M7 13l-1.3 5H19M7 13l-1.6-6M10 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm8 21a1 1 0 1 0 .001-2.001A1 1 0 0 0 18 21Z"/>
-      </svg>
-      <span
-        className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full text-[11px] font-semibold text-white ring-2 ring-white flex items-center justify-center shadow"
-        style={{ backgroundColor: LUNARIA_GREEN }}
-        aria-label={`Productos en el carro: ${count}`}
-        data-testid="cart-badge"
-      >
-        {count}
-      </span>
-    </button>
-  );
-}
-
-===== END components/FloatingCart.tsx =====
-
-===== BEGIN components/Footer.tsx =====
+=== FILE: components/Footer.tsx ===
+```ts
 'use client';
 import Link from "next/link";
 
@@ -2011,275 +2090,10 @@ export default function Footer(){
   );
 }
 
-===== END components/Footer.tsx =====
+```
 
-===== BEGIN components/Hero.tsx =====
-'use client';
-import Link from "next/link";
-
-export default function Hero() {
-  const bg = "url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1920&auto=format&fit=crop')";
-  return (
-    <section className="relative hero-clip h-[50vh] md:h-[62vh] lg:h-[66vh] bg-neutral-100">
-      <div className="parallax-root h-full">
-        <div className="parallax-scene">
-          <div
-            className="parallax-bg parallax-bg-fixed"
-            style={{ backgroundImage: bg }}
-            aria-hidden="true"
-          />
-          <div className="parallax-fg relative h-full hero-fade">
-            <div className="relative z-10 h-full mx-auto max-w-6xl px-4 sm:px-6 flex flex-col items-start justify-end pb-10 md:pb-14">
-              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-neutral-900 drop-shadow-sm">
-                Descubre cosas útiles y bonitas
-              </h1>
-              <p className="mt-2 md:mt-3 text-neutral-700 max-w-xl">
-                Productos prácticos, bien elegidos, con envío simple. Explora por categoría o mira lo nuevo.
-              </p>
-              <div className="mt-4 flex items-center gap-3">
-                <Link
-                  href="/categorias"
-                  className="inline-flex items-center gap-2 rounded-xl bg-lime-600 px-4 py-2.5 text-white font-semibold shadow-sm hover:bg-lime-700 transition"
-                >
-                  Explorar categorías
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </Link>
-                <Link
-                  href="/"
-                  className="inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 font-semibold text-neutral-800 hover:bg-white transition"
-                >
-                  Ver novedades
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-===== END components/Hero.tsx =====
-
-===== BEGIN components/PreviewBadge.tsx =====
-"use client";
-import React from "react";
-
-function isPreview(): boolean {
-  const env = (process.env.NEXT_PUBLIC_VERCEL_ENV || "").toLowerCase();
-  if (env && env !== "production") return true;
-  if (typeof window !== "undefined") {
-    const host = window.location.hostname || "";
-    if (host.includes("-git-") || host.includes(".vercel.app") || host.includes("localhost")) return true;
-  }
-  return false;
-}
-
-export default function PreviewBadge() {
-  if (!isPreview()) return null;
-  const ref = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF || "preview";
-  const sha = (process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || "").slice(0,7) || "no-sha";
-  return (
-    <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none" data-testid="preview-badge">
-      <span className="pointer-events-auto select-none rounded-full bg-black/80 text-white text-xs px-3 py-1.5 shadow-md backdrop-blur">
-        preview • <strong>{ref}</strong> • {sha}
-      </span>
-    </div>
-  );
-}
-
-===== END components/PreviewBadge.tsx =====
-
-===== BEGIN components/PreviewDebug.tsx =====
-'use client';
-type Props = {
-  isPreview: boolean;
-  hasSupabase: boolean;
-  counts: { nuevos: number; destacados: number; top: number };
-};
-export default function PreviewDebug({ isPreview, hasSupabase, counts }: Props) {
-  if (!isPreview) return null;
-  return (
-    <div style={{
-      position:'fixed', bottom:16, left:16, zIndex:60,
-      background:'rgba(255,255,255,.95)', border:'1px solid #e5e7eb',
-      borderRadius:12, padding:'10px 12px', boxShadow:'0 8px 24px rgba(0,0,0,.08)'
-    }}>
-      <div style={{fontWeight:800, fontSize:12, marginBottom:6}}>PreviewDebug</div>
-      <ul style={{fontSize:12, lineHeight:1.3}}>
-        <li>VERCEL_ENV: <b>{isPreview ? 'preview' : 'other'}</b></li>
-        <li>Supabase envs: <b style={{color:hasSupabase?'#16a34a':'#dc2626'}}>
-          {hasSupabase ? 'OK' : 'FALTAN'}</b></li>
-        <li>Nuevos: <b>{counts.nuevos}</b></li>
-        <li>Destacados: <b>{counts.destacados}</b></li>
-        <li>Top: <b>{counts.top}</b></li>
-      </ul>
-    </div>
-  );
-}
-
-===== END components/PreviewDebug.tsx =====
-
-===== BEGIN components/ProductCard.tsx =====
-'use client';
-import Link from "next/link";
-
-type Props = {
-  id: string;
-  nombre: string;
-  precio?: number | null;
-  envio?: string;
-  imagen?: string | null;
-  imagen_url?: string | null;
-  image_url?: string | null;
-  image?: string | null;
-  href?: string;
-};
-
-const FALLBACK =
-  "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?q=80&w=1200&auto=format&fit=crop";
-
-function pickImg(p: Props) {
-  const toStr = (v: unknown) => (typeof v === "string" ? v.trim() : "");
-  const cands = [p.imagen, p.imagen_url, p.image_url, p.image].map(toStr).filter(Boolean);
-  return cands[0] || FALLBACK;
-}
-function fmtCLP(v?: number | null) {
-  if (v == null) return "$—";
-  try {
-    return Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(v);
-  } catch { return `$${v}`; }
-}
-
-export default function ProductCard(props: Props){
-  const src = pickImg(props);
-  const url = props.href || `/producto/${props.id}`;
-  return (
-    <Link href={url} className="block rounded-2xl border overflow-hidden bg-white group card-3d">
-      <div className="aspect-[4/3] overflow-hidden bg-gray-100">
-        <img
-          src={src}
-          alt={props.nombre || "Producto"}
-          className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform"
-          loading="lazy" decoding="async" referrerPolicy="no-referrer"
-          onError={(e) => {
-            const img = e.currentTarget as HTMLImageElement;
-            if (img.dataset.fallbackApplied !== "1") { img.dataset.fallbackApplied = "1"; img.src = FALLBACK; }
-          }}
-        />
-      </div>
-      <div className="p-3">
-        <div className="lunaria-title text-sm line-clamp-1">{props.nombre}</div>
-        <div className="mt-1 flex items-center justify-between">
-          <span className="lunaria-price text-sm">{fmtCLP(props.precio)}</span>
-          <span className="badge text-[11px]">{props.envio || "Envío estándar"}</span>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-===== END components/ProductCard.tsx =====
-
-===== BEGIN components/ProductListClient.tsx =====
-'use client';
-import React from "react";
-import Link from "next/link";
-
-export type Producto = {
-  id: string;
-  nombre: string;
-  precio?: number | null;
-  imagen?: string | null;
-  imagen_url?: string | null;
-  image_url?: string | null;
-  image?: string | null;
-  envio?: string | null;
-  destacado?: boolean | null;
-  categoria?: string | null;
-  categoria_slug?: string | null;
-};
-
-type Props = { items: Producto[] };
-
-const FALLBACK =
-  "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?q=80&w=1200&auto=format&fit=crop";
-
-function pickUrl(p: Producto): string {
-  const cands = [p.imagen, p.imagen_url, p.image_url, p.image];
-  const first = cands.find((v) => typeof v === "string" && v.trim().length > 0);
-  return (first ?? "").toString().trim();
-}
-function fmtCLP(v?: number | null) {
-  if (v == null) return "$—";
-  try {
-    return Intl.NumberFormat("es-CL", {
-      style: "currency",
-      currency: "CLP",
-      maximumFractionDigits: 0,
-    }).format(v);
-  } catch {
-    return `$${v}`;
-  }
-}
-
-export default function ProductListClient({ items }: Props) {
-  const data = Array.isArray(items) ? items : [];
-  if (data.length === 0) {
-    return (
-      <p className="text-gray-600">
-        No hay productos disponibles en esta categoría por ahora.
-      </p>
-    );
-  }
-
-  return (
-    <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {data.map((p) => {
-        let src = pickUrl(p);
-        if (!src && p.categoria_slug === "bienestar") {
-          src = FALLBACK;
-        }
-        const onErr: React.ReactEventHandler<HTMLImageElement> = (e) => {
-          const img = e.currentTarget as HTMLImageElement;
-          if (img.dataset.fallbackApplied !== "1") {
-            img.dataset.fallbackApplied = "1";
-            img.src = FALLBACK;
-          }
-        };
-        return (
-          <li key={p.id} className="border rounded-2xl hover:bg-gray-50 transition">
-            <Link href={`/producto/${p.id}`} className="block p-4">
-              <div className="aspect-[4/3] w-full mb-3 overflow-hidden rounded-xl bg-gray-100">
-                <img
-                  src={src || FALLBACK}
-                  alt={p.nombre || "Producto"}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  decoding="async"
-                  referrerPolicy="no-referrer"
-                  onError={onErr}
-                />
-              </div>
-              <h3 className="font-semibold">{p.nombre}</h3>
-              <p className="text-sm text-gray-600">{p.envio || "Envío estándar"}</p>
-              <div className="mt-2 flex items-center justify-between">
-                <span className="font-bold">{fmtCLP(p.precio ?? null)}</span>
-                <span className="px-3 py-1 rounded-xl bg-black text-white text-sm">Ver</span>
-              </div>
-            </Link>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-===== END components/ProductListClient.tsx =====
-
-===== BEGIN components/ProductSkeleton.tsx =====
+=== FILE: components/ProductSkeleton.tsx ===
+```ts
 'use client';
 export default function ProductSkeleton(){
   return (
@@ -2294,9 +2108,10 @@ export default function ProductSkeleton(){
   );
 }
 
-===== END components/ProductSkeleton.tsx =====
+```
 
-===== BEGIN components/SearchBar.tsx =====
+=== FILE: components/SearchBar.tsx ===
+```ts
 'use client';
 import React from "react";
 
@@ -2336,9 +2151,10 @@ export default function SearchBar({ className = "", onSubmit, placeholder = "Bus
   );
 }
 
-===== END components/SearchBar.tsx =====
+```
 
-===== BEGIN components/SectionHeader.tsx =====
+=== FILE: components/SectionHeader.tsx ===
+```ts
 'use client';
 type Props = { title: string; subtitle?: string; className?: string };
 export default function SectionHeader({ title, subtitle, className="" }: Props){
@@ -2350,9 +2166,10 @@ export default function SectionHeader({ title, subtitle, className="" }: Props){
   );
 }
 
-===== END components/SectionHeader.tsx =====
+```
 
-===== BEGIN components/TopBar.tsx =====
+=== FILE: components/TopBar.tsx ===
+```ts
 'use client';
 import Link from "next/link";
 import BackButton from "./BackButton";
@@ -2414,1436 +2231,92 @@ export default function TopBar() {
   );
 }
 
-===== END components/TopBar.tsx =====
+```
 
-===== BEGIN components/TrustStrip.tsx =====
-export default function TrustStrip() {
-  const items = [
-    { icon: "🚚", text: "Envío rápido" },
-    { icon: "🔒", text: "Pago seguro" },
-    { icon: "⭐", text: "Clientes felices" },
-    { icon: "↩️", text: "Devoluciones fáciles" },
-  ];
+=== FILE: components/Hero.tsx ===
+```ts
+'use client';
+import Link from "next/link";
+
+export default function Hero() {
+  const bg = "url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1920&auto=format&fit=crop')";
   return (
-    <section className="mt-10">
-      <ul className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {items.map((it, i) => (
-          <li key={i} className="rounded-2xl border bg-white shadow-sm px-4 py-3 flex items-center gap-2">
-            <span className="text-lg">{it.icon}</span>
-            <span className="font-semibold text-gray-800">{it.text}</span>
-          </li>
-        ))}
-      </ul>
+    <section className="relative hero-clip h-[50vh] md:h-[62vh] lg:h-[66vh] bg-neutral-100">
+      <div className="parallax-root h-full">
+        <div className="parallax-scene">
+          <div
+            className="parallax-bg parallax-bg-fixed"
+            style={{ backgroundImage: bg }}
+            aria-hidden="true"
+          />
+          <div className="parallax-fg relative h-full hero-fade">
+            <div className="relative z-10 h-full mx-auto max-w-6xl px-4 sm:px-6 flex flex-col items-start justify-end pb-10 md:pb-14">
+              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-neutral-900 drop-shadow-sm">
+                Descubre cosas útiles y bonitas
+              </h1>
+              <p className="mt-2 md:mt-3 text-neutral-700 max-w-xl">
+                Productos prácticos, bien elegidos, con envío simple. Explora por categoría o mira lo nuevo.
+              </p>
+              <div className="mt-4 flex items-center gap-3">
+                <Link
+                  href="/categorias"
+                  className="inline-flex items-center gap-2 rounded-xl bg-lime-600 px-4 py-2.5 text-white font-semibold shadow-sm hover:bg-lime-700 transition"
+                >
+                  Explorar categorías
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </Link>
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 font-semibold text-neutral-800 hover:bg-white transition"
+                >
+                  Ver novedades
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
 
-===== END components/TrustStrip.tsx =====
+```
 
-===== BEGIN .github/pull_request_template.md =====
-# Resumen
-<!-- ¿Qué cambia y por qué? -->
-
-## Tipo de cambio
-- [ ] Fix (arreglo sin breaking)
-- [ ] Feature (funcionalidad nueva)
-- [ ] Refactor / DX
-- [ ] Chore (build, deps, scripts)
-
-## URL del Preview
-<!-- Pega la URL del deployment de Vercel -->
-
-## Riesgo / Impacto
-<!-- Áreas afectadas y riesgos conocidos -->
-
-## Plan de Rollback
-<!-- ¿Cómo vuelvo a `stable/lunaria-ok` si algo falla? -->
-
----
-
-## Checklist de Lunaria (NO merges sin esto)
-**Categorías:** hogar, belleza, tecnologia, eco, mascotas, bienestar
-
-- [ ] Se ven **12 tarjetas** por categoría (no 1, no 6).
-- [ ] **Imágenes cargan** en todas las categorías.
-- [ ] **Bienestar** muestra imágenes (sin placeholders amarillos).
-- [ ] `components/ProductListClient.tsx` **no** fue modificado (o se justifica en el PR).
-- [ ] `app/categorias/[slug]/page.tsx` mantiene el **slice/limit a 12**.
-- [ ] `next.config.js` conserva `images.remotePatterns` y `unoptimized: true`.
-- [ ] No se cambiaron nombres de columnas usadas por el front:
-      `id, nombre, precio, imagen_url, envio, destacado, categoria_slug`.
-- [ ] `/api/health` responde “ok” en el Preview.
-- [ ] No hay errores en consola del navegador (Preview).
-- [ ] Probado **deep-links** a cada categoría (sin 404).
-
-## Notas de QA
-<!-- Pasos de prueba manuales + capturas si aplica -->
-
-===== END .github/pull_request_template.md =====
-
-===== BEGIN .gitignore =====
-node_modules/
-.next/
-out/
-.env*
-.vercel/
-pnpm-lock.yaml
-yarn.lock
-dist/
-coverage/
-
-===== END .gitignore =====
-
-===== BEGIN gpt_files_home_productcard.txt =====
-# Pégame el contenido EXACTO de estos archivos en el próximo mensaje (en un GPT BUNDLE):
-app/page.tsx
-app/globals.css
-
-# (Opcional, solo si quieres que también deje 100% coherente el resto de la UI más adelante)
-# components/ProductListClient.tsx
-# components/SectionHeader.tsx
-# components/ProductSkeleton.tsx
-# components/Hero.tsx
-
-===== END gpt_files_home_productcard.txt =====
-
-===== BEGIN gpt_files_request.txt =====
-# 📂 LISTA DE ARCHIVOS A ENVIAR (cópialos en un GPT BUNDLE completo):
-
-app/page.tsx
-app/globals.css
-
-# (Si quieres, también estos opcionales para polish extra)
-# components/ProductListClient.tsx
-# components/SectionHeader.tsx
-# components/ProductSkeleton.tsx
-# components/Hero.tsx
-
-===== END gpt_files_request.txt =====
-
-===== BEGIN hooks/usePreviewEnv.ts =====
+=== FILE: components/PreviewDebug.tsx ===
+```ts
 'use client';
-import { useEffect, useState } from "react";
-
-export function usePreviewEnv() {
-  const [isPreview, setIsPreview] = useState(false);
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/health")
-      .then(r => r.json())
-      .then((d:any) => {
-        if (cancelled) return;
-        if (d?.env === "preview") setIsPreview(true);
-        else if (typeof window !== "undefined" && window.location.hostname.includes("-git-")) setIsPreview(true);
-      })
-      .catch(() => {
-        if (typeof window !== "undefined" && window.location.hostname.includes("-git-")) setIsPreview(true);
-      });
-    return () => { cancelled = true; };
-  }, []);
-  return isPreview;
-}
-
-===== END hooks/usePreviewEnv.ts =====
-
-===== BEGIN lib/categorias.ts =====
-export type CategoriaSlug = 'hogar'|'belleza'|'tecnologia'|'bienestar'|'eco'|'mascotas';
-export const CATEGORIAS: { slug: CategoriaSlug; nombre: string; descripcion?: string }[] = [
-  { slug:'hogar', nombre:'Hogar' },
-  { slug:'belleza', nombre:'Belleza' },
-  { slug:'tecnologia', nombre:'Tecnología' },
-  { slug:'bienestar', nombre:'Bienestar' },
-  { slug:'eco', nombre:'Eco' },
-  { slug:'mascotas', nombre:'Mascotas' },
-];
-export const isCategoria = (s: string): s is CategoriaSlug =>
-  ['hogar','belleza','tecnologia','bienestar','eco','mascotas'].includes(s);
-export const getCategoriaBySlug = (s: string) =>
-  CATEGORIAS.find(c => c.slug === s);
-
-===== END lib/categorias.ts =====
-
-===== BEGIN lib/products.ts =====
-export type Producto = {
-  id: string;
-  nombre: string;
-  precio: number;
-  imagen: string;
-  categoria: "Hogar" | "Mascotas" | "Belleza" | "Bienestar" | "Tecnología" | "Eco";
-  envio: "Rápido (stock local)" | "Importado (AliExpress Premium)" | "Importado (Estándar)";
-  destacado?: boolean;
+type Props = {
+  isPreview: boolean;
+  hasSupabase: boolean;
+  counts: { nuevos: number; destacados: number; top: number };
 };
-export const productos: Producto[] = [
-  { id: "hogar-001", nombre: "Organizador plegable multiuso", precio: 12990, imagen: "https://images.unsplash.com/photo-1541562232579-512a21360020?q=80&w=1200&auto=format&fit=crop", categoria: "Hogar", envio: "Rápido (stock local)", destacado: true },
-  { id: "pet-001", nombre: "Juguete mordedor reforzado", precio: 9990, imagen: "https://images.unsplash.com/photo-1541625602330-2277a4c46182?q=80&w=1200&auto=format&fit=crop", categoria: "Mascotas", envio: "Importado (AliExpress Premium)" },
-  { id: "beauty-001", nombre: "Set brochas compactas", precio: 14990, imagen: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?q=80&w=1200&auto=format&fit=crop", categoria: "Belleza", envio: "Rápido (stock local)", destacado: true },
-  { id: "fit-001", nombre: "Banda elástica resistencia", precio: 6990, imagen: "https://images.unsplash.com/photo-1517836357463-d25dfeac8d58?q=80&w=1200&auto=format&fit=crop", categoria: "Bienestar", envio: "Importado (Estándar)" },
-  { id: "tech-001", nombre: "Soporte aluminio para notebook", precio: 19990, imagen: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop", categoria: "Tecnología", envio: "Rápido (stock local)", destacado: true },
-  { id: "eco-001", nombre: "Set bolsas reutilizables frutas/verduras", precio: 7990, imagen: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=1200&auto=format&fit=crop", categoria: "Eco", envio: "Importado (AliExpress Premium)" }
-];
-
-===== END lib/products.ts =====
-
-===== BEGIN lib/supabase/client.ts =====
-"use client";
-import { createClient } from "@supabase/supabase-js";
-
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  { auth: { persistSession: false } }
-);
-
-===== END lib/supabase/client.ts =====
-
-===== BEGIN lib/supabase/server.ts =====
-import { createClient } from "@supabase/supabase-js";
-
-export const supabaseServer = () =>
-  createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false } }
-  );
-
-===== END lib/supabase/server.ts =====
-
-===== BEGIN lib/supabaseServer.ts =====
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-
-/**
- * Crea un cliente de Supabase sólo si existen las env públicas.
- * Devuelve `null` si faltan, así el caller puede mostrar skeletons/mocks.
- */
-export function supabaseServer(): SupabaseClient | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !anon) return null;
-  try {
-    return createClient(url, anon, { auth: { persistSession: false } });
-  } catch {
-    return null;
-  }
-}
-
-===== END lib/supabaseServer.ts =====
-
-===== BEGIN middleware.ts =====
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-export function middleware(_request: NextRequest) { return NextResponse.next(); }
-export const config = { matcher: [] };
-
-===== END middleware.ts =====
-
-===== BEGIN next.config.js =====
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  images: {
-    unoptimized: true,
-    remotePatterns: [
-      { protocol: 'https', hostname: 'images.unsplash.com' },
-      { protocol: 'https', hostname: '*.supabase.co' },
-    ],
-  },
-};
-
-module.exports = nextConfig;
-
-===== END next.config.js =====
-
-===== BEGIN next-env.d.ts =====
-/// <reference types="next" />
-/// <reference types="next/image-types/global" />
-
-===== END next-env.d.ts =====
-
-===== BEGIN package.json =====
-{
-  "name": "lunaria",
-  "private": true,
-  "version": "1.0.2",
-  "scripts": {
-    "postinstall": "node scripts/inject-env.mjs",
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.45.4",
-    "framer-motion": "^11.2.10",
-    "mercadopago": "^2.2.0",
-    "next": "14.2.5",
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
-  },
-  "devDependencies": {
-    "@types/node": "^20.14.12",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "autoprefixer": "^10.4.18",
-    "eslint": "8.57.1",
-    "eslint-config-next": "14.2.5",
-    "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.10",
-    "typescript": "^5.5.4"
-  },
-  "overrides": {
-    "eslint": "8.57.1"
-  }
-}
-
-===== END package.json =====
-
-/* SKIPPED (too large: 223420 bytes, limit 200000) */ package-lock.json
-
-===== BEGIN pages_backup/index.js =====
-export default function Home() {
-  return <h1>Hola Mundo</h1>
-}
-
-===== END pages_backup/index.js =====
-
-===== BEGIN postcss.config.js =====
-module.exports = { plugins: { tailwindcss: {}, autoprefixer: {} } };
-
-===== END postcss.config.js =====
-
-===== BEGIN public/.build-stamp =====
-20250919-053718
-
-===== END public/.build-stamp =====
-
-/* BINARY (not dumped) */ public/.gitkeep (0 bytes)
-
-===== BEGIN public/manifest.webmanifest =====
-{
-  "name": "Lunaria",
-  "short_name": "Lunaria",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#2ECC71",
-  "icons": [
-    { "src": "/favicon.ico", "sizes": "48x48 32x32 16x16", "type": "image/x-icon" }
-  ]
-}
-
-===== END public/manifest.webmanifest =====
-
-===== BEGIN public/ok.txt =====
-ok
-
-===== END public/ok.txt =====
-
-===== BEGIN public/robots.txt =====
-User-agent: *
-Allow: /
-
-Sitemap: /sitemap.xml
-
-===== END public/robots.txt =====
-
-===== BEGIN public/sitemap.xml =====
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>/</loc></url>
-  <url><loc>/categorias</loc></url>
-  <url><loc>/categorias/hogar</loc></url>
-  <url><loc>/categorias/belleza</loc></url>
-  <url><loc>/categorias/tecnologia</loc></url>
-  <url><loc>/categorias/bienestar</loc></url>
-  <url><loc>/categorias/eco</loc></url>
-  <url><loc>/categorias/mascotas</loc></url>
-  <url><loc>/carro</loc></url>
-</urlset>
-
-===== END public/sitemap.xml =====
-
-===== BEGIN run.sh =====
-#!/usr/bin/env bash
-set -euo pipefail
-
-stamp="$(date +%Y%m%d-%H%M%S)"
-branch="preview/lunaria-product-detail-${stamp}"
-
-echo "🚀 Lunaria: fixing product detail routing + polish"
-echo "🧹 Checking working tree…"
-
-# Si hay cambios sin commit, los metemos en un commit WIP para no frenar el flujo.
-if ! git diff --quiet || ! git diff --cached --quiet; then
-  echo "💾 Working tree sucio → commit WIP"
-  git add -A
-  git commit -m "WIP: auto-save before lunaria product detail update (${stamp})" || true
-fi
-
-echo "🌿 Creando rama desde HEAD → ${branch}"
-git checkout -b "${branch}"
-
-# ==== Escribir archivos ====
-
-mkdir -p app/producto/[id]
-
-# app/page.tsx
-cat > app/page.tsx <<'TS'
-import "server-only";
-import Hero from "@/components/Hero";
-import SectionHeader from "@/components/SectionHeader";
-import ProductSkeleton from "@/components/ProductSkeleton";
-import Link from "next/link";
-import { supabaseServer } from "@/lib/supabaseServer";
-import PreviewDebug from "@/components/PreviewDebug";
-import ProductCard from "@/components/ProductCard";
-
-export const dynamic = "force-dynamic";
-
-type Producto = {
-  id: string;
-  nombre: string;
-  precio?: number | null;
-  imagen?: string | null;
-  imagen_url?: string | null;
-  image_url?: string | null;
-  image?: string | null;
-  envio?: string | null;
-  categoria_slug?: string | null;
-  destacado?: boolean | null;
-  created_at?: string | null;
-  ventas?: number | null;
-};
-
-const SELECT_COLS =
-  "id,nombre,precio,imagen,imagen_url,image_url,image,envio,categoria_slug,destacado,created_at,ventas";
-
-const MOCKS = [
-  { id: "m1", nombre: "Organizador minimal", imagen: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop" },
-  { id: "m2", nombre: "Botella térmica", imagen: "https://images.unsplash.com/photo-1502741126161-b048400d085a?q=80&w=1200&auto=format&fit=crop" },
-  { id: "m3", nombre: "Auriculares", imagen: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop" },
-  { id: "m4", nombre: "Silla ergonómica", imagen: "https://images.unsplash.com/photo-1503602642458-232111445657?q=80&w=1200&auto=format&fit=crop" },
-  { id: "m5", nombre: "Lámpara cálida", imagen: "https://images.unsplash.com/photo-1493666438817-866a91353ca9?q=80&w=1200&auto=format&fit=crop" },
-  { id: "m6", nombre: "Mochila urbana", imagen: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop" }
-];
-
-const IMG_FALLBACK = "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?q=80&w=1200&auto=format&fit=crop";
-
-function pickImg(p: Partial<Producto> & {
-  imagen?: string | null;
-  imagen_url?: string | null;
-  image_url?: string | null;
-  image?: string | null;
-}) {
-  const toStr = (v: unknown) => (typeof v === "string" ? v.trim() : "");
-  const cands = [p.imagen, p.imagen_url, p.image_url, p.image].map(toStr).filter(Boolean);
-  return cands[0] || IMG_FALLBACK;
-}
-
-async function getHomeData() {
-  try {
-    const supa = supabaseServer();
-    if (!supa) {
-      return { destacados: [] as Producto[], nuevos: [] as Producto[], top: [] as Producto[] };
-    }
-
-    let destacados: Producto[] = [];
-    try {
-      const { data } = await supa
-        .from("productos")
-        .select(SELECT_COLS)
-        .eq("destacado", true)
-        .order("id", { ascending: true })
-        .limit(6);
-      destacados = (data ?? []) as Producto[];
-    } catch (e) {
-      console.error("Supabase destacados:", e);
-      destacados = [];
-    }
-
-    let nuevos: Producto[] = [];
-    try {
-      const r1 = await supa
-        .from("productos")
-        .select(SELECT_COLS)
-        .order("created_at", { ascending: false })
-        .limit(6);
-      nuevos = (r1.data ?? []) as Producto[];
-      if (nuevos.length === 0) {
-        const r2 = await supa
-          .from("productos")
-          .select(SELECT_COLS)
-          .order("id", { ascending: false })
-          .limit(6);
-        nuevos = (r2.data ?? []) as Producto[];
-      }
-    } catch (e) {
-      console.error("Supabase nuevos:", e);
-      nuevos = [];
-    }
-
-    let top: Producto[] = [];
-    try {
-      const r1 = await supa
-        .from("productos")
-        .select(SELECT_COLS)
-        .order("ventas", { ascending: false })
-        .limit(6);
-      top = (r1.data ?? []) as Producto[];
-      if (top.length === 0) {
-        const r2 = await supa
-          .from("productos")
-          .select(SELECT_COLS)
-          .order("id", { ascending: true })
-          .limit(6);
-        top = (r2.data ?? []) as Producto[];
-      }
-    } catch (e) {
-      console.error("Supabase top:", e);
-      top = [];
-    }
-
-    return { destacados, nuevos, top };
-  } catch (e) {
-    console.error("getHomeData fatal:", e);
-    return { destacados: [] as Producto[], nuevos: [] as Producto[], top: [] as Producto[] };
-  }
-}
-
-export default async function Home() {
-  const isPreview = process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
-  const hasSupabase = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-  const { destacados, nuevos, top } = await getHomeData();
-
+export default function PreviewDebug({ isPreview, hasSupabase, counts }: Props) {
+  if (!isPreview) return null;
   return (
-    <main className="space-y-12">
-      <Hero />
-
-      {/* NUEVOS */}
-      <section className="mx-auto max-w-6xl px-4 sm:px-6">
-        <SectionHeader title="Nuevos" subtitle="Lo último que estamos destacando en la tienda" />
-        {nuevos.length > 0 ? (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lunaria-grid-in">
-            {nuevos.map((m) => (
-              <li key={m.id}>
-                <ProductCard
-                  id={m.id}
-                  nombre={m.nombre}
-                  precio={m.precio}
-                  envio={m.envio ?? undefined}
-                  imagen={m.imagen ?? undefined}
-                  imagen_url={m.imagen_url ?? undefined}
-                  image_url={m.image_url ?? undefined}
-                  image={m.image ?? undefined}
-                  href={`/producto/${m.id}`}
-                />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {MOCKS.slice(0,6).map((m) => (
-              <li key={m.id} className="rounded-xl border overflow-hidden bg-white group">
-                <div className="aspect-[4/3] overflow-hidden bg-gray-100">
-                  <img src={m.imagen} alt={m.nombre} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" />
-                </div>
-                <div className="p-3">
-                  <div className="text-sm font-semibold line-clamp-1">{m.nombre}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* TENDENCIAS (destacados) */}
-      <section className="mx-auto max-w-6xl px-4 sm:px-6">
-        <SectionHeader title="Tendencias" subtitle="Se mueven mucho estos días" />
-        {destacados.length > 0 ? (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lunaria-grid-in">
-            {destacados.map((m) => (
-              <li key={m.id}>
-                <ProductCard
-                  id={m.id}
-                  nombre={m.nombre}
-                  precio={m.precio}
-                  envio={m.envio ?? undefined}
-                  imagen={m.imagen ?? undefined}
-                  imagen_url={m.imagen_url ?? undefined}
-                  image_url={m.image_url ?? undefined}
-                  image={m.image ?? undefined}
-                  href={`/producto/${m.id}`}
-                />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <li key={i}><ProductSkeleton /></li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* TOP VENTAS */}
-      <section className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="flex items-end justify-between">
-          <SectionHeader
-            title="Top Ventas"
-            subtitle="Los favoritos de la comunidad"
-            className="mb-0"
-          />
-          <Link href="/categorias" className="text-sm font-semibold rounded-xl px-3 py-1.5 hover:bg-neutral-100">
-            Ver todas las categorías →
-          </Link>
-        </div>
-        {top.length > 0 ? (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lunaria-grid-in">
-            {top.map((m) => (
-              <li key={m.id}>
-                <ProductCard
-                  id={m.id}
-                  nombre={m.nombre}
-                  precio={m.precio}
-                  envio={m.envio ?? undefined}
-                  imagen={m.imagen ?? undefined}
-                  imagen_url={m.imagen_url ?? undefined}
-                  image_url={m.image_url ?? undefined}
-                  image={m.image ?? undefined}
-                  href={`/producto/${m.id}`}
-                />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <li key={i}><ProductSkeleton /></li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* Debug sólo en preview */}
-      <PreviewDebug isPreview={isPreview} hasSupabase={hasSupabase} counts={{
-        nuevos: nuevos.length, destacados: destacados.length, top: top.length
-      }} />
-    </main>
+    <div style={{
+      position:'fixed', bottom:16, left:16, zIndex:60,
+      background:'rgba(255,255,255,.95)', border:'1px solid #e5e7eb',
+      borderRadius:12, padding:'10px 12px', boxShadow:'0 8px 24px rgba(0,0,0,.08)'
+    }}>
+      <div style={{fontWeight:800, fontSize:12, marginBottom:6}}>PreviewDebug</div>
+      <ul style={{fontSize:12, lineHeight:1.3}}>
+        <li>VERCEL_ENV: <b>{isPreview ? 'preview' : 'other'}</b></li>
+        <li>Supabase envs: <b style={{color:hasSupabase?'#16a34a':'#dc2626'}}>
+          {hasSupabase ? 'OK' : 'FALTAN'}</b></li>
+        <li>Nuevos: <b>{counts.nuevos}</b></li>
+        <li>Destacados: <b>{counts.destacados}</b></li>
+        <li>Top: <b>{counts.top}</b></li>
+      </ul>
+    </div>
   );
 }
-TS
 
-# app/globals.css
-cat > app/globals.css <<'CSS'
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+```
 
-body {
-  @apply bg-gray-50 text-gray-900 antialiased;
-  font-family: 'Inter', sans-serif;
-}
-
-h1,h2,h3,h4,h5,h6 {
-  @apply font-bold text-gray-900;
-}
-
-a {
-  @apply text-emerald-700 hover:text-emerald-800 transition;
-}
-
-/* === LUNARIA: nivel1-estetica === */
-/* Tipografías modernas sin tocar componentes: Inter (texto) + Poppins (titulares) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap');
-
-:root {
-  /* Paleta discreta y consistente (ajustable si ya usas Tailwind theming) */
-  --brand: #16a34a;         /* verde acción */
-  --brand-600: #16a34a;
-  --brand-700: #15803d;
-  --ink: #0f172a;           /* slate-900 */
-  --muted: #475569;         /* slate-600 */
-  --card: #ffffff;
-  --card-border: #e5e7eb;
-  --shadow: 0 8px 24px rgba(0,0,0,.06);
-  --shadow-lg: 0 12px 32px rgba(0,0,0,.10);
-}
-
-html, body {
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  color: var(--ink);
-}
-
-h1, h2, .hero-title, .section-title {
-  font-family: Poppins, Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  letter-spacing: -0.01em;
-}
-
-/* Header pegado con fondo traslúcido y blur */
-header, .site-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(255,255,255,0.7);
-  backdrop-filter: saturate(1.2) blur(8px);
-  border-bottom: 1px solid rgba(0,0,0,0.04);
-}
-
-/* Tarjetas (ProductListClient/ProductCard) — sombras y micro-animación */
-.border.rounded-2xl,
-.border.rounded-xl,
-.card,
-li.border.rounded-2xl,
-div.border.rounded-2xl {
-  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-  will-change: transform;
-  border-color: var(--card-border);
-}
-
-.border.rounded-2xl:hover,
-.border.rounded-xl:hover,
-.card:hover,
-li.border.rounded-2xl:hover,
-div.border.rounded-2xl:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
-  border-color: rgba(0,0,0,0.06);
-}
-
-/* Imagen dentro de la tarjeta: sutil zoom al hover */
-.border.rounded-2xl .object-cover,
-.border.rounded-xl .object-cover,
-.card .object-cover {
-  transition: transform .35s ease;
-}
-
-.border.rounded-2xl:hover .object-cover,
-.border.rounded-xl:hover .object-cover,
-.card:hover .object-cover {
-  transform: scale(1.03);
-}
-
-/* Botones principales: color consistente y feedback */
-button,
-a.button,
-.btn,
-[class*="bg-lime-600"],
-[class*="bg-green-600"] {
-  transition: background-color .15s ease, box-shadow .15s ease, transform .15s ease;
-}
-
-button:hover,
-a.button:hover,
-.btn:hover,
-[class*="bg-lime-600"]:hover,
-[class*="bg-green-600"]:hover {
-  filter: brightness(0.98);
-  box-shadow: 0 6px 16px rgba(22,163,74,0.18);
-}
-
-button:active,
-a.button:active,
-.btn:active {
-  transform: translateY(1px);
-}
-
-/* Links de categorías (tiles) — resalte al hover */
-a[data-cat], .cat-tile {
-  transition: transform .18s ease, box-shadow .18s ease;
-}
-
-a[data-cat]:hover, .cat-tile:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
-}
-
-/* Fajas de confianza: mejor legibilidad */
-.trust-strip, .trust-belt, .features-row {
-  color: var(--muted);
-}
-
-/* Fin nivel1-estetica */
-
-/* === Nivel 3 Visual: Animaciones y helpers === */
-@keyframes lnr-fade-up {
-  0% { opacity: 0; transform: translateY(10px) scale(.98); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes lnr-fade-in {
-  0% { opacity: 0 }
-  100% { opacity: 1 }
-}
-@keyframes lnr-shine {
-  0% { transform: translateX(-150%) }
-  100% { transform: translateX(150%) }
-}
-.lnr-appear { animation: lnr-fade-up .5s ease-out both; }
-.lnr-appear-slow { animation: lnr-fade-up .7s ease-out both; }
-.lnr-appear-delay { animation-delay: .12s }
-.lnr-appear-delay-lg { animation-delay: .2s }
-
-.card-3d {
-  transition: transform .25s ease, box-shadow .25s ease;
-  will-change: transform;
-}
-.card-3d:hover {
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 12px 30px -12px rgb(0 0 0 / .25);
-}
-.img-zoom {
-  transform: scale(1.02);
-  transition: transform .5s ease, filter .5s ease;
-}
-.group:hover .img-zoom { transform: scale(1.08); }
-
-.lnr-overlay-grad {
-  background: linear-gradient(180deg, rgba(0,0,0,.0) 30%, rgba(0,0,0,.35) 75%, rgba(0,0,0,.55) 100%);
-}
-
-.lnr-shimmer {
-  position: relative;
-  overflow: hidden;
-}
-.lnr-shimmer::after {
-  content: "";
-  position: absolute; inset: 0;
-  transform: translateX(-150%);
-  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.18) 45%, rgba(255,255,255,0) 70%);
-  animation: lnr-shine 1.25s ease-in-out infinite;
-}
-
-.badge-pill {
-  border-radius: 9999px;
-  padding: .35rem .6rem;
-  font-weight: 600;
-  font-size: .8rem;
-}
-
-/* Botón verde consistente con “Explorar categorías” */
-.btn-brand {
-  @apply inline-flex items-center gap-2 rounded-xl bg-lime-600 text-white px-3 py-2 hover:bg-lime-700 transition;
-}
-
-/* Etiqueta en tiles de categorías */
-.cat-chip {
-  @apply inline-flex items-center gap-2 rounded-xl bg-lime-600/95 text-white px-3 py-1.5 shadow-md;
-}
-
-/* === LUNARIA: visual-pack-level4 (do not remove) === */
-/* Paleta y tokens */
-:root {
-  /* mismo verde que usamos en el Hero (lime-600 aprox) */
-  --brand-green: #65a30d;
-  --brand-green-600: #65a30d;
-  --brand-green-700: #4d7c0f;
-  --brand-ink: #0b0f19;
-  --card-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-  --card-shadow-hover: 0 16px 40px rgba(15, 23, 42, 0.12);
-}
-
-/* Micro-animaciones base */
-@keyframes lunaria-fade-in-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Botón/etiqueta de marca (para sobre-imagen o badges) */
-.lunaria-btn,
-.badge-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  padding: .45rem .8rem;
-  font-weight: 600;
-  border-radius: 9999px;
-  color: #fff;
-  background-color: var(--brand-green);
-  box-shadow: 0 4px 16px rgba(101,163,13,.25);
-  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
-}
-.lunaria-btn:hover,
-.badge-brand:hover {
-  transform: translateY(-1px);
-  background-color: var(--brand-green-700);
-  box-shadow: 0 8px 24px rgba(101,163,13,.35);
-}
-
-/* Cards genéricas (product tiles, etc.) */
-:where(.grid) :where(.border.rounded-2xl) {
-  border-color: rgba(2,6,23,.06); /* slate-950/6 */
-  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
-  box-shadow: var(--card-shadow);
-  background: #fff;
-}
-:where(.grid) :where(.border.rounded-2xl):hover {
-  transform: translateY(-2px);
-  box-shadow: var(--card-shadow-hover);
-  border-color: rgba(2,6,23,.10);
-}
-
-/* Imágenes en grillas 4:3 con zoom suave al hover */
-:where(.aspect-\[4\/3\]) img,
-:where(.aspect-\[4\/3\]) .object-cover {
-  transition: transform .35s ease, filter .35s ease;
-  will-change: transform;
-}
-:where(li,div).border.rounded-2xl:hover :where(.aspect-\[4\/3\]) img,
-:where(li,div).border.rounded-2xl:hover :where(.aspect-\[4\/3\]) .object-cover {
-  transform: scale(1.03);
-}
-
-/* Precio destacado y tipografía suave */
-.lunaria-price {
-  color: var(--brand-green-700);
-  font-weight: 800;
-  letter-spacing: .1px;
-}
-
-/* Títulos compactos y legibles */
-.lunaria-title {
-  font-weight: 700;
-  letter-spacing: .2px;
-  color: var(--brand-ink);
-}
-
-/* Sutil divider entre info y CTA */
-.lunaria-divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(2,6,23,.08), transparent);
-  margin: .5rem 0;
-}
-
-/* Hover de CTA negro (coherente con el tema actual) */
-.lunaria-cta {
-  background: #0b0f19;
-  color: #fff;
-  border-radius: .75rem;
-  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
-}
-.lunaria-cta:hover {
-  transform: translateY(-1px);
-  background: #111827;
-  box-shadow: 0 10px 24px rgba(17,24,39,.22);
-}
-
-/* Etiquetas sobre tiles de categorías: centradas y legibles */
-.lunaria-cat-chip {
-  position: absolute;
-  left: 50%;
-  bottom: .9rem;
-  transform: translateX(-50%);
-  z-index: 2;
-  backdrop-filter: saturate(120%) blur(4px);
-}
-.lunaria-cat-chip .icon {
-  display: inline-block;
-  width: 1rem; height: 1rem;
-}
-
-/* Pequeño efecto parallax óptico al pasar el mouse */
-.lunaria-tilt:hover { transform: perspective(900px) translateZ(0) rotateX(.6deg) rotateY(.6deg); }
-
-/* Animación de aparición para grids */
-.lunaria-grid-in > * {
-  animation: lunaria-fade-in-up .35s ease both;
-}
-.lunaria-grid-in > *:nth-child(2) { animation-delay: .02s; }
-.lunaria-grid-in > *:nth-child(3) { animation-delay: .04s; }
-.lunaria-grid-in > *:nth-child(4) { animation-delay: .06s; }
-.lunaria-grid-in > *:nth-child(5) { animation-delay: .08s; }
-.lunaria-grid-in > *:nth-child(6) { animation-delay: .10s; }
-
-/* Hero CTA: asegura el mismo verde global */
-.lunaria-hero-cta {
-  background-color: var(--brand-green) !important;
-}
-.lunaria-hero-cta:hover {
-  background-color: var(--brand-green-700) !important;
-}
-
-/* Protección por si el texto de categorías queda oscuro sobre imágenes */
-.lunaria-text-shadow {
-  text-shadow: 0 1px 8px rgba(0,0,0,.35), 0 0 1px rgba(0,0,0,.6);
-}
-
-/* === /LUNARIA: visual-pack-level4 === */
-
-/* tokens lunaria (idempotente) */
-:root{
-  --lunaria-green:#3eb489;
-  --lunaria-green-hover:#36a178;
-}
-
-/* --- Neutraliza cualquier pseudo-badge que duplique el contador del carrito --- */
-[data-testid="floating-cart"]::after,
-[data-testid="floating-cart"]::before {
-  content: none !important;
-}
-
-/* ========== Visual Pack Nivel 7–9 (no logic) ========== */
-:root {
-  --lunaria-radius-xl: 1.25rem;
-  --lunaria-shadow-sm: 0 2px 10px rgba(0,0,0,.06);
-  --lunaria-shadow-md: 0 6px 24px rgba(0,0,0,.08);
-  --lunaria-shadow-lg: 0 12px 40px rgba(0,0,0,.12);
-  --lunaria-anim-fast: 180ms;
-  --lunaria-anim-med: 280ms;
-}
-
-/* Tipografía un poco más “retail” */
-html {
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Tarjetas (categorías y productos) — hover sutil + elevación */
-.grid .border.rounded-2xl,
-.grid .rounded-2xl.border {
-  border-radius: var(--lunaria-radius-xl) !important;
-  box-shadow: var(--lunaria-shadow-sm);
-  transition: transform var(--lunaria-anim-med) ease, box-shadow var(--lunaria-anim-med) ease, filter var(--lunaria-anim-med) ease;
-  will-change: transform, box-shadow, filter;
-  background: #fff;
-}
-
-.grid .border.rounded-2xl:hover,
-.grid .rounded-2xl.border:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--lunaria-shadow-md);
-}
-
-/* Imágenes dentro de tarjetas: zoom y “shine” suave */
-.grid .border.rounded-2xl .bg-gray-100,
-.grid .rounded-2xl.border .bg-gray-100 {
-  overflow: hidden;
-  position: relative;
-}
-
-.grid .border.rounded-2xl img,
-.grid .rounded-2xl.border img {
-  transition: transform var(--lunaria-anim-med) ease, filter var(--lunaria-anim-med) ease;
-  will-change: transform, filter;
-}
-
-.grid .border.rounded-2xl:hover img,
-.grid .rounded-2xl.border:hover img {
-  transform: scale(1.03);
-  filter: saturate(1.05) contrast(1.03);
-}
-
-/* Efecto “shine” diagonal opcional */
-.grid .border.rounded-2xl .bg-gray-100::after,
-.grid .rounded-2xl.border .bg-gray-100::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(115deg, rgba(255,255,255,0) 20%, rgba(255,255,255,.18) 45%, rgba(255,255,255,0) 70%);
-  transform: translateX(-120%);
-  transition: transform 700ms ease;
-  pointer-events: none;
-}
-
-@media (hover:hover) {
-  .grid .border.rounded-2xl:hover .bg-gray-100::after,
-  .grid .rounded-2xl.border:hover .bg-gray-100::after {
-    transform: translateX(120%);
-  }
-}
-
-/* Botones primarios coherentes (verde oficial del Hero) */
-:root {
-  --lunaria-green: #16a34a;       /* Tailwind green-600 del botón "Explorar categorías" */
-  --lunaria-green-hover: #15803d; /* green-700 */
-}
-
-.btn-primary,
-button.bg-lime-600,
-a.bg-lime-600 {
-  background-color: var(--lunaria-green) !important;
-  color: #fff !important;
-  border-radius: 0.85rem !important;
-  box-shadow: 0 8px 18px rgba(22,163,74,.22);
-  transition: transform var(--lunaria-anim-fast) ease, box-shadow var(--lunaria-anim-fast) ease, background-color var(--lunaria-anim-fast) ease;
-}
-
-.btn-primary:hover,
-button.bg-lime-600:hover,
-a.bg-lime-600:hover {
-  background-color: var(--lunaria-green-hover) !important;
-  transform: translateY(-1px);
-  box-shadow: 0 10px 22px rgba(21,128,61,.28);
-}
-
-/* Badges / chips (envío, destacado) */
-.badge,
-p.text-sm.text-gray-600 {
-  display: inline-flex;
-  align-items: center;
-  gap: .4rem;
-  padding: .18rem .6rem;
-  border-radius: 999px;
-  background: rgba(16, 185, 129, .08); /* emerald-500/08 */
-  color: #065f46; /* emerald-800 */
-  font-weight: 600;
-}
-
-/* Header/sticky pulido (si existe sticky en tu layout) */
-.sticky-header {
-  backdrop-filter: saturate(1.2) blur(6px);
-  background-color: rgba(255,255,255,.72);
-  box-shadow: 0 2px 12px rgba(0,0,0,.05);
-}
-
-/* Micro animación para iconos (categorías) */
-.category-icon {
-  transition: transform var(--lunaria-anim-fast) ease;
-}
-.category-icon:hover {
-  transform: scale(1.08) rotate(-1deg);
-}
-
-/* CTA en hero: ligero “breathing” */
-@media (prefers-reduced-motion: no-preference) {
-  .hero-cta-breathe {
-    animation: breathe 3.2s ease-in-out infinite;
-  }
-  @keyframes breathe {
-    0%   { transform: translateY(0) scale(1); box-shadow: var(--lunaria-shadow-md); }
-    50%  { transform: translateY(-1px) scale(1.01); box-shadow: var(--lunaria-shadow-lg); }
-    100% { transform: translateY(0) scale(1); box-shadow: var(--lunaria-shadow-md); }
-  }
-}
-
-/* Sombra fine-grain al mover el mouse (soporte amplio usando :hover) */
-.card-hover:hover {
-  box-shadow: var(--lunaria-shadow-lg);
-}
-
-/* Foco accesible bonito */
-:focus-visible {
-  outline: 3px solid rgba(22,163,74,.45);
-  outline-offset: 3px;
-  border-radius: 8px;
-}
-
-/* ========== /Visual Pack Nivel 7–9 ========== */
-
-/* === NIVEL100:BEGIN === */
-/* Paleta y motion helpers (no invasivo) */
-:root {
-  --lnr-green: #3e8e41; /* verde hero */
-  --lnr-green-ink: #2f6b32;
-  --lnr-ink: #0f172a;   /* neutral-900 */
-  --lnr-card: 255,255,255;
-  --lnr-shadow: 15 23 42; /* slate-900 */
-}
-
-/* Suaviza todo */
-html { scroll-behavior: smooth; }
-
-/* Cards genéricas: .border.rounded-2xl */
-.border.rounded-2xl {
-  transition:
-    transform 220ms cubic-bezier(.2,.7,.2,1),
-    box-shadow 220ms cubic-bezier(.2,.7,.2,1),
-    background-color 220ms ease;
-  will-change: transform, box-shadow;
-  background-color: rgba(var(--lnr-card),1);
-  box-shadow:
-    0 1px 2px rgba(var(--lnr-shadow)/0.06),
-    0 8px 24px rgba(var(--lnr-shadow)/0.04);
-}
-.border.rounded-2xl:hover {
-  transform: translateY(-4px);
-  box-shadow:
-    0 6px 16px rgba(var(--lnr-shadow)/0.06),
-    0 18px 48px rgba(var(--lnr-shadow)/0.08);
-}
-
-/* Imágenes dentro de cards: zoom sutil al hover del contenedor */
-.border.rounded-2xl img,
-.border.rounded-2xl picture img {
-  transition: transform 300ms ease, filter 300ms ease, opacity 200ms ease;
-  will-change: transform, filter;
-}
-.border.rounded-2xl:hover img {
-  transform: scale(1.03);
-  filter: saturate(1.05);
-}
-
-/* Botones “primarios” por patrón de color verde hero */
-button.bg-lime-600,
-a.bg-lime-600,
-[class*="bg-lime-600"] {
-  background-color: var(--lnr-green) !important;
-  border-color: var(--lnr-green-ink) !important;
-  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
-  box-shadow: 0 4px 14px rgba(62,142,65,.15);
-}
-button.bg-lime-600:hover,
-a.bg-lime-600:hover,
-[class*="bg-lime-600"]:hover {
-  background-color: var(--lnr-green-ink) !important;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 22px rgba(62,142,65,.25);
-}
-button.bg-lime-600:active,
-a.bg-lime-600:active,
-[class*="bg-lime-600"]:active {
-  transform: translateY(0);
-  box-shadow: 0 3px 10px rgba(62,142,65,.18);
-}
-
-/* Etiquetas de categoría “pill” si van dentro de tiles */
-.badge-pill,
-[class*="badge"][class*="pill"] {
-  background: linear-gradient(180deg, var(--lnr-green), var(--lnr-green-ink));
-  color: #fff;
-  border-radius: 9999px;
-  box-shadow: 0 6px 20px rgba(62,142,65,.25);
-}
-
-/* Skeleton shimmer reutilizable (añade class="skeleton" a placeholders si lo necesitas) */
-@keyframes lnr-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-.skeleton {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(90deg,
-    rgba(226,232,240,.7) 0%,
-    rgba(241,245,249,.9) 20%,
-    rgba(226,232,240,.7) 40%,
-    rgba(226,232,240,.7) 100%);
-  background-size: 200% 100%;
-  animation: lnr-shimmer 1.2s infinite linear;
-}
-
-/* Micro bounce al agregar al carro (aplica a .added-bounce si la pones en el botón tras click) */
-@keyframes lnr-bounce {
-  0% { transform: scale(1); }
-  30% { transform: scale(1.08); }
-  60% { transform: scale(0.98); }
-  100% { transform: scale(1); }
-}
-.added-bounce { animation: lnr-bounce 360ms cubic-bezier(.2,.7,.2,1); }
-
-/* Back-to-top si existe un #backToTop */
-#backToTop {
-  transition: opacity .2s ease, transform .2s ease;
-  box-shadow: 0 8px 24px rgba(15,23,42,.18);
-}
-#backToTop:hover { transform: translateY(-2px); }
-
-/* Grid hover: realzar item activo */
-.grid > *:hover { position: relative; z-index: 2; }
-
-/* Hero: sutil parallax sobre imágenes directas */
-.hero img { transition: transform 600ms cubic-bezier(.2,.7,.2,1); will-change: transform; }
-.hero:hover img { transform: scale(1.02); }
-/* === NIVEL100:END === */
-
-
-/* === Nivel 9999999: Parallax + Gradiente Animado (solo visual) === */
-@keyframes lunariaGradientPulse {
-  0%   { opacity: .65; }
-  50%  { opacity: .85; }
-  100% { opacity: .65; }
-}
-
-.lunaria-parallax {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-}
-
-.lunaria-parallax::before {
-  /* Imagen de fondo – puedes cambiarla cuando quieras */
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image:
-    url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1920&auto=format&fit=crop");
-  background-size: cover;
-  background-position: center;
-  /* Parallax nativo y suave */
-  background-attachment: fixed;
-  transform: translateZ(0);
-  z-index: -2;
-  filter: saturate(1.05) contrast(1.02);
-}
-
-.lunaria-parallax::after {
-  /* Gradiente animado para dar profundidad */
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(1000px 500px at 20% 10%, rgba(255,255,255,.25), transparent 50%),
-    radial-gradient(900px 480px at 80% 20%, rgba(16,185,129,.18), transparent 55%),
-    linear-gradient(to bottom, rgba(255,255,255,.65), rgba(255,255,255,.92) 60%);
-  z-index: -1;
-  animation: lunariaGradientPulse 9s ease-in-out infinite;
-}
-
-/* Respeto accesibilidad (reduce motion) */
-@media (prefers-reduced-motion: reduce) {
-  .lunaria-parallax::after { animation: none; }
-  .lunaria-parallax::before { background-attachment: scroll; }
-}
-
-/* Botón “Explorar categorías” – reforzamos feeling premium sin cambiar tu verde */
-.lunaria-cta {
-  transition: transform .2s ease, box-shadow .2s ease;
-  box-shadow: 0 8px 20px rgba(101,163,13,0.25);
-}
-.lunaria-cta:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(101,163,13,0.33);
-}
-
-/* Copete del hero con un toque de brillo sutil */
-.lunaria-hero-subtle {
-  text-shadow: 0 1px 0 rgba(255,255,255,.6);
-}
-/* === Fin Nivel 9999999 === */
-
-/* === A11y & Micro-UX (bundle) === */
-:focus-visible {
-  outline: 3px solid #2ECC71;
-  outline-offset: 2px;
-  border-radius: .5rem;
-}
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-html { scroll-behavior: smooth; }
-
-/* Helpers de contraste en chips/badges si hiciera falta */
-.badge-contrast {
-  text-shadow: 0 1px 1px rgba(0,0,0,.25);
-}
-
-/* Skeleton util (por si queremos placeholder más tarde) */
-.skeleton {
-  position: relative;
-  overflow: hidden;
-  background: #f2f2f2;
-}
-.skeleton::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgba(0,0,0,.06), transparent);
-  animation: skeleton-shimmer 1.1s infinite;
-}
-@keyframes skeleton-shimmer {
-  100% { transform: translateX(100%); }
-}
-
-/* === BackToTop: forzar visibilidad y evitar solape con carrito === */
-:where(.back-to-top, #backtotop, [data-backtotop], a[href="#top"]){
-  position: fixed !important;
-  left: 1rem !important;
-  right: auto !important;
-  bottom: 1rem !important;
-  transform: none !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  z-index: 95 !important;
-  border-radius: 9999px;
-  box-shadow: 0 6px 18px rgba(0,0,0,.12);
-}
-@media (min-width: 768px){
-  :where(.back-to-top, #backtotop, [data-backtotop], a[href="#top"]){
-    left: auto !important;
-    right: 6.5rem !important; /* offset para FloatingCart */
-  }
-}
-@supports (padding: env(safe-area-inset-bottom)){
-  :where(.back-to-top, #backtotop, [data-backtotop], a[href="#top"]){
-    bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
-  }
-}
-
-/* breadcrumbs */
-.breadcrumb-hero {
-  /* separador opcional si se usa sobre fondos */
-  text-shadow: 0 1px 0 rgba(255,255,255,.8);
-}
-
-/* títulos de sección home pro */
-.section-title {
-  @apply text-xl sm:text-2xl font-semibold tracking-tight;
-}
-.section-sub {
-  @apply text-gray-600 text-sm;
-}
-
-/* PARALLAX UTILITIES */
-.parallax-root { perspective: 1000px; }
-.parallax-scene { transform-style: preserve-3d; height: 100%; position: relative; }
-.parallax-bg {
-  position: absolute; inset: 0;
-  background-position: center; background-size: cover; background-repeat: no-repeat;
-  transform: translateZ(-300px) scale(1.35);
-  will-change: transform;
-  filter: saturate(105%) contrast(102%);
-}
-.parallax-fg { position: relative; z-index: 1; }
-@media (min-width: 768px) {
-  /* Fallback extra suave por si el navegador ignora 3D: */
-  .parallax-bg-fixed { background-attachment: fixed; }
-}
-
-/* PARALLAX UTILITIES v2 */
-.parallax-root { perspective: 800px; }
-.parallax-scene { transform-style: preserve-3d; height: 100%; position: relative; }
-.parallax-bg {
-  position: absolute; inset: 0;
-  background-position: center 30%;
-  background-size: cover;
-  background-repeat: no-repeat;
-  transform: translateZ(-120px) scale(1.12);
-  will-change: transform;
-  transition: transform 300ms ease-out;
-  filter: saturate(104%) contrast(102%);
-}
-/* Suaviza bordes y da respiro visual */
-.hero-clip { border-radius: 1rem; overflow: hidden; }
-/* Degradado más sutil (menos “leche” sobre la foto) */
-.hero-fade::after{
-  content:"";
-  position:absolute; inset:0;
-  background: linear-gradient(to top, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.55) 45%, rgba(255,255,255,0.15) 100%);
-  pointer-events:none;
-}
-/* En móviles desactivamos 3D: se ve más limpio */
-@media (max-width: 767px) {
-  .parallax-root { perspective: none; }
-  .parallax-scene { transform-style: flat; }
-  .parallax-bg { transform: none; }
-  .parallax-bg-fixed { background-attachment: scroll; }
-}
-/* Respeto a usuarios con reduce-motion */
-@media (prefers-reduced-motion: reduce) {
-  .parallax-bg { transition: none; transform: none; }
-}
-CSS
-
-# components/ProductCard.tsx
-cat > components/ProductCard.tsx <<'TS'
+=== FILE: components/ProductCard.tsx ===
+```ts
 'use client';
 import Link from "next/link";
 
@@ -3901,10 +2374,11 @@ export default function ProductCard(props: Props){
     </Link>
   );
 }
-TS
 
-# components/ProductListClient.tsx — ahora linkea a /producto/[id]
-cat > components/ProductListClient.tsx <<'TS'
+```
+
+=== FILE: components/ProductListClient.tsx ===
+```ts
 'use client';
 import React from "react";
 import Link from "next/link";
@@ -3997,400 +2471,257 @@ export default function ProductListClient({ items }: Props) {
     </ul>
   );
 }
-TS
 
-# components/SectionHeader.tsx
-cat > components/SectionHeader.tsx <<'TS'
-'use client';
-type Props = { title: string; subtitle?: string; className?: string };
-export default function SectionHeader({ title, subtitle, className="" }: Props){
-  return (
-    <header className={`mb-4 ${className}`}>
-      <h2 className="section-title">{title}</h2>
-      {subtitle ? <p className="section-sub mt-1">{subtitle}</p> : null}
-    </header>
-  );
-}
-TS
+```
 
-# components/ProductSkeleton.tsx
-cat > components/ProductSkeleton.tsx <<'TS'
+=== FILE: components/Toast.tsx ===
+```ts
 'use client';
-export default function ProductSkeleton(){
+import React from "react";
+
+export function Toast({ message }: { message: string }) {
   return (
-    <div className="rounded-xl border overflow-hidden bg-white">
-      <div className="aspect-[4/3] bg-gray-100 skeleton" />
-      <div className="p-4 space-y-2">
-        <div className="h-4 w-2/3 bg-gray-200 rounded skeleton" />
-        <div className="h-3 w-1/2 bg-gray-200 rounded skeleton" />
-        <div className="h-8 w-24 bg-gray-200 rounded-lg skeleton" />
-      </div>
+    <div
+      aria-live="polite"
+      className="fixed right-4 bottom-4 bg-black/80 text-white px-4 py-2 rounded-xl shadow-lg text-sm"
+    >
+      {message}
     </div>
   );
 }
-TS
 
-# components/Hero.tsx
-cat > components/Hero.tsx <<'TS'
+```
+
+=== FILE: components/useCart.tsx ===
+```ts
 'use client';
-import Link from "next/link";
+import { useState, useEffect } from "react";
 
-export default function Hero() {
-  const bg = "url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1920&auto=format&fit=crop')";
-  return (
-    <section className="relative hero-clip h-[50vh] md:h-[62vh] lg:h-[66vh] bg-neutral-100">
-      <div className="parallax-root h-full">
-        <div className="parallax-scene">
-          <div
-            className="parallax-bg parallax-bg-fixed"
-            style={{ backgroundImage: bg }}
-            aria-hidden="true"
-          />
-          <div className="parallax-fg relative h-full hero-fade">
-            <div className="relative z-10 h-full mx-auto max-w-6xl px-4 sm:px-6 flex flex-col items-start justify-end pb-10 md:pb-14">
-              <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-neutral-900 drop-shadow-sm">
-                Descubre cosas útiles y bonitas
-              </h1>
-              <p className="mt-2 md:mt-3 text-neutral-700 max-w-xl">
-                Productos prácticos, bien elegidos, con envío simple. Explora por categoría o mira lo nuevo.
-              </p>
-              <div className="mt-4 flex items-center gap-3">
-                <Link
-                  href="/categorias"
-                  className="inline-flex items-center gap-2 rounded-xl bg-lime-600 px-4 py-2.5 text-white font-semibold shadow-sm hover:bg-lime-700 transition"
-                >
-                  Explorar categorías
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </Link>
-                <Link
-                  href="/"
-                  className="inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 font-semibold text-neutral-800 hover:bg-white transition"
-                >
-                  Ver novedades
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+export function useCart() {
+  const [items, setItems] = useState<any[]>(() => {
+    try { return JSON.parse(localStorage.getItem("carro") || "[]"); } catch { return []; }
+  });
+
+  useEffect(() => {
+    localStorage.setItem("carro", JSON.stringify(items));
+    window.dispatchEvent(new Event("carro:updated"));
+  }, [items]);
+
+  function add(item: any) {
+    setItems(prev => {
+      const found = prev.find(p => p.id === item.id);
+      if (found) return prev.map(p => p.id === item.id ? { ...p, qty: (p.qty || 1) + 1 } : p);
+      return [...prev, { ...item, qty: 1 }];
+    });
+  }
+  function remove(id: string) { setItems(prev => prev.filter(p => p.id !== id)); }
+  function clear() { setItems([]); }
+
+  return { items, add, remove, clear };
 }
-TS
 
-# components/PreviewDebug.tsx
-cat > components/PreviewDebug.tsx <<'TS'
+```
+
+=== FILE: hooks/usePreviewEnv.ts ===
+```ts
 'use client';
-type Props = {
-  isPreview: boolean;
-  hasSupabase: boolean;
-  counts: { nuevos: number; destacados: number; top: number };
-};
-export default function PreviewDebug({ isPreview, hasSupabase, counts }: Props) {
-  if (!isPreview) return null;
-  return (
-    <div style={{
-      position:'fixed', bottom:16, left:16, zIndex:60,
-      background:'rgba(255,255,255,.95)', border:'1px solid #e5e7eb',
-      borderRadius:12, padding:'10px 12px', boxShadow:'0 8px 24px rgba(0,0,0,.08)'
-    }}>
-      <div style={{fontWeight:800, fontSize:12, marginBottom:6}}>PreviewDebug</div>
-      <ul style={{fontSize:12, lineHeight:1.3}}>
-        <li>VERCEL_ENV: <b>{isPreview ? 'preview' : 'other'}</b></li>
-        <li>Supabase envs: <b style={{color:hasSupabase?'#16a34a':'#dc2626'}}>
-          {hasSupabase ? 'OK' : 'FALTAN'}</b></li>
-        <li>Nuevos: <b>{counts.nuevos}</b></li>
-        <li>Destacados: <b>{counts.destacados}</b></li>
-        <li>Top: <b>{counts.top}</b></li>
-      </ul>
-    </div>
-  );
+import { useEffect, useState } from "react";
+
+export function usePreviewEnv() {
+  const [isPreview, setIsPreview] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/health")
+      .then(r => r.json())
+      .then((d:any) => {
+        if (cancelled) return;
+        if (d?.env === "preview") setIsPreview(true);
+        else if (typeof window !== "undefined" && window.location.hostname.includes("-git-")) setIsPreview(true);
+      })
+      .catch(() => {
+        if (typeof window !== "undefined" && window.location.hostname.includes("-git-")) setIsPreview(true);
+      });
+    return () => { cancelled = true; };
+  }, []);
+  return isPreview;
 }
-TS
 
-# app/producto/[id]/page.tsx
-cat > "app/producto/[id]/page.tsx" <<'TS'
-import "server-only";
-import Link from "next/link";
-import { supabaseServer } from "@/lib/supabaseServer";
+```
 
-export const dynamic = "force-dynamic";
-
-type Producto = {
+=== FILE: lib/products.ts ===
+```ts
+export type Producto = {
   id: string;
   nombre: string;
-  precio?: number | null;
-  descripcion?: string | null;
-  imagen?: string | null;
-  imagen_url?: string | null;
-  image_url?: string | null;
-  image?: string | null;
-  envio?: string | null;
-  categoria_slug?: string | null;
+  precio: number;
+  imagen: string;
+  categoria: "Hogar" | "Mascotas" | "Belleza" | "Bienestar" | "Tecnología" | "Eco";
+  envio: "Rápido (stock local)" | "Importado (AliExpress Premium)" | "Importado (Estándar)";
+  destacado?: boolean;
 };
+export const productos: Producto[] = [
+  { id: "hogar-001", nombre: "Organizador plegable multiuso", precio: 12990, imagen: "https://images.unsplash.com/photo-1541562232579-512a21360020?q=80&w=1200&auto=format&fit=crop", categoria: "Hogar", envio: "Rápido (stock local)", destacado: true },
+  { id: "pet-001", nombre: "Juguete mordedor reforzado", precio: 9990, imagen: "https://images.unsplash.com/photo-1541625602330-2277a4c46182?q=80&w=1200&auto=format&fit=crop", categoria: "Mascotas", envio: "Importado (AliExpress Premium)" },
+  { id: "beauty-001", nombre: "Set brochas compactas", precio: 14990, imagen: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?q=80&w=1200&auto=format&fit=crop", categoria: "Belleza", envio: "Rápido (stock local)", destacado: true },
+  { id: "fit-001", nombre: "Banda elástica resistencia", precio: 6990, imagen: "https://images.unsplash.com/photo-1517836357463-d25dfeac8d58?q=80&w=1200&auto=format&fit=crop", categoria: "Bienestar", envio: "Importado (Estándar)" },
+  { id: "tech-001", nombre: "Soporte aluminio para notebook", precio: 19990, imagen: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop", categoria: "Tecnología", envio: "Rápido (stock local)", destacado: true },
+  { id: "eco-001", nombre: "Set bolsas reutilizables frutas/verduras", precio: 7990, imagen: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=1200&auto=format&fit=crop", categoria: "Eco", envio: "Importado (AliExpress Premium)" }
+];
 
-const SELECT = "id,nombre,precio,descripcion,imagen,imagen_url,image_url,image,envio,categoria_slug";
+```
 
-const FALLBACK_IMG = "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?q=80&w=1200&auto=format&fit=crop";
-const pick = (p: Partial<Producto>) => {
-  const vals = [p.imagen, p.imagen_url, p.image_url, p.image].map(v => typeof v === "string" ? v.trim() : "").filter(Boolean);
-  return vals[0] || FALLBACK_IMG;
-};
-const fmtCLP = (v?: number | null) => {
-  if (v == null) return "$—";
-  try { return Intl.NumberFormat("es-CL",{style:"currency",currency:"CLP",maximumFractionDigits:0}).format(v); }
-  catch { return `$${v}`; }
-};
+=== FILE: lib/supabase/client.ts ===
+```ts
+"use client";
+import { createClient } from "@supabase/supabase-js";
 
-async function getProducto(id: string): Promise<Producto | null> {
-  const supa = supabaseServer();
-  if (!supa) {
-    return { id, nombre: "Producto", precio: null, image_url: FALLBACK_IMG, envio: "Envío estándar", descripcion: "Descripción no disponible por ahora." };
-  }
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  { auth: { persistSession: false } }
+);
+
+```
+
+=== FILE: lib/supabase/server.ts ===
+```ts
+import { createClient } from "@supabase/supabase-js";
+
+export const supabaseServer = () =>
+  createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  );
+
+```
+
+=== FILE: lib/categorias.ts ===
+```ts
+export type CategoriaSlug = 'hogar'|'belleza'|'tecnologia'|'bienestar'|'eco'|'mascotas';
+export const CATEGORIAS: { slug: CategoriaSlug; nombre: string; descripcion?: string }[] = [
+  { slug:'hogar', nombre:'Hogar' },
+  { slug:'belleza', nombre:'Belleza' },
+  { slug:'tecnologia', nombre:'Tecnología' },
+  { slug:'bienestar', nombre:'Bienestar' },
+  { slug:'eco', nombre:'Eco' },
+  { slug:'mascotas', nombre:'Mascotas' },
+];
+export const isCategoria = (s: string): s is CategoriaSlug =>
+  ['hogar','belleza','tecnologia','bienestar','eco','mascotas'].includes(s);
+export const getCategoriaBySlug = (s: string) =>
+  CATEGORIAS.find(c => c.slug === s);
+
+```
+
+=== FILE: lib/supabaseServer.ts ===
+```ts
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+
+/**
+ * Crea un cliente de Supabase sólo si existen las env públicas.
+ * Devuelve `null` si faltan, así el caller puede mostrar skeletons/mocks.
+ */
+export function supabaseServer(): SupabaseClient | null {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !anon) return null;
   try {
-    const { data, error } = await supa.from("productos").select(SELECT).eq("id", id).maybeSingle();
-    if (error) console.error("Supabase producto:", error);
-    return (data as Producto) ?? null;
-  } catch (e) {
-    console.error("getProducto fatal:", e);
+    return createClient(url, anon, { auth: { persistSession: false } });
+  } catch {
     return null;
   }
 }
 
-export default async function ProductoPage({ params }: { params: { id: string } }) {
-  const prod = await getProducto(params.id);
-  if (!prod) {
-    return (
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
-        <div className="rounded-xl border p-6 bg-white">
-          <h1 className="text-xl font-bold">Producto no encontrado</h1>
-          <p className="text-gray-600 mt-1">Puede que haya sido removido o esté temporalmente no disponible.</p>
-          <div className="mt-4"><Link className="btn-brand" href="/">Volver al inicio</Link></div>
-        </div>
-      </main>
-    );
+```
+
+=== FILE: lib/format.ts ===
+```ts
+// Utilidad para formatear CLP
+export function fmtCLP(value: number | string | null | undefined): string {
+  const n = value == null ? 0 : Number(value);
+  try {
+    return new Intl.NumberFormat("es-CL", {
+      style: "currency",
+      currency: "CLP",
+      maximumFractionDigits: 0
+    }).format(n);
+  } catch {
+    return (n === 0) ? "$0" : String(n);
   }
-  const img = pick(prod);
-  return (
-    <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
-      <nav className="text-sm text-gray-500 mb-4">
-        <Link href="/" className="hover:underline">Inicio</Link>
-        <span> / </span>
-        <Link href="/categorias" className="hover:underline">Categorías</Link>
-        <span> / </span>
-        <span className="text-gray-800">{prod.nombre}</span>
-      </nav>
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="rounded-2xl border bg-white overflow-hidden">
-          <div className="aspect-[4/3] bg-gray-100">
-            <img src={img} alt={prod.nombre || "Producto"} className="w-full h-full object-cover" />
-          </div>
-        </div>
-        <div className="rounded-2xl border bg-white p-5">
-          <h1 className="text-2xl font-extrabold tracking-tight">{prod.nombre}</h1>
-          <p className="mt-1 text-sm text-gray-600">{prod.envio || "Envío estándar"}</p>
-          <div className="mt-3 text-2xl font-black lunaria-price">{fmtCLP(prod.precio)}</div>
-          {prod.descripcion ? (
-            <p className="mt-4 text-gray-700 leading-relaxed">{prod.descripcion}</p>
-          ) : (
-            <p className="mt-4 text-gray-600">Descripción no disponible por ahora.</p>
-          )}
-          <div className="lunaria-divider" />
-          <div className="mt-4 flex items-center gap-3">
-            <button type="button" className="lunaria-cta px-5 py-3 font-semibold" onClick={() => alert(`Agregado: ${prod.nombre}`)}>
-              Agregar al carrito
-            </button>
-            <Link href="/" className="rounded-xl border px-4 py-3 font-semibold hover:bg-white">Seguir explorando</Link>
-          </div>
-        </div>
-      </div>
-    </main>
-  );
-}
-TS
-
-# app/producto/[id]/loading.tsx
-cat > "app/producto/[id]/loading.tsx" <<'TS'
-export default function LoadingProduct(){
-  return (
-    <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="rounded-2xl border bg-white overflow-hidden">
-          <div className="aspect-[4/3] skeleton" />
-        </div>
-        <div className="rounded-2xl border bg-white p-5 space-y-3">
-          <div className="h-7 w-2/3 bg-gray-200 rounded skeleton" />
-          <div className="h-4 w-1/3 bg-gray-200 rounded skeleton" />
-          <div className="h-8 w-40 bg-gray-200 rounded skeleton mt-2" />
-          <div className="h-20 w-full bg-gray-200 rounded skeleton mt-4" />
-          <div className="h-10 w-44 bg-gray-200 rounded skeleton mt-6" />
-        </div>
-      </div>
-    </main>
-  );
-}
-TS
-
-echo "🧾 Archivos escritos."
-
-# ==== Commit & push ====
-git add -A
-git commit -m "LUNARIA: detalle de producto /producto/[id] + ProductCard + links desde categorías + polish visual"
-git push -u origin "${branch}"
-
-echo "✅ Listo. Se subió ${branch}."
-echo "🔗 Vercel debería levantar un Preview automáticamente para esta rama."
-echo "👉 Si tu flujo es merge directo: "
-echo "   git checkout main && git merge --no-ff ${branch} && git push origin main"
-
-===== END run.sh =====
-
-===== BEGIN scripts/inject-env.mjs =====
-import { writeFileSync } from "node:fs";
-
-const envLines = [
-  `# Generado automáticamente en build por scripts/inject-env.mjs`,
-  `NEXT_PUBLIC_VERCEL_ENV=${process.env.VERCEL_ENV || ""}`,
-  `NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF=${process.env.VERCEL_GIT_COMMIT_REF || ""}`,
-  `NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA=${process.env.VERCEL_GIT_COMMIT_SHA || ""}`
-].join("\n") + "\n";
-
-try {
-  writeFileSync(".env.local", envLines, { encoding: "utf8" });
-  console.log("🧪 .env.local generado para PreviewBadge:");
-  console.log(envLines);
-} catch (e) {
-  console.error("No se pudo escribir .env.local:", e);
 }
 
-===== END scripts/inject-env.mjs =====
+```
 
-===== BEGIN ._sentinel_badge_images_final =====
-ok
+=== FILE: lib/supabase-wrapper.ts ===
+```ts
+import { createClient } from "@supabase/supabase-js";
 
-===== END ._sentinel_badge_images_final =====
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
-===== BEGIN ._sentinel_fix_alias =====
-ok
+export const supabaseClient = createClient(url, key, { auth: { persistSession: false } });
 
-===== END ._sentinel_fix_alias =====
-
-===== BEGIN ._sentinel_fix_images_preview_bypass =====
-ok
-
-===== END ._sentinel_fix_images_preview_bypass =====
-
-===== BEGIN styles/Home.module.css =====
-.container {
-  min-height: 100vh;
-  padding: 0 2rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+export async function supabaseFetch<T>(
+  fn: (c: ReturnType<typeof createClient>) => Promise<T>,
+  retries = 2
+): Promise<T> {
+  let lastError: any;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fn(supabaseClient as any);
+    } catch (err) {
+      lastError = err;
+      console.warn("Supabase fetch failed, intento", i + 1, err);
+      await new Promise(r => setTimeout(r, 300 * (i + 1)));
+    }
+  }
+  throw lastError;
 }
 
-.main {
-  padding: 5rem 0;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+```
+
+=== FILE: package.json ===
+```json
+{
+  "name": "lunaria",
+  "private": true,
+  "version": "1.0.2",
+  "scripts": {
+    "postinstall": "node scripts/inject-env.mjs",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "framer-motion": "^11.2.10",
+    "mercadopago": "^2.2.0",
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.12",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.18",
+    "eslint": "8.57.1",
+    "eslint-config-next": "14.2.5",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.5.4"
+  },
+  "overrides": {
+    "eslint": "8.57.1"
+  }
 }
 
-.title {
-  margin: 0;
-  line-height: 1.15;
-  font-size: 3rem;
-  text-align: center;
-}
+```
 
-.description {
-  text-align: center;
-  font-size: 1.5rem;
-  margin-top: 1rem;
-  color: #666;
-}
-
-.products {
-  margin-top: 2rem;
-}
-
-.productList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  justify-content: center;
-}
-
-.productCard {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  width: 180px;
-  text-align: center;
-  box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
-}
-
-.productCard img {
-  border-radius: 5px;
-  margin-bottom: 0.5rem;
-}
-
-.cart {
-  margin-top: 2rem;
-  text-align: center;
-}
-
-.cart ul {
-  list-style: none;
-  padding: 0;
-}
-
-.cart li {
-  margin-bottom: 0.5rem;
-}
-
-.cart button {
-  margin-left: 1rem;
-  background-color: #ff6b6b;
-  border: none;
-  padding: 0.3rem 0.8rem;
-  border-radius: 4px;
-  color: white;
-  cursor: pointer;
-}
-
-.cart button:hover {
-  background-color: #e55;
-}
-
-.footer {
-  width: 100%;
-  height: 60px;
-  border-top: 1px solid #eaeaea;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #999;
-}
-
-===== END styles/Home.module.css =====
-
-===== BEGIN tailwind.config.ts =====
-import type { Config } from "tailwindcss";
-export default {
-  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
-  theme: { extend: {} },
-  plugins: []
-} satisfies Config;
-
-===== END tailwind.config.ts =====
-
-===== BEGIN tsconfig.json =====
+=== FILE: tsconfig.json ===
+```json
 {
   "compilerOptions": {
     "target": "ES2022",
@@ -4425,17 +2756,5 @@ export default {
     "**/*.spec.tsx"
   ]
 }
-===== END tsconfig.json =====
+```
 
-===== BEGIN .vercelignore =====
-*.log
-.next
-node_modules
-
-===== END .vercelignore =====
-
-=== SUMMARY ===
-Archivos de texto volcados: 67
-Archivos binarios (no volcados): 1
-Saltados (excluidos / grandes): 3
-Raíz del repo: /home/fiirekiring/Escritorio/dropshipping-store
