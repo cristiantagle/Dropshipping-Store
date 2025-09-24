@@ -1,84 +1,80 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-stamp="$(date +%Y%m%d-%H%M%S)"
-main_branch="main"
+STAMP="$(date +%Y%m%d-%H%M%S)"
+BRANCH="preview/lunaria-unifica-producto-${STAMP}"
 
-echo "🚀 Lunaria: mergeando último preview a ${main_branch}"
+echo "🚀 Creando rama de preview: $BRANCH"
 
 # Guardar cambios locales si los hay
 if ! git diff --quiet || ! git diff --cached --quiet; then
-  echo "💾 Working tree sucio → commit WIP"
   git add -A
-  git commit -m "WIP: auto-save before merge (${stamp})" || true
+  git commit -m "WIP: auto-save before preview (${STAMP})" || true
 fi
 
-# Detectar última rama preview (local más reciente)
-last_preview=$(git for-each-ref --sort=committerdate --format='%(refname:short)' refs/heads/preview/ | tail -n1)
-
-if [[ -z "$last_preview" ]]; then
-  echo "❌ No se encontró ninguna rama preview local."
-  exit 1
-fi
-
-echo "🌿 Última preview detectada: $last_preview"
-
-# Traer ramas
 git fetch origin
+git checkout main
+git pull origin main
+git checkout -b "$BRANCH"
 
-# Checkout main
-git checkout "$main_branch"
-git pull origin "$main_branch"
+############################################
+# 🧼 Limpieza de tipos duplicados
+############################################
 
-# Merge desde preview
-git merge --no-ff "$last_preview" -m "LUNARIA: merge último preview ($last_preview) a main
-- Centralización de fmtCLP en lib/format.ts
-- Wrapper resiliente para Supabase
-- Hook de carrito + Toast
-- Metadata SEO en head.tsx
-- Base visual Lunaria intacta
-- Documentación README.md actualizada"
+# 1. Reescribir lib/products.ts con interfaz centralizada
+cat > lib/products.ts <<'EOF'
+export interface Producto {
+  id: string;
+  nombre: string;
+  precio?: number | null;
+  descripcion?: string | null;
+  imagen?: string | null;
+  imagen_url?: string | null;
+  image_url?: string | null;
+  image?: string | null;
+  envio?: string | null;
+  categoria_slug?: string | null;
+  destacado?: boolean | null;
+  created_at?: string | null;
+  ventas?: number | null;
+}
+EOF
 
-# Actualizar README.md (compacto)
-cat > README.md <<'MD'
-# 🌙 Lunaria — Tienda Dropshipping
+# 2. Eliminar definiciones duplicadas en page.tsx y producto/[id]/page.tsx
+sed -i.bak '/^type Producto /,/^}/d' app/page.tsx || true
+sed -i.bak '/^type Producto /,/^}/d' app/producto/[id]/page.tsx || true
+sed -i.bak '/^export type Producto /,/^}/d' components/ProductListClient.tsx || true
 
-Tienda online construida con **Next.js (App Router)**, **Supabase** y la base visual **Lunaria**.
-Optimizada para simplicidad, escalabilidad y despliegue automático en **Vercel**.
+# 3. Reemplazar imports para que usen "@/lib/products"
+FILES_TO_FIX=(
+  app/page.tsx
+  app/producto/[id]/page.tsx
+  components/ProductListClient.tsx
+)
 
-## 🚀 Características
-- Next.js 13+ con App Router
-- Supabase como backend
-- Precios en CLP (`fmtCLP` centralizado)
-- Carrito persistente (`useCart`) + Toast
-- UI Lunaria: tokens, animaciones, accesibilidad
-- SEO básico con `head.tsx`
-- Previews automáticos en ramas `preview/...`
+for FILE in "${FILES_TO_FIX[@]}"; do
+  sed -i.bak 's|from ".*products"|from "@/lib/products"|' "$FILE" || true
+  sed -i.bak 's|from "../lib/products"|from "@/lib/products"|' "$FILE" || true
+done
 
-## 📂 Estructura
-- `app/` → páginas (home, producto, head, globals.css)
-- `components/` → ProductCard, ProductListClient, Hero, PreviewDebug, Toast, useCart
-- `lib/` → format.ts, supabase-wrapper.ts
+# 4. CHANGELOG.md
+{
+  echo "## [$STAMP] Preview branch $BRANCH"
+  echo ""
+  echo "- Unificación de tipo Producto en lib/products.ts con campos reales en español"
+  echo "- Eliminadas definiciones duplicadas en page.tsx, producto/[id]/page.tsx y ProductListClient"
+  echo "- Todos los imports de Producto apuntan a '@/lib/products'"
+  echo ""
+  cat CHANGELOG.md 2>/dev/null || true
+} > CHANGELOG.md
 
-## 🛠️ Desarrollo local
-\`\`\`bash
-npm install
-npm run dev
-npm run build
-\`\`\`
+############################################
+# 📦 Commit y push
+############################################
 
-## 🌿 Flujo Lunaria
-1. `bash archivosgpt.sh`
-2. `bash run.sh`
-3. Revisar preview en Vercel
-4. Aprobar con **“LUNARIA ok”** → merge a main
-MD
+git add .
+git commit -m "LUNARIA: unificación final de Producto (${STAMP})"
+git push origin "$BRANCH"
 
-git add README.md
-git commit -m "docs: actualizar README.md con flujo Lunaria"
-
-# Push a main
-git push origin "$main_branch"
-
-echo "✅ Merge completado: $last_preview → $main_branch"
-echo "🔗 Producción en Vercel se actualizará automáticamente."
+echo "✅ Preview creado: $BRANCH"
+echo "🔗 Revisa el despliegue en Vercel antes de aprobar."
