@@ -1,13 +1,11 @@
 export default function Head() {
   return (
     <>
-      <title>Lunaria — Tienda</title>
-      <meta name="description" content="Tienda dropshipping simple y bonita" />
-      <meta property="og:title" content="Lunaria" />
-      <meta property="og:description" content="Productos útiles y bonitos con envío simple" />
+      <title>Lunaria — Tienda Online</title>
+      <meta name="description" content="Explora productos únicos con la base visual Lunaria" />
+      <meta property="og:title" content="Lunaria — Tienda Online" />
+      <meta property="og:description" content="Explora productos únicos con la base visual Lunaria" />
       <meta property="og:type" content="website" />
-      <link rel="manifest" href="/manifest.webmanifest" />
-      <meta name="theme-color" content="#2ECC71" />
     </>
   );
 }
