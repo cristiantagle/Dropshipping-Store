@@ -5,7 +5,7 @@ import ProductSkeleton from "@/components/ProductSkeleton";
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabaseServer";
 import PreviewDebug from "@/components/PreviewDebug";
-import ProductCard from "@/components/ProductCard";
+import { ProductCard } from "@/components/ProductCard";
 
 export const dynamic = "force-dynamic";
 
