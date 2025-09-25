@@ -36,7 +36,7 @@ async function getProducto(id: string): Promise<Producto | null> {
     return { id, nombre: "Producto", precio: null, image_url: FALLBACK_IMG, envio: "Envío estándar", descripcion: "Descripción no disponible por ahora." };
   }
   try {
-    const { data, error } = await supa.from("productos").select(SELECT).eq("id", id).maybeSingle();
+    const { data, error } = await supa.from("productos").select(SELECT).eq("id", Number(id)).maybeSingle();
     if (error) console.error("Supabase producto:", error);
     return (data as Producto) ?? null;
   } catch (e) {
