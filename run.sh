@@ -1,40 +1,43 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "🔍 Buscando archivos relevantes..."
+echo "🔍 Buscando archivos con queries que usen params.id..."
 
-PRODUCT_PAGE=$(find ./app/producto -type f -path './app/producto/
+# Buscar todos los archivos .ts o .tsx que contengan "params.id"
+FILES=$(grep -rl "params.id" --include=\*.ts --include=\*.tsx ./app || true)
 
-\[id\]
-
-/page.tsx' | head -n 1 || true)
-
-echo "🧩 page.tsx (detalle producto) → ${PRODUCT_PAGE:-No encontrado}"
-
-# Corrige app/producto/[id]/page.tsx
-if [[ -n "$PRODUCT_PAGE" ]]; then
-  echo "🔧 Corrigiendo comparación en page.tsx..."
-  awk '
-    {
-      # Si busca por slug, lo cambiamos a id numérico
-      gsub(/eq\(["'"'"']slug["'"'"'],\s*params\.id\)/, "eq('\''id'\'', Number(params.id))")
-      # Si busca por id pero como string, lo forzamos a Number
-      gsub(/eq\(["'"'"']id["'"'"'],\s*params\.id\)/, "eq('\''id'\'', Number(params.id))")
-      print
-    }
-  ' "$PRODUCT_PAGE" > "$PRODUCT_PAGE.tmp" && mv "$PRODUCT_PAGE.tmp" "$PRODUCT_PAGE"
+if [[ -z "$FILES" ]]; then
+  echo "⚠️ No se encontraron archivos con params.id en ./app"
+else
+  for f in $FILES; do
+    echo "🔧 Corrigiendo $f ..."
+    awk '
+      {
+        # Si busca por slug, lo cambiamos a id numérico
+        gsub(/eq\(["'"'"']slug["'"'"'],\s*params\.id\)/, "eq('\''id'\'', Number(params.id))")
+        # Si busca por id pero como string, lo forzamos a Number
+        gsub(/eq\(["'"'"']id["'"'"'],\s*params\.id\)/, "eq('\''id'\'', Number(params.id))")
+        print
+      }
+    ' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+  done
 fi
 
 # Git commit & push
 echo "📦 Haciendo commit y push..."
 git add .
-git commit -m "fix: forzar page.tsx a buscar producto por id numérico"
+git commit -m "fix: forzar todas las queries con params.id a usar Number(params.id)"
 git push
 
 echo ""
-echo "✅ Corrección aplicada y enviada a la rama actual."
+echo "✅ Correcciones aplicadas y enviadas a la rama actual."
 
 echo ""
 echo "📜 Changelog:"
-[[ -n "$PRODUCT_PAGE" ]] && echo "- ${PRODUCT_PAGE}: comparación corregida para usar Number(params.id)"
-[[ -z "$PRODUCT_PAGE" ]] && echo "- ⚠️ No se encontró page.tsx para modificar"
+if [[ -n "$FILES" ]]; then
+  for f in $FILES; do
+    echo "- $f: queries corregidas para usar Number(params.id)"
+  done
+else
+  echo "- ⚠️ No se encontraron archivos para modificar"
+fi
