@@ -1,3 +1,4 @@
+import ProductDetail from "./ProductDetail";
 import "server-only";
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabaseServer";
@@ -85,9 +86,6 @@ export default async function ProductoPage({ params }: { params: { id: string } 
           )}
           <div className="lunaria-divider" />
           <div className="mt-4 flex items-center gap-3">
-            <button type="button" className="lunaria-cta px-5 py-3 font-semibold" onClick={() => alert(`Agregado: ${prod.nombre}`)}>
-              Agregar al carrito
-            </button>
             <Link href="/" className="rounded-xl border px-4 py-3 font-semibold hover:bg-white">Seguir explorando</Link>
           </div>
         </div>
