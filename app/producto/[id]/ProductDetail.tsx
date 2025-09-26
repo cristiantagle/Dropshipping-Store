@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 
-export default function ProductDetail({ p }: { p: Producto }) {
+export default function ProductDetail({ p }: { p: any }) {
   return (
     <div className="grid md:grid-cols-2 gap-6">
       <div className="aspect-square relative bg-gray-100">
