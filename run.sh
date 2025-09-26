@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-msg=${1:-"fix: corregir imports '@/src/utils' -> '@/utils' para Vercel"}
+msg=${1:-"fix: corregir imports ProductDetail para build en Vercel"}
 
-echo "🔧 Corrigiendo imports rotos en el repo..."
+echo "🔧 Corrigiendo imports en ProductDetail.tsx..."
 
-# Buscar y reemplazar en todos los .tsx y .ts
-grep -RIl '@/src/utils/' . --include="*.ts" --include="*.tsx" | while read -r file; do
-  echo "✏️  Corrigiendo $file"
-  sed -i 's|@/src/utils/|@/utils/|g' "$file"
-done
-
-echo "📌 Preparando commit con mensaje: $msg"
+file="app/producto/[id]/ProductDetail.tsx"
+if [[ -f "$file" ]]; then
+  sed -i 's|@/utils/format|@/src/utils/format|g' "$file"
+  sed -i 's|@/utils/image|@/src/utils/image|g' "$file"
+  echo "✏️  Imports corregidos en $file"
+fi
 
 branch=$(git rev-parse --abbrev-ref HEAD)
 echo "🌿 Branch actual: $branch"
