@@ -1,22 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Mensaje de commit (por defecto uno genérico si no pasas argumento)
-msg=${1:-"chore: sync local fixes to preview"}
+msg=${1:-"fix: corregir imports '@/src/utils' -> '@/utils' para Vercel"}
 
-echo "🔧 Preparando commit con mensaje: $msg"
+echo "🔧 Corrigiendo imports rotos en el repo..."
 
-# Asegurar que estamos en un branch
+# Buscar y reemplazar en todos los .tsx y .ts
+grep -RIl '@/src/utils/' . --include="*.ts" --include="*.tsx" | while read -r file; do
+  echo "✏️  Corrigiendo $file"
+  sed -i 's|@/src/utils/|@/utils/|g' "$file"
+done
+
+echo "📌 Preparando commit con mensaje: $msg"
+
 branch=$(git rev-parse --abbrev-ref HEAD)
-echo "📌 Branch actual: $branch"
+echo "🌿 Branch actual: $branch"
 
-# Agregar todos los cambios
 git add .
-
-# Crear commit
 git commit -m "$msg" || echo "⚠️ No hay cambios nuevos para commitear"
-
-# Push al branch actual
 git push origin "$branch"
 
-echo "✅ Cambios subidos a GitHub. Vercel redeployará automáticamente el preview."
+echo "✅ Cambios subidos. Vercel redeployará automáticamente el preview."
