@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-msg=${1:-"fix: corregir imports ProductDetail para build en Vercel"}
+msg=${1:-"fix: corregir imports utils en ProductDetail para Vercel"}
 
 echo "🔧 Corrigiendo imports en ProductDetail.tsx..."
 
 file="app/producto/[id]/ProductDetail.tsx"
 if [[ -f "$file" ]]; then
-  sed -i 's|@/utils/format|@/src/utils/format|g' "$file"
-  sed -i 's|@/utils/image|@/src/utils/image|g' "$file"
+  sed -i 's|@/src/utils/format|@/utils/format|g' "$file"
+  sed -i 's|@/src/utils/image|@/utils/image|g' "$file"
   echo "✏️  Imports corregidos en $file"
 fi
 
