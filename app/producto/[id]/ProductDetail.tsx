@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { fmtCLP } from "../../utils/format";
-import { pickImage, Producto } from "../../utils/image";
+import { fmtCLP } from "../../../src/utils/format";
+import { pickImage, Producto } from "../../../src/utils/image";
 
 export default function ProductDetail({ p }: { p: Producto }) {
   const img = pickImage(p);

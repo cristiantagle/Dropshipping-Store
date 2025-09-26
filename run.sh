@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-msg=${1:-"fix: corregir imports relativos definitivos en ProductDetail"}
+msg=${1:-"fix: imports correctos a src/utils en ProductDetail"}
 
 echo "🔧 Corrigiendo imports en ProductDetail.tsx..."
 
 file="app/producto/[id]/ProductDetail.tsx"
 if [[ -f "$file" ]]; then
-  sed -i 's|../../src/utils/format|../../utils/format|g' "$file"
-  sed -i 's|../../src/utils/image|../../utils/image|g' "$file"
-  sed -i 's|@/utils/format|../../utils/format|g' "$file"
-  sed -i 's|@/utils/image|../../utils/image|g' "$file"
+  sed -i 's|../../utils/format|../../../src/utils/format|g' "$file"
+  sed -i 's|../../utils/image|../../../src/utils/image|g' "$file"
+  sed -i 's|@/utils/format|../../../src/utils/format|g' "$file"
+  sed -i 's|@/utils/image|../../../src/utils/image|g' "$file"
   echo "✏️  Imports corregidos en $file"
 fi
 
