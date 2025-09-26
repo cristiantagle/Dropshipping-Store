@@ -3,6 +3,7 @@
 import Image from "next/image";
 
 export default function ProductDetail({ p }: { p: any }) {
+  const img = p.imagen_url || p.image_url || "/placeholder.png";
   return (
     <div className="grid md:grid-cols-2 gap-6">
       <div className="aspect-square relative bg-gray-100">
