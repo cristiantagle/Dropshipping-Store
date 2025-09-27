@@ -19,7 +19,7 @@ type Producto = {
 
 const SELECT = "id,nombre,precio,descripcion,imagen,imagen_url,image_url,image,envio,categoria_slug";
 
-const FALLBACK_IMG = "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?q=80&w=1200&auto=format&fit=crop";
+const FALLBACK_IMG = "/lunaria-icon.png";
 const pick = (p: Partial<Producto>) => {
   const vals = [p.imagen, p.imagen_url, p.image_url, p.image].map(v => typeof v === "string" ? v.trim() : "").filter(Boolean);
   return vals[0] || FALLBACK_IMG;

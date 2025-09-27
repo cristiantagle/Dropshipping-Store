@@ -14,7 +14,7 @@ type Props = {
 };
 
 const FALLBACK =
-  "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?q=80&w=1200&auto=format&fit=crop";
+  "/lunaria-icon.png";
 
 function pickImg(p: Props) {
   const toStr = (v: unknown) => (typeof v === "string" ? v.trim() : "");

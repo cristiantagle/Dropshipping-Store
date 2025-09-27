@@ -4,15 +4,15 @@ import Link from "next/link";
 type Cat = { slug: string; nombre: string; descripcion?: string; image_url?: string | null };
 
 const CAT_IMAGES: Record<string,string> = {
-  hogar: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop",
-  belleza: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?q=80&w=1200&auto=format&fit=crop",
-  tecnologia: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop",
-  eco: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=1200&auto=format&fit=crop",
-  mascotas: "https://images.unsplash.com/photo-1517849845537-4d257902454a?q=80&w=1200&auto=format&fit=crop",
-  bienestar: "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?q=80&w=1200&auto=format&fit=crop",
+  hogar: "/lunaria-icon.png",
+  belleza: "/lunaria-icon.png",
+  tecnologia: "/lunaria-icon.png",
+  eco: "/lunaria-icon.png",
+  mascotas: "/lunaria-icon.png",
+  bienestar: "/lunaria-icon.png",
 };
 
-const FALLBACK = "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?q=80&w=1200&auto=format&fit=crop";
+const FALLBACK = "/lunaria-icon.png";
 
 function pickUrl(c: Cat): string {
   const cand = (c.image_url ?? CAT_IMAGES[c.slug] ?? "").toString().trim();

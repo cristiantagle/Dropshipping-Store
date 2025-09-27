@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 export default function DiagImages() {
   const [meta, setMeta] = useState<any>(null);
-  const url = "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop";
+  const url = "/lunaria-icon.png";
   useEffect(() => {
     fetch("/api/health").then(r=>r.json()).then(setMeta).catch(()=>{});
   }, []);
