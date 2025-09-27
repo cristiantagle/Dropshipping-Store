@@ -2,7 +2,7 @@
 import Link from "next/link";
 
 export default function Hero() {
-  const bg = "url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1920&auto=format&fit=crop')";
+  const bg = "url('/lunaria-icon.png";
   return (
     <section className="relative hero-clip h-[50vh] md:h-[62vh] lg:h-[66vh] bg-neutral-100">
       <div className="parallax-root h-full">

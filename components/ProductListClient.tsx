@@ -19,7 +19,7 @@ export type Producto = {
 type Props = { items: Producto[] };
 
 const FALLBACK =
-  "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?q=80&w=1200&auto=format&fit=crop";
+  "/lunaria-icon.png";
 
 function pickUrl(p: Producto): string {
   const cands = [p.imagen, p.imagen_url, p.image_url, p.image];

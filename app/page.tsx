@@ -28,15 +28,15 @@ const SELECT_COLS =
   "id,nombre,precio,imagen,imagen_url,image_url,image,envio,categoria_slug,destacado,created_at,ventas";
 
 const MOCKS = [
-  { id: "m1", nombre: "Organizador minimal", imagen: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop" },
-  { id: "m2", nombre: "Botella térmica", imagen: "https://images.unsplash.com/photo-1502741126161-b048400d085a?q=80&w=1200&auto=format&fit=crop" },
-  { id: "m3", nombre: "Auriculares", imagen: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop" },
-  { id: "m4", nombre: "Silla ergonómica", imagen: "https://images.unsplash.com/photo-1503602642458-232111445657?q=80&w=1200&auto=format&fit=crop" },
-  { id: "m5", nombre: "Lámpara cálida", imagen: "https://images.unsplash.com/photo-1493666438817-866a91353ca9?q=80&w=1200&auto=format&fit=crop" },
-  { id: "m6", nombre: "Mochila urbana", imagen: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop" }
+  { id: "m1", nombre: "Organizador minimal", imagen: "/lunaria-icon.png" },
+  { id: "m2", nombre: "Botella térmica", imagen: "/lunaria-icon.png" },
+  { id: "m3", nombre: "Auriculares", imagen: "/lunaria-icon.png" },
+  { id: "m4", nombre: "Silla ergonómica", imagen: "/lunaria-icon.png" },
+  { id: "m5", nombre: "Lámpara cálida", imagen: "/lunaria-icon.png" },
+  { id: "m6", nombre: "Mochila urbana", imagen: "/lunaria-icon.png" }
 ];
 
-const IMG_FALLBACK = "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?q=80&w=1200&auto=format&fit=crop";
+const IMG_FALLBACK = "/lunaria-icon.png";
 
 function pickImg(p: Partial<Producto> & {
   imagen?: string | null;

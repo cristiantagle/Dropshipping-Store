@@ -1,9 +1,9 @@
 import Image from "next/image";
 
 const urls = [
-  "https://images.unsplash.com/photo-1541562232579-512a21360020?q=80&w=1200&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?q=80&w=1200&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop",
+  "/lunaria-icon.png",
+  "/lunaria-icon.png",
+  "/lunaria-icon.png",
 ];
 
 export const metadata = { title: "Debug imágenes — Lunaria" };
