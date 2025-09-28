@@ -1,26 +1,17 @@
-import Breadcrumbs from "@/components/Breadcrumbs";
-import CategoryGrid from "@/components/CategoryGrid";
-
-export const metadata = { title: "Categorías" };
+import { categorias } from "@/lib/categorias";
 
 export default function CategoriasPage() {
-  const crumbs = [
-    { label: "Inicio", href: "/" },
-    { label: "Categorías", href: "/categorias" }, // ⟵ ahora con href
-  ];
-
   return (
-    <main className="space-y-8">
-      <header className="rounded-2xl p-6 md:p-8 bg-gradient-to-br from-lime-50 to-white border border-lime-100">
-        <div className="mb-2">
-          <Breadcrumbs items={crumbs} />
-        </div>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Categorías</h1>
-        <p className="text-gray-600 mt-2 max-w-2xl">
-          Encuentra rápido lo que buscas: selecciona una categoría y explora nuestros productos.
-        </p>
-      </header>
-      <CategoryGrid />
-    </main>
+    <section className="px-6 py-10">
+      <h2 className="text-2xl font-bold mb-6">Categorías</h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+        {categorias.map((cat) => (
+          <div key={cat.nombre} className="flex flex-col items-center text-center">
+            <img src={cat.icon} alt={cat.nombre} className="w-12 h-12 mb-2" />
+            <span className="text-sm font-medium">{cat.nombre}</span>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
