@@ -1,13 +1,9 @@
-export type CategoriaSlug = 'hogar'|'belleza'|'tecnologia'|'bienestar'|'eco'|'mascotas';
-export const CATEGORIAS: { slug: CategoriaSlug; nombre: string; descripcion?: string }[] = [
-  { slug:'hogar', nombre:'Hogar' },
-  { slug:'belleza', nombre:'Belleza' },
-  { slug:'tecnologia', nombre:'Tecnología' },
-  { slug:'bienestar', nombre:'Bienestar' },
-  { slug:'eco', nombre:'Eco' },
-  { slug:'mascotas', nombre:'Mascotas' },
+export const categorias = [
+  { nombre: "Belleza", slug: "belleza", icon: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/belleza.svg" },
+  { nombre: "Bienestar", slug: "bienestar", icon: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/bienestar.svg" },
+  { nombre: "Eco", slug: "eco", icon: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/eco.svg" },
+  { nombre: "Hogar", slug: "hogar", icon: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/hogar.svg" },
+  { nombre: "Mascotas", slug: "mascotas", icon: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/mascotas.svg" },
+  { nombre: "Tecnología", slug: "tecnologia", icon: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/tecnologia.svg" },
+  { nombre: "Próximamente", icon: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/oficina.svg" },
 ];
-export const isCategoria = (s: string): s is CategoriaSlug =>
-  ['hogar','belleza','tecnologia','bienestar','eco','mascotas'].includes(s);
-export const getCategoriaBySlug = (s: string) =>
-  CATEGORIAS.find(c => c.slug === s);
