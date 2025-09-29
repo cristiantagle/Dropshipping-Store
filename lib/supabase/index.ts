@@ -1,2 +1,2 @@
-export * from './client'
-export * from './server'
+export { supabase as supabaseClient } from './client';
+export { supabaseServer } from './server';
