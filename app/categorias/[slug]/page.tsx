@@ -44,7 +44,7 @@ export default async function CategoriaPage({ params }: { params: { slug: string
 
   const supa = createClient(url, anon, { auth: { persistSession: false } });
   const { data, error } = await supa
-    .from("productos")
+    .from("products")
     .select("*")
     .eq("categoria_slug", slug)
     .order("id", { ascending: true })
