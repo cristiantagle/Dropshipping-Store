@@ -11,7 +11,7 @@ export type Producto = {
 };
 
 export async function getProducts(): Promise<Producto[]> {
-  const { data, error } = await supabaseServer
+  const { data, error } = await supabaseServer()
     .from("products")
     .select("*");
 
