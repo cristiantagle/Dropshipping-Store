@@ -16,14 +16,12 @@ export default function DiagImages() {
           <h2 className="font-semibold mb-2">IMG directa (preview):</h2>
           <img src={url} alt="unsplash" className="rounded-xl border w-full h-56 object-cover" />
         </div>
-        <div>
-          <h2 className="font-semibold mb-2">_next/image (prod):</h2>
+          <h2 className="font-semibold mb-2">_next/imagen (prod):</h2>
           <img
-            src={`/_next/image?url=${encodeURIComponent(url)}&w=1920&q=75`}
+            src={`/_next/imagen?url=${encodeURIComponent(url)}&w=1920&q=75`}
             alt="opt"
             className="rounded-xl border w-full h-56 object-cover"
           />
-        </div>
       </div>
     </div>
   );

@@ -11,7 +11,6 @@ export default function LoadingProduct(){
           <div className="h-8 w-40 bg-gray-200 rounded skeleton mt-2" />
           <div className="h-20 w-full bg-gray-200 rounded skeleton mt-4" />
           <div className="h-10 w-44 bg-gray-200 rounded skeleton mt-6" />
-        </div>
       </div>
     </main>
   );

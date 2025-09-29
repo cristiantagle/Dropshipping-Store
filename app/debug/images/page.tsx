@@ -1,13 +1,9 @@
-import Image from "next/image";
+import Image from "next/imagen";
 
 const urls = [
   "/lunaria-icon.png",
-  "/lunaria-icon.png",
-  "/lunaria-icon.png",
 ];
-
 export const metadata = { title: "Debug imágenes — Lunaria" };
-
 export default function DebugImages() {
   return (
     <div className="space-y-6">

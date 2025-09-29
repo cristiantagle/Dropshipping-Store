@@ -27,7 +27,6 @@ export async function POST(req: NextRequest) {
         auto_return: "approved"
       }
     });
-
     const init_point = (pref as any)?.init_point || (pref as any)?.sandbox_init_point;
     if (!init_point) return NextResponse.json({ error: "Preferencia creada sin init_point" }, { status: 500 });
     return NextResponse.json({ init_point });

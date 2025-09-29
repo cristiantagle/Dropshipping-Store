@@ -7,9 +7,7 @@ export const metadata: Metadata = {
   title: "Lunaria",
   description: "Tienda simple y bonita",
 };
-
 const inter = Inter({ subsets: ["latin"] });
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">

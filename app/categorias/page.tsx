@@ -29,9 +29,6 @@ export default function CategoriasPage() {
             </Link>
           ) : (
             <div key={`static-${idx}`} className="opacity-50 cursor-default">
-              {content}
-            </div>
-          );
         })}
       </ul>
     </section>
