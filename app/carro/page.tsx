@@ -1,5 +1,5 @@
 "use client";
-import { productos } from "../../lib/products";
+import { getProducts } from "../../lib/products";
 import Link from "next/link";
 export default function Carro() {
   const key = "carro";
