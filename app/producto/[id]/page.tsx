@@ -11,17 +11,17 @@ type Producto = {
   descripcion?: string | null;
   imagen?: string | null;
   imagen_url?: string | null;
-  image_url?: string | null;
+  imagen?: string | null;
   image?: string | null;
   envio?: string | null;
   categoria_slug?: string | null;
 };
 
-const SELECT = "id,nombre,precio,descripcion,imagen,imagen_url,image_url,image,envio,categoria_slug";
+const SELECT = "id,nombre,precio,descripcion,imagen,imagen_url,imagen,image,envio,categoria_slug";
 
 const FALLBACK_IMG = "/lunaria-icon.png";
 const pick = (p: Partial<Producto>) => {
-  const vals = [p.imagen, p.imagen_url, p.image_url, p.image].map(v => typeof v === "string" ? v.trim() : "").filter(Boolean);
+  const vals = [p.imagen, p.imagen_url, p.imagen, p.image].map(v => typeof v === "string" ? v.trim() : "").filter(Boolean);
   return vals[0] || FALLBACK_IMG;
 };
 const fmtCLP = (v?: number | null) => {
@@ -33,7 +33,7 @@ const fmtCLP = (v?: number | null) => {
 async function getProducto(id: string): Promise<Producto | null> {
   const supa = supabaseServer();
   if (!supa) {
-    return { id, nombre: "Producto", precio: null, image_url: FALLBACK_IMG, envio: "Envío estándar", descripcion: "Descripción no disponible por ahora." };
+    return { id, nombre: "Producto", precio: null, imagen: FALLBACK_IMG, envio: "Envío estándar", descripcion: "Descripción no disponible por ahora." };
   }
   try {
     const { data, error } = await supa.from("products").select(SELECT).eq("id", id).maybeSingle();

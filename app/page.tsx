@@ -15,7 +15,7 @@ type Producto = {
   precio?: number | null;
   imagen?: string | null;
   imagen_url?: string | null;
-  image_url?: string | null;
+  imagen?: string | null;
   image?: string | null;
   envio?: string | null;
   categoria_slug?: string | null;
@@ -25,7 +25,7 @@ type Producto = {
 };
 
 const SELECT_COLS =
-  "id,nombre,precio,imagen,imagen_url,image_url,image,envio,categoria_slug,destacado,created_at,ventas";
+  "id,nombre,precio,imagen,imagen_url,imagen,image,envio,categoria_slug,destacado,created_at,ventas";
 
 const MOCKS = [
   { id: "m1", nombre: "Organizador minimal", imagen: "/lunaria-icon.png" },
@@ -41,11 +41,11 @@ const IMG_FALLBACK = "/lunaria-icon.png";
 function pickImg(p: Partial<Producto> & {
   imagen?: string | null;
   imagen_url?: string | null;
-  image_url?: string | null;
+  imagen?: string | null;
   image?: string | null;
 }) {
   const toStr = (v: unknown) => (typeof v === "string" ? v.trim() : "");
-  const cands = [p.imagen, p.imagen_url, p.image_url, p.image].map(toStr).filter(Boolean);
+  const cands = [p.imagen, p.imagen_url, p.imagen, p.image].map(toStr).filter(Boolean);
   return cands[0] || IMG_FALLBACK;
 }
 
@@ -142,7 +142,7 @@ export default async function Home() {
                   envio={m.envio ?? undefined}
                   imagen={m.imagen ?? undefined}
                   imagen_url={m.imagen_url ?? undefined}
-                  image_url={m.image_url ?? undefined}
+                  imagen={m.imagen ?? undefined}
                   image={m.image ?? undefined}
                   href={`/producto/${m.id}`}
                 />
@@ -179,7 +179,7 @@ export default async function Home() {
                   envio={m.envio ?? undefined}
                   imagen={m.imagen ?? undefined}
                   imagen_url={m.imagen_url ?? undefined}
-                  image_url={m.image_url ?? undefined}
+                  imagen={m.imagen ?? undefined}
                   image={m.image ?? undefined}
                   href={`/producto/${m.id}`}
                 />
@@ -218,7 +218,7 @@ export default async function Home() {
                   envio={m.envio ?? undefined}
                   imagen={m.imagen ?? undefined}
                   imagen_url={m.imagen_url ?? undefined}
-                  image_url={m.image_url ?? undefined}
+                  imagen={m.imagen ?? undefined}
                   image={m.image ?? undefined}
                   href={`/producto/${m.id}`}
                 />
