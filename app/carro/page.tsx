@@ -1,43 +1,46 @@
-"use client";
-import { productos } from "../../lib/products";
 import Link from "next/link";
-export default function Carro() {
-  const key = "carro";
-  const items = typeof window !== "undefined" ? JSON.parse(localStorage.getItem(key) || "[]") as string[] : [];
-  const detalle = items.map(id => productos.find(p => p.id === id)).filter(Boolean) as typeof productos;
-  const total = detalle.reduce((acc, p) => acc + (p?.precio || 0), 0);
-  function limpiar() { localStorage.removeItem(key); location.reload(); }
-  async function pagar() {
-    try {
-      const r = await fetch("/api/checkout/mercadopago", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ items: detalle }) });
-      if (!r.ok) { const txt = await r.text(); alert("No se pudo iniciar el pago (API 404/500).\n\nDetalle:\n" + txt); return; }
-      const { init_point } = await r.json();
-      if (!init_point) { alert("Preferencia sin init_point. Verifica MERCADOPAGO_ACCESS_TOKEN y NEXT_PUBLIC_SITE_URL."); return; }
-      location.href = init_point;
-    } catch (e: any) { alert("Error de red al iniciar pago. Detalle: " + (e?.message || e)); }
-  }
+import { getProducts } from "@/lib/products";
+
+export default async function Carro() {
+  const productos = await getProducts();
+
   return (
-    <section className="space-y-6">
-      <h1 className="text-2xl font-bold">Tu carro</h1>
-      {detalle.length === 0 ? (
-        <p>Tu carro está vacío. <Link className="underline" href="/">Volver a la tienda</Link></p>
-      ) : (
-        <>
-          <ul className="space-y-2">
-            {detalle.map((p) => (
-              <li key={p.id} className="flex items-center justify-between border p-3 rounded-xl">
-                <span>{p.nombre}</span>
-                <span className="font-semibold">${p.precio.toLocaleString("es-CL")}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="flex items-center justify-between text-lg"><span>Total</span><strong>${total.toLocaleString("es-CL")}</strong></div>
-          <div className="flex gap-3">
-            <button onClick={pagar} className="btn btn-primary">Pagar con Mercado Pago</button>
-            <button onClick={limpiar} className="btn border">Limpiar</button>
-          </div>
-        </>
-      )}
+    <section className="px-6 py-10">
+      <h2 className="text-2xl font-bold mb-6">Tu carrito</h2>
+      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {productos.map((p) => (
+          <li key={p.id} className="border rounded-2xl hover:bg-gray-50 transition">
+            <Link href={`/producto/${p.id}`} className="block p-4">
+              <div className="aspect-[4/3] w-full mb-3 overflow-hidden rounded-xl bg-gray-100">
+                <img
+                  src={p.imagen}
+                  alt={p.nombre}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <h3 className="font-semibold">{p.nombre}</h3>
+              <p className="text-sm text-gray-600">{p.envio}</p>
+              <div className="mt-2 flex items-center justify-between">
+                <span className="font-bold">
+                  {Intl.NumberFormat("es-CL", {
+                    style: "currency",
+                    currency: "CLP",
+                    maximumFractionDigits: 0,
+                  }).format(p.precio)}
+                </span>
+                {p.destacado && (
+                  <span className="px-3 py-1 rounded-xl bg-lime-600 text-white text-sm">
+                    Destacado
+                  </span>
+                )}
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
