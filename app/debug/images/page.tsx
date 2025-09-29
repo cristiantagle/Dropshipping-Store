@@ -1,4 +1,4 @@
-import Image from "next/imagen";
+import Image from "next/image";
 
 const urls = [
   "/lunaria-icon.png",
