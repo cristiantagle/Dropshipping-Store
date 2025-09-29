@@ -59,7 +59,7 @@ async function getHomeData() {
     let destacados: Producto[] = [];
     try {
       const { data } = await supa
-        .from("productos")
+        .from("products")
         .select(SELECT_COLS)
         .eq("destacado", true)
         .order("id", { ascending: true })
@@ -73,14 +73,14 @@ async function getHomeData() {
     let nuevos: Producto[] = [];
     try {
       const r1 = await supa
-        .from("productos")
+        .from("products")
         .select(SELECT_COLS)
         .order("created_at", { ascending: false })
         .limit(6);
       nuevos = (r1.data ?? []) as Producto[];
       if (nuevos.length === 0) {
         const r2 = await supa
-          .from("productos")
+          .from("products")
           .select(SELECT_COLS)
           .order("id", { ascending: false })
           .limit(6);
@@ -94,14 +94,14 @@ async function getHomeData() {
     let top: Producto[] = [];
     try {
       const r1 = await supa
-        .from("productos")
+        .from("products")
         .select(SELECT_COLS)
         .order("ventas", { ascending: false })
         .limit(6);
       top = (r1.data ?? []) as Producto[];
       if (top.length === 0) {
         const r2 = await supa
-          .from("productos")
+          .from("products")
           .select(SELECT_COLS)
           .order("id", { ascending: true })
           .limit(6);
