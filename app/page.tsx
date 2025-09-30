@@ -10,7 +10,7 @@ export default async function Home() {
       <section className="relative bg-gray-100">
         <div className="absolute inset-0">
           <img
-            src="https://supabase-storage-url.lunaria.hero.jpg"  // ← reemplaza con tu URL real
+            src="https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/hero/hero.png"
             alt="Hero Lunaria"
             className="w-full h-full object-cover opacity-40"
             loading="lazy"
