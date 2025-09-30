@@ -1,69 +1,32 @@
-import "server-only";
-import { notFound } from "next/navigation";
-import Breadcrumbs from "@/components/Breadcrumbs";
-import ProductListClient from "@/components/ProductListClient";
-import { createClient } from "@supabase/supabase-js";
-
-const CATS: Record<string, { nombre: string; descripcion: string }> = {
-  hogar: { nombre: "Hogar", descripcion: "Cosas prácticas para tu casa" },
-  belleza: { nombre: "Belleza", descripcion: "Cuidado personal y maquillaje" },
-  tecnologia: { nombre: "Tecnología", descripcion: "Gadgets y accesorios" },
-  bienestar: { nombre: "Bienestar", descripcion: "Fitness, descanso y salud" },
-  eco: { nombre: "Eco", descripcion: "Opciones reutilizables y sustentables" },
-  mascotas: { nombre: "Mascotas", descripcion: "Para tus compañeros peludos" },
-};
-
-export const dynamic = "force-dynamic";
+"use client";
+import { getProductosPorCategoria } from "@/lib/productos";
+import { getCategoria } from "@/lib/categorias";
 
 export default async function CategoriaPage({ params }: { params: { slug: string } }) {
-  const slug = (params?.slug || "").toLowerCase();
-  const cat = CATS[slug];
-  if (!cat) return notFound();
-
-  const crumbs = [
-    { label: "Inicio", href: "/" },
-    { label: "Categorías", href: "/categorias" },
-    { label: cat.nombre, href: `/categorias/${slug}` },
-  ];
-
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-  if (!url || !anon) {
-    return (
-      <section className="space-y-6">
-        <div className="mb-2">
-          <Breadcrumbs items={crumbs} />
-        </div>
-        <h1 className="text-2xl font-bold">{cat.nombre}</h1>
-        <p className="text-gray-600">{cat.descripcion}</p>
-        <p className="text-red-600">Faltan variables de entorno de Supabase.</p>
-      </section>
-    );
-  }
-
-  const supa = createClient(url, anon, { auth: { persistSession: false } });
-  const { data, error } = await supa
-    .from("products")
-    .select("*")
-    .eq("categoria_slug", slug)
-    .order("id", { ascending: true })
-    .limit(12);
-
-  if (error) console.error("Supabase error:", error);
-
-  const items = Array.isArray(data) ? data : [];
+  const categoria = await getCategoria(params.slug);
+  const productos = await getProductosPorCategoria(params.slug);
 
   return (
-    <section className="space-y-6">
-      <div className="mb-2">
-        <Breadcrumbs items={crumbs} />
-      </div>
-      <div>
-        <h1 className="text-2xl font-bold">{cat.nombre}</h1>
-        <p className="text-gray-600">{cat.descripcion}</p>
-      </div>
-      <ProductListClient items={items} />
-    </section>
+    <main className="mx-auto max-w-6xl px-4 sm:px-6 py-12 space-y-12">
+      <section className="text-center">
+        <h1 className="text-3xl font-bold mb-4">{categoria.nombre}</h1>
+        <p className="text-gray-600">{categoria.descripcion}</p>
+      </section>
+
+      <section>
+        <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lunaria-grid-in">
+          {productos.map((m) => (
+            <li key={m.id}>
+              <div className="aspect-[4/3] overflow-hidden bg-gray-100 rounded-xl">
+                <img src={m.imagen} alt={m.nombre} className="w-full h-full object-cover" />
+              </div>
+              <div className="p-3">
+                <div className="text-sm font-semibold line-clamp-1">{m.nombre}</div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </main>
   );
 }
