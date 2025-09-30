@@ -7,6 +7,7 @@ export default async function Home() {
 
   return (
     <main className="space-y-12">
+      {/* Hero visual original */}
       <section className="relative bg-gray-100">
         <div className="absolute inset-0">
           <img
@@ -31,6 +32,7 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Grilla de productos funcional actual */}
       <section className="mx-auto max-w-6xl px-4 sm:px-6">
         <h2 className="text-2xl font-bold mb-6">Productos destacados</h2>
         <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lunaria-grid-in">
