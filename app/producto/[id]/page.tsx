@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
-import { getProducts } from "@/lib/products"; // corregido
+import { getProducts } from "@/lib/products";
 
-export default async function Producto({ params }) {
-  const prod = await getProducts(params.id); // corregido
+export default async function Producto({ params }: { params: { id: string } }) {
+  const prod = await getProducts(params.id);
 
   return (
     <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
