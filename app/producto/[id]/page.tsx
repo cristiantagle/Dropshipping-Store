@@ -1,10 +1,10 @@
 "use client";
-import { getProducto } from "@/lib/products";
-import { useCarro } from "@/components/useCart";
+import { getProduct } from "@/lib/products";
+import { useCart } from "@/components/useCart";
 
 export default async function ProductoPage({ params }: { params: { id: string } }) {
-  const producto = await getProducto(params.id);
-  const { agregarAlCarro } = useCarro();
+  const producto = await getProduct(params.id);
+  const { agregarAlCarro } = useCart();
 
   return (
     <main className="mx-auto max-w-6xl px-4 sm:px-6 py-12">

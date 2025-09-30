@@ -1,8 +1,8 @@
 "use client";
-import { useCarro } from "@/components/useCart";
+import { useCart } from "@/components/useCart";
 
 export default function CarroPage() {
-  const { items, quitarDelCarro } = useCarro();
+  const { items, quitarDelCarro } = useCart();
 
   return (
     <main className="mx-auto max-w-6xl px-4 sm:px-6 py-12 space-y-12">
