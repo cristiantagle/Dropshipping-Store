@@ -1,90 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "✍️ Reescribiendo archivos corregidos (imports + MercadoPago SDK)..."
-
-# ========== app/api/checkout/mercadopago/route.ts ==========
-cat <<'EOF' > app/api/checkout/mercadopago/route.ts
-import { NextResponse } from "next/server";
-import { MercadoPagoConfig, Preference } from "mercadopago";
-
-const client = new MercadoPagoConfig({
-  accessToken: process.env.MP_ACCESS_TOKEN || "",
-});
-
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-
-    const preference = new Preference(client);
-
-    const response = await preference.create({
-      body: {
-        items: (body.items || []).map((item: any) => ({
-          title: item.title,
-          quantity: item.quantity,
-          currency_id: "CLP",
-          unit_price: item.price,
-        })),
-        back_urls: {
-          success: `${process.env.NEXT_PUBLIC_URL}/success`,
-          failure: `${process.env.NEXT_PUBLIC_URL}/failure`,
-          pending: `${process.env.NEXT_PUBLIC_URL}/pending`,
-        },
-        auto_return: "approved",
-      },
-    });
-
-    return NextResponse.json({ id: response.id });
-  } catch (err: any) {
-    console.error("MercadoPago error:", err);
-    return NextResponse.json(
-      { error: "Error creando preferencia de pago" },
-      { status: 500 }
-    );
-  }
-}
-EOF
-
-# ========== app/page.tsx ==========
-cat <<'EOF' > app/page.tsx
-"use client";
-import Link from "next/link";
-import { getProducts } from "@/lib/products";
-
-export default async function Home() {
-  const productos = await getProducts();
-
-  return (
-    <main className="space-y-12">
-      <section className="mx-auto max-w-6xl px-4 sm:px-6">
-        <h2 className="text-2xl font-bold mb-6">Productos</h2>
-        <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lunaria-grid-in">
-          {productos.map((m) => (
-            <li key={m.id}>
-              <div className="aspect-[4/3] overflow-hidden bg-gray-100">
-                <img src={m.imagen} alt={m.nombre} className="w-full h-full object-cover" />
-              </div>
-              <div className="p-3">
-                <div className="text-sm font-semibold line-clamp-1">{m.nombre}</div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
-    </main>
-  );
-}
-EOF
+echo "✍️ Corrigiendo app/producto/[id]/page.tsx y app/head.tsx..."
 
 # ========== app/producto/[id]/page.tsx ==========
 cat <<'EOF' > app/producto/[id]/page.tsx
 "use client";
 import Link from "next/link";
-import { getProduct } from "@/lib/products";
+import { getProducts } from "@/lib/products"; // corregido
 
 export default async function Producto({ params }) {
-  const prod = await getProduct(params.id);
+  const prod = await getProducts(params.id); // corregido
 
   return (
     <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
@@ -120,4 +46,24 @@ export default async function Producto({ params }) {
 }
 EOF
 
-echo "✅ Archivos corregidos. Ahora puedes volver a hacer build/deploy."
+# ========== app/head.tsx ==========
+cat <<'EOF' > app/head.tsx
+export default function Head() {
+  return (
+    <>
+      <title>Lunaria — Tienda</title>
+      <meta name="description" content="Tienda dropshipping simple y bonita" />
+      <meta property="og:title" content="Lunaria" />
+      <meta property="og:description" content="Productos útiles y bonitos con envío simple" />
+      <meta property="og:type" content="website" />
+    </>
+  );
+}
+EOF
+
+echo "🚀 Archivos corregidos. Haciendo commit y push..."
+git add app/producto/[id]/page.tsx app/head.tsx
+git commit -m "fix: corrige import getProducts y atributo name en head"
+git push origin main
+
+echo "✅ Correcciones aplicadas e integradas a main."
