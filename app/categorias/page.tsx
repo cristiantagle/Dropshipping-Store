@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
-import { getCategorias } from "@/lib/categorias";
+import { getAllCategories } from "@/lib/categorias";
 
 export default async function Categorias() {
-  const categorias = await getCategorias();
+  const categorias = await getAllCategories();
 
   return (
     <main className="mx-auto max-w-6xl px-4 sm:px-6 py-12">

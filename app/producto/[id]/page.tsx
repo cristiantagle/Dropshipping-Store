@@ -1,9 +1,9 @@
 "use client";
-import { getProduct } from "@/lib/products";
+import { getProductById } from "@/lib/products";
 import { useCart } from "@/components/useCart";
 
 export default async function ProductoPage({ params }: { params: { id: string } }) {
-  const producto = await getProduct(params.id);
+  const producto = await getProductById(params.id);
   const { agregarAlCarro } = useCart();
 
   return (

@@ -2,7 +2,7 @@
 import { useCart } from "@/components/useCart";
 
 export default function CarroPage() {
-  const { items, quitarDelCarro } = useCart();
+  const { items, remove } = useCart();
 
   return (
     <main className="mx-auto max-w-6xl px-4 sm:px-6 py-12 space-y-12">
@@ -22,7 +22,7 @@ export default function CarroPage() {
                 <div className="text-sm text-gray-500">${item.precio}</div>
               </div>
               <button
-                onClick={() => quitarDelCarro(item.id)}
+                onClick={() => remove(item.id)}
                 className="px-4 py-2 bg-red-100 text-red-600 rounded-full text-sm font-medium hover:bg-red-200 transition"
               >
                 Quitar
