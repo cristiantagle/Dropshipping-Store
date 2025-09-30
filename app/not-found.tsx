@@ -1,10 +1,17 @@
+"use client";
+
 export default function NotFound() {
   return (
     <main className="max-w-5xl mx-auto px-4 py-20 text-center">
-      <h1 className="text-3xl md:text-4xl font-bold mb-3">No encontramos esa página</h1>
-      <p className="text-gray-600 mb-8">Puede que el enlace esté roto o que la página haya sido movida.</p>
-      <a href="/" className="inline-block rounded-xl px-5 py-2.5 bg-[#2ECC71] text-white hover:opacity-90 transition">
-        Ir al inicio
+      <h1 className="text-3xl font-bold mb-4">Página no encontrada</h1>
+      <p className="text-gray-600 mb-6">
+        La página que buscas no existe o fue movida.
+      </p>
+      <a
+        href="/"
+        className="inline-block px-4 py-2 bg-lime-600 text-white rounded-lg"
+      >
+        Volver al inicio
       </a>
     </main>
   );

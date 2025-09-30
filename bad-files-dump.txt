@@ -1,0 +1,504 @@
+
+📊 Resumen de errores por archivo:
+
+app/api/checkout/mercadopago/route.ts → 1 errores
+app/carro/page.tsx → 8 errores
+app/categorias/page.tsx → 6 errores
+app/categorias/[slug]/page.tsx → 6 errores
+app/debug/images/page.tsx → 3 errores
+app/diag/page.tsx → 3 errores
+app/error.tsx → 2 errores
+app/global-error.tsx → 3 errores
+app/layout.tsx.bak → 1 errores
+app/not-found.tsx → 1 errores
+app/page.tsx → 7 errores
+app/producto/[id]/loading.tsx → 2 errores
+app/producto/[id]/page.tsx → 8 errores
+
+
+📂 Dump de archivos con errores:
+
+
+
+==================== app/api/checkout/mercadopago/route.ts ====================
+
+import { NextResponse } from "next/server";
+import mercadopago from "mercadopago";
+
+mercadopago.configure({
+  access_token: process.env.MP_ACCESS_TOKEN || "",
+});
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+
+    const preference = {
+      items: body.items.map((item: any) => ({
+        title: item.title,
+        quantity: item.quantity,
+        currency_id: "CLP",
+        unit_price: item.price,
+      })),
+      back_urls: {
+        success: `${process.env.NEXT_PUBLIC_URL}/success`,
+        failure: `${process.env.NEXT_PUBLIC_URL}/failure`,
+        pending: `${process.env.NEXT_PUBLIC_URL}/pending`,
+      },
+      auto_return: "approved",
+    };
+
+    const response = await mercadopago.preferences.create(preference);
+    return NextResponse.json({ id: response.body.id });
+  } catch (err: any) {
+    console.error("MercadoPago error:", err);
+    return NextResponse.json(
+      { error: "Error creando preferencia de pago" },
+      { status: 500 }
+    );
+  }
+}
+
+
+==================== app/carro/page.tsx ====================
+
+"use client";
+import Link from "next/link";
+import { getProducts } from "@/lib/products";
+
+export default async function Carro() {
+  const key = "carro";
+  const items =
+    typeof window !== "undefined"
+      ? (JSON.parse(localStorage.getItem(key) || "[]") as string[])
+      : [];
+  const allProducts = await getProducts();
+  const detalle = allProducts.filter((p) => items.includes(p.id));
+  const total = detalle.reduce((acc, p) => acc + (p?.precio || 0), 0);
+
+  function limpiar() {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(key);
+      location.reload();
+    }
+  }
+
+  async function pagar() {
+    alert("Pago simulado. Total: " + total);
+  }
+
+  return (
+    <section className="px-6 py-10">
+      <h2 className="text-2xl font-bold mb-6">Tu carrito</h2>
+      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {detalle.map((p) => (
+          <li key={p.id} className="border rounded-2xl hover:bg-gray-50 transition">
+            <Link href={`/producto/${p.id}`} className="block p-4">
+              <div className="aspect-[4/3] w-full mb-3 overflow-hidden rounded-xl bg-gray-100">
+                <img
+                  src={p.imagen}
+                  alt={p.nombre}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <h3 className="font-semibold">{p.nombre}</h3>
+              <p className="text-sm text-gray-600">{p.envio}</p>
+              <div className="mt-2 flex items-center justify-between">
+                <span className="font-bold">
+                  {Intl.NumberFormat("es-CL", {
+                    style: "currency",
+                    currency: "CLP",
+                    maximumFractionDigits: 0,
+                  }).format(p.precio)}
+                </span>
+                {p.destacado && (
+                  <span className="px-3 py-1 rounded-xl bg-lime-600 text-white text-sm">
+                    Destacado
+                  </span>
+                )}
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-6 flex gap-4">
+        <button onClick={limpiar} className="px-4 py-2 bg-gray-200 rounded-lg">
+          Vaciar carrito
+        </button>
+        <button onClick={pagar} className="px-4 py-2 bg-lime-600 text-white rounded-lg">
+          Pagar{" "}
+          {Intl.NumberFormat("es-CL", {
+            style: "currency",
+            currency: "CLP",
+            maximumFractionDigits: 0,
+          }).format(total)}
+        </button>
+      </div>
+    </section>
+  );
+}
+
+
+==================== app/categorias/page.tsx ====================
+
+import Link from "next/link";
+import { categorias } from "@/lib/categorias";
+
+export default function CategoriasPage() {
+  return (
+    <section className="px-6 py-10">
+      <h2 className="text-2xl font-bold mb-6">Categorías</h2>
+      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {categorias.map((cat, idx) => {
+          const content = (
+            <div className="group relative overflow-hidden rounded-2xl border bg-white hover:shadow-md transition">
+              <div className="relative aspect-[4/3] bg-neutral-100 flex flex-col items-center justify-center">
+                <img
+                  src={cat.icon}
+                  alt={cat.nombre}
+                  className="w-16 h-16 object-contain transition-transform duration-500 group-hover:scale-[1.05]"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <span className="absolute left-3 bottom-3 inline-flex items-center gap-2 rounded-full bg-lime-600/95 text-white px-3 py-1.5 text-sm font-semibold shadow-sm">
+                  {cat.nombre}
+                </span>
+              </div>
+            </div>
+          );
+          const key = cat.slug ?? `static-${idx}`;
+          return (
+            <li key={key}>
+              {cat.slug ? (
+                <Link href={`/categorias/${cat.slug}`}>{content}</Link>
+              ) : (
+                <div className="opacity-50 cursor-default">{content}</div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+
+==================== app/categorias/[slug]/page.tsx ====================
+
+import "server-only";
+import { notFound } from "next/navigation";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import ProductListClient from "@/components/ProductListClient";
+import { createClient } from "@supabase/supabase-js";
+
+const CATS: Record<string, { nombre: string; descripcion: string }> = {
+  hogar: { nombre: "Hogar", descripcion: "Cosas prácticas para tu casa" },
+  belleza: { nombre: "Belleza", descripcion: "Cuidado personal y maquillaje" },
+  tecnologia: { nombre: "Tecnología", descripcion: "Gadgets y accesorios" },
+  bienestar: { nombre: "Bienestar", descripcion: "Fitness, descanso y salud" },
+  eco: { nombre: "Eco", descripcion: "Opciones reutilizables y sustentables" },
+  mascotas: { nombre: "Mascotas", descripcion: "Para tus compañeros peludos" },
+};
+
+export const dynamic = "force-dynamic";
+
+export default async function CategoriaPage({ params }: { params: { slug: string } }) {
+  const slug = (params?.slug || "").toLowerCase();
+  const cat = CATS[slug];
+  if (!cat) return notFound();
+
+  const crumbs = [
+    { label: "Inicio", href: "/" },
+    { label: "Categorías", href: "/categorias" },
+    { label: cat.nombre, href: `/categorias/${slug}` },
+  ];
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+  if (!url || !anon) {
+    return (
+      <section className="space-y-6">
+        <div className="mb-2">
+          <Breadcrumbs items={crumbs} />
+        </div>
+        <h1 className="text-2xl font-bold">{cat.nombre}</h1>
+        <p className="text-gray-600">{cat.descripcion}</p>
+        <p className="text-red-600">Faltan variables de entorno de Supabase.</p>
+      </section>
+    );
+  }
+
+  const supa = createClient(url, anon, { auth: { persistSession: false } });
+  const { data, error } = await supa
+    .from("products")
+    .select("*")
+    .eq("categoria_slug", slug)
+    .order("id", { ascending: true })
+    .limit(12);
+
+  if (error) console.error("Supabase error:", error);
+
+  const items = Array.isArray(data) ? data : [];
+
+  return (
+    <section className="space-y-6">
+      <div className="mb-2">
+        <Breadcrumbs items={crumbs} />
+      </div>
+      <div>
+        <h1 className="text-2xl font-bold">{cat.nombre}</h1>
+        <p className="text-gray-600">{cat.descripcion}</p>
+      </div>
+      <ProductListClient items={items} />
+    </section>
+  );
+}
+
+
+==================== app/debug/images/page.tsx ====================
+
+"use client";
+import Image from "next/image";
+
+export default function DebugImages() {
+  const imgs = [
+    { src: "/img/test1.jpg", alt: "Imagen de prueba 1" },
+    { src: "/img/test2.jpg", alt: "Imagen de prueba 2" },
+    { src: "/img/test3.jpg", alt: "Imagen de prueba 3" },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-6">
+      {imgs.map((img, idx) => (
+        <div key={idx} className="rounded-xl overflow-hidden border">
+          <Image
+            src={img.src}
+            alt={img.alt}
+            width={400}
+            height={300}
+            className="object-cover w-full h-auto"
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+
+==================== app/diag/page.tsx ====================
+
+"use client";
+
+export default function DiagPage() {
+  const checks = [
+    { label: "Conexión a Supabase", status: "OK" },
+    { label: "Variables de entorno", status: "OK" },
+    { label: "Build local", status: "OK" },
+  ];
+
+  return (
+    <div className="max-w-3xl mx-auto px-6 py-10 space-y-6">
+      <h1 className="text-2xl font-bold">Diagnóstico</h1>
+      <ul className="space-y-3">
+        {checks.map((c, idx) => (
+          <li
+            key={idx}
+            className="flex items-center justify-between rounded-lg border p-3"
+          >
+            <span>{c.label}</span>
+            <span
+              className={
+                c.status === "OK"
+                  ? "text-green-600 font-semibold"
+                  : "text-red-600 font-semibold"
+              }
+            >
+              {c.status}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+
+==================== app/error.tsx ====================
+
+"use client";
+
+export default function ErrorPage() {
+  return (
+    <main className="max-w-5xl mx-auto px-4 py-20 text-center">
+      <h1 className="text-3xl font-bold mb-4">Error inesperado</h1>
+      <p className="text-gray-600 mb-6">
+        Lo sentimos, algo salió mal. Intenta nuevamente más tarde.
+      </p>
+      <button
+        onClick={() => location.reload()}
+        className="px-4 py-2 bg-gray-200 rounded-lg"
+      >
+        Reintentar
+      </button>
+    </main>
+  );
+}
+
+
+==================== app/global-error.tsx ====================
+
+"use client";
+
+export default function GlobalError() {
+  return (
+    <div className="mx-auto max-w-2xl px-4 sm:px-6 py-16 text-center">
+      <h1 className="text-2xl font-bold">Ha ocurrido un error</h1>
+      <div className="mt-6">
+        <button
+          onClick={() => location.reload()}
+          className="px-4 py-2 bg-gray-200 rounded-lg"
+        >
+          Reintentar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
+==================== app/layout.tsx.bak ====================
+
+import "./globals.css";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Lunaria",
+  description: "E-commerce sustentable",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="es">
+      <body className="bg-gray-50 text-gray-900">
+        <header className="p-4 border-b bg-white">
+          <h1 className="text-xl font-bold">Lunaria</h1>
+        </header>
+        <main className="min-h-screen">{children}</main>
+        <footer className="p-4 border-t bg-white text-center text-sm text-gray-500">
+          © {new Date().getFullYear()} Lunaria
+        </footer>
+      </body>
+    </html>
+  );
+}
+
+
+==================== app/not-found.tsx ====================
+
+"use client";
+
+export default function NotFound() {
+  return (
+    <main className="max-w-5xl mx-auto px-4 py-20 text-center">
+      <h1 className="text-3xl font-bold mb-4">Página no encontrada</h1>
+      <p className="text-gray-600 mb-6">
+        La página que buscas no existe o fue movida.
+      </p>
+      <a
+        href="/"
+        className="inline-block px-4 py-2 bg-lime-600 text-white rounded-lg"
+      >
+        Volver al inicio
+      </a>
+    </main>
+  );
+}
+
+
+==================== app/page.tsx ====================
+
+"use client";
+import Link from "next/link";
+import { getProductos } from "@/lib/products";
+
+export default async function Home() {
+  const productos = await getProductos();
+
+  return (
+    <main className="space-y-12">
+      <section className="mx-auto max-w-6xl px-4 sm:px-6">
+        <h2 className="text-2xl font-bold mb-6">Productos</h2>
+        <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lunaria-grid-in">
+          {productos.map((m) => (
+            <li key={m.id}>
+              <div className="aspect-[4/3] overflow-hidden bg-gray-100">
+                <img src={m.imagen} alt={m.nombre} className="w-full h-full object-cover" />
+              </div>
+              <div className="p-3">
+                <div className="text-sm font-semibold line-clamp-1">{m.nombre}</div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </main>
+  );
+}
+
+
+==================== app/producto/[id]/loading.tsx ====================
+
+export default function Loading() {
+  return (
+    <div className="grid md:grid-cols-2 gap-6">
+      <div className="rounded-2xl border bg-white overflow-hidden">Cargando...</div>
+    </div>
+  );
+}
+
+
+==================== app/producto/[id]/page.tsx ====================
+
+"use client";
+import Link from "next/link";
+import { getProducto } from "@/lib/products";
+
+export default async function Producto({ params }) {
+  const prod = await getProducto(params.id);
+
+  return (
+    <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="rounded-2xl border bg-white overflow-hidden">
+          <div className="aspect-[4/3] bg-gray-100">
+            <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover" />
+          </div>
+        </div>
+        <div className="rounded-2xl border bg-white p-5">
+          <h1 className="text-2xl font-bold">{prod.nombre}</h1>
+          <div className="mt-3 text-2xl font-black lunaria-price">
+            {Intl.NumberFormat("es-CL", {
+              style: "currency",
+              currency: "CLP",
+              maximumFractionDigits: 0,
+            }).format(prod.precio)}
+          </div>
+          <div className="mt-4 flex items-center gap-3">
+            <button
+              type="button"
+              className="lunaria-cta px-5 py-3 font-semibold"
+              onClick={() => alert(\`Agregado: \${prod.nombre}\`)}
+            >
+              Agregar al carrito
+            </button>
+            <Link className="btn-brand" href="/">Volver al inicio</Link>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}

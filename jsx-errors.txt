@@ -1,0 +1,51 @@
+app/carro/page.tsx:33:              <div className="aspect-[4/3] w-full mb-3 overflow-hidden rounded-xl bg-gray-100"> → Falta cierre </div>
+app/carro/page.tsx:45:              <div className="mt-2 flex items-center justify-between"> → Falta cierre </div>
+app/carro/page.tsx:63:      <div className="mt-6 flex gap-4"> → Falta cierre </div>
+app/categorias/[slug]/page.tsx:35:        <div className="mb-2"> → Falta cierre </div>
+app/categorias/[slug]/page.tsx:59:      <div className="mb-2"> → Falta cierre </div>
+app/categorias/[slug]/page.tsx:62:      <div> → Falta cierre </div>
+app/categorias/page.tsx:11:            <div className="group relative overflow-hidden rounded-2xl border bg-white hover:shadow-md transition"> → Falta cierre </div>
+app/categorias/page.tsx:12:              <div className="relative aspect-[4/3] bg-neutral-100 flex flex-col items-center justify-center"> → Falta cierre </div>
+app/categorias/page.tsx:32:                <div className="opacity-50 cursor-default">{content}</div> → Falta cierre </div>
+app/diag/page.tsx:11:    <div className="max-w-3xl mx-auto px-6 py-10 space-y-6"> → Falta cierre </div>
+app/debug/images/page.tsx:12:    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-6"> → Falta cierre </div>
+app/debug/images/page.tsx:14:        <div key={idx} className="rounded-xl overflow-hidden border"> → Falta cierre </div>
+app/producto/[id]/loading.tsx:3:    <div className="grid md:grid-cols-2 gap-6"> → Falta cierre </div>
+app/producto/[id]/loading.tsx:4:      <div className="rounded-2xl border bg-white overflow-hidden">Cargando...</div> → Falta cierre </div>
+app/producto/[id]/page.tsx:10:      <div className="grid md:grid-cols-2 gap-6"> → Falta cierre </div>
+app/producto/[id]/page.tsx:11:        <div className="rounded-2xl border bg-white overflow-hidden"> → Falta cierre </div>
+app/producto/[id]/page.tsx:12:          <div className="aspect-[4/3] bg-gray-100"> → Falta cierre </div>
+app/producto/[id]/page.tsx:16:        <div className="rounded-2xl border bg-white p-5"> → Falta cierre </div>
+app/producto/[id]/page.tsx:18:          <div className="mt-3 text-2xl font-black lunaria-price"> → Falta cierre </div>
+app/producto/[id]/page.tsx:25:          <div className="mt-4 flex items-center gap-3"> → Falta cierre </div>
+app/global-error.tsx:5:    <div className="mx-auto max-w-2xl px-4 sm:px-6 py-16 text-center"> → Falta cierre </div>
+app/global-error.tsx:7:      <div className="mt-6"> → Falta cierre </div>
+app/page.tsx:15:              <div className="aspect-[4/3] overflow-hidden bg-gray-100"> → Falta cierre </div>
+app/page.tsx:18:              <div className="p-3"> → Falta cierre </div>
+app/page.tsx:19:                <div className="text-sm font-semibold line-clamp-1">{m.nombre}</div> → Falta cierre </div>
+app/carro/page.tsx:27:    <section className="px-6 py-10"> → Falta cierre </section>
+app/categorias/[slug]/page.tsx:34:      <section className="space-y-6"> → Falta cierre </section>
+app/categorias/[slug]/page.tsx:58:    <section className="space-y-6"> → Falta cierre </section>
+app/categorias/page.tsx:6:    <section className="px-6 py-10"> → Falta cierre </section>
+app/page.tsx:10:      <section className="mx-auto max-w-6xl px-4 sm:px-6"> → Falta cierre </section>
+app/layout.tsx.bak:16:        <main className="min-h-screen">{children}</main> → Falta cierre </main>
+app/producto/[id]/page.tsx:9:    <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8"> → Falta cierre </main>
+app/error.tsx:5:    <main className="max-w-5xl mx-auto px-4 py-20 text-center"> → Falta cierre </main>
+app/not-found.tsx:5:    <main className="max-w-5xl mx-auto px-4 py-20 text-center"> → Falta cierre </main>
+app/page.tsx:9:    <main className="space-y-12"> → Falta cierre </main>
+app/carro/page.tsx:29:      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"> → Falta cierre </ul>
+app/categorias/page.tsx:8:      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"> → Falta cierre </ul>
+app/diag/page.tsx:13:      <ul className="space-y-3"> → Falta cierre </ul>
+app/page.tsx:12:        <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lunaria-grid-in"> → Falta cierre </ul>
+app/carro/page.tsx:64:        <button onClick={limpiar} className="px-4 py-2 bg-gray-200 rounded-lg"> → Falta cierre </button>
+app/carro/page.tsx:67:        <button onClick={pagar} className="px-4 py-2 bg-lime-600 text-white rounded-lg"> → Falta cierre </button>
+app/producto/[id]/page.tsx:26:            <button → Falta cierre </button>
+app/error.tsx:10:      <button → Falta cierre </button>
+app/global-error.tsx:8:        <button → Falta cierre </button>
+app/api/checkout/mercadopago/route.ts:13:      items: body.items.map((item: any) => ({ → Posible .map(...) incompleto
+app/carro/page.tsx:30:        {detalle.map((p) => ( → Posible .map(...) incompleto
+app/categorias/page.tsx:9:        {categorias.map((cat, idx) => { → Posible .map(...) incompleto
+app/diag/page.tsx:14:        {checks.map((c, idx) => ( → Posible .map(...) incompleto
+app/debug/images/page.tsx:13:      {imgs.map((img, idx) => ( → Posible .map(...) incompleto
+app/page.tsx:13:          {productos.map((m) => ( → Posible .map(...) incompleto
+app/categorias/[slug]/page.tsx:50:    .order("id", { ascending: true }) → Posible .order(...) sin from/select

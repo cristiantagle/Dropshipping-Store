@@ -23,12 +23,16 @@ export default function CategoriasPage() {
               </div>
             </div>
           );
-          return cat.slug ? (
-            <Link href={`/categorias/${cat.slug}`} key={cat.slug}>
-              {content}
-            </Link>
-          ) : (
-            <div key={`static-${idx}`} className="opacity-50 cursor-default">
+          const key = cat.slug ?? `static-${idx}`;
+          return (
+            <li key={key}>
+              {cat.slug ? (
+                <Link href={`/categorias/${cat.slug}`}>{content}</Link>
+              ) : (
+                <div className="opacity-50 cursor-default">{content}</div>
+              )}
+            </li>
+          );
         })}
       </ul>
     </section>

@@ -11,14 +11,18 @@ export default async function Carro() {
   const allProducts = await getProducts();
   const detalle = allProducts.filter((p) => items.includes(p.id));
   const total = detalle.reduce((acc, p) => acc + (p?.precio || 0), 0);
+
   function limpiar() {
     if (typeof window !== "undefined") {
       localStorage.removeItem(key);
       location.reload();
     }
   }
+
   async function pagar() {
     alert("Pago simulado. Total: " + total);
+  }
+
   return (
     <section className="px-6 py-10">
       <h2 className="text-2xl font-bold mb-6">Tu carrito</h2>
@@ -51,6 +55,7 @@ export default async function Carro() {
                     Destacado
                   </span>
                 )}
+              </div>
             </Link>
           </li>
         ))}
@@ -60,7 +65,13 @@ export default async function Carro() {
           Vaciar carrito
         </button>
         <button onClick={pagar} className="px-4 py-2 bg-lime-600 text-white rounded-lg">
-          Pagar {Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(total)}
+          Pagar{" "}
+          {Intl.NumberFormat("es-CL", {
+            style: "currency",
+            currency: "CLP",
+            maximumFractionDigits: 0,
+          }).format(total)}
+        </button>
       </div>
     </section>
   );
