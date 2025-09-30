@@ -1,54 +1,48 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "✍️ Reescribiendo bloque 5 (últimos archivos corregidos)..."
+echo "✍️ Reescribiendo archivos corregidos (imports + MercadoPago SDK)..."
 
-# ========== app/not-found.tsx ==========
-cat <<'EOF' > app/not-found.tsx
-"use client";
+# ========== app/api/checkout/mercadopago/route.ts ==========
+cat <<'EOF' > app/api/checkout/mercadopago/route.ts
+import { NextResponse } from "next/server";
+import { MercadoPagoConfig, Preference } from "mercadopago";
 
-export default function NotFound() {
-  return (
-    <main className="max-w-5xl mx-auto px-4 py-20 text-center">
-      <h1 className="text-3xl font-bold mb-4">Página no encontrada</h1>
-      <p className="text-gray-600 mb-6">
-        La página que buscas no existe o fue movida.
-      </p>
-      <a
-        href="/"
-        className="inline-block px-4 py-2 bg-lime-600 text-white rounded-lg"
-      >
-        Volver al inicio
-      </a>
-    </main>
-  );
-}
-EOF
+const client = new MercadoPagoConfig({
+  accessToken: process.env.MP_ACCESS_TOKEN || "",
+});
 
-# ========== app/layout.tsx.bak ==========
-cat <<'EOF' > app/layout.tsx.bak
-import "./globals.css";
-import type { Metadata } from "next";
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
 
-export const metadata: Metadata = {
-  title: "Lunaria",
-  description: "E-commerce sustentable",
-};
+    const preference = new Preference(client);
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="es">
-      <body className="bg-gray-50 text-gray-900">
-        <header className="p-4 border-b bg-white">
-          <h1 className="text-xl font-bold">Lunaria</h1>
-        </header>
-        <main className="min-h-screen">{children}</main>
-        <footer className="p-4 border-t bg-white text-center text-sm text-gray-500">
-          © {new Date().getFullYear()} Lunaria
-        </footer>
-      </body>
-    </html>
-  );
+    const response = await preference.create({
+      body: {
+        items: (body.items || []).map((item: any) => ({
+          title: item.title,
+          quantity: item.quantity,
+          currency_id: "CLP",
+          unit_price: item.price,
+        })),
+        back_urls: {
+          success: `${process.env.NEXT_PUBLIC_URL}/success`,
+          failure: `${process.env.NEXT_PUBLIC_URL}/failure`,
+          pending: `${process.env.NEXT_PUBLIC_URL}/pending`,
+        },
+        auto_return: "approved",
+      },
+    });
+
+    return NextResponse.json({ id: response.id });
+  } catch (err: any) {
+    console.error("MercadoPago error:", err);
+    return NextResponse.json(
+      { error: "Error creando preferencia de pago" },
+      { status: 500 }
+    );
+  }
 }
 EOF
 
@@ -56,10 +50,10 @@ EOF
 cat <<'EOF' > app/page.tsx
 "use client";
 import Link from "next/link";
-import { getProductos } from "@/lib/products";
+import { getProducts } from "@/lib/products";
 
 export default async function Home() {
-  const productos = await getProductos();
+  const productos = await getProducts();
 
   return (
     <main className="space-y-12">
@@ -83,25 +77,14 @@ export default async function Home() {
 }
 EOF
 
-# ========== app/producto/[id]/loading.tsx ==========
-cat <<'EOF' > app/producto/[id]/loading.tsx
-export default function Loading() {
-  return (
-    <div className="grid md:grid-cols-2 gap-6">
-      <div className="rounded-2xl border bg-white overflow-hidden">Cargando...</div>
-    </div>
-  );
-}
-EOF
-
 # ========== app/producto/[id]/page.tsx ==========
 cat <<'EOF' > app/producto/[id]/page.tsx
 "use client";
 import Link from "next/link";
-import { getProducto } from "@/lib/products";
+import { getProduct } from "@/lib/products";
 
 export default async function Producto({ params }) {
-  const prod = await getProducto(params.id);
+  const prod = await getProduct(params.id);
 
   return (
     <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
@@ -137,10 +120,4 @@ export default async function Producto({ params }) {
 }
 EOF
 
-# ========== Integración a main ==========
-echo "🚀 Integrando cambios a main..."
-git add .
-git commit -m "fix: correcciones JSX y cierres en todos los componentes"
-git push origin main
-
-echo "✅ Bloque 5 reescrito e integrado a main correctamente."
+echo "✅ Archivos corregidos. Ahora puedes volver a hacer build/deploy."

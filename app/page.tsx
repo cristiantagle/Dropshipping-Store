@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
-import { getProductos } from "@/lib/products";
+import { getProducts } from "@/lib/products";
 
 export default async function Home() {
-  const productos = await getProductos();
+  const productos = await getProducts();
 
   return (
     <main className="space-y-12">
