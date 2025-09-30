@@ -1,5 +1,5 @@
 "use client";
-import { useCarro } from "@/state/carro";
+import { useCarro } from "@/components/useCart";
 
 export default function CarroPage() {
   const { items, quitarDelCarro } = useCarro();

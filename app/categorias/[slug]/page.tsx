@@ -1,5 +1,5 @@
 "use client";
-import { getProductosPorCategoria } from "@/lib/productos";
+import { getProductosPorCategoria } from "@/lib/products";
 import { getCategoria } from "@/lib/categorias";
 
 export default async function CategoriaPage({ params }: { params: { slug: string } }) {
