@@ -7,15 +7,24 @@ export default async function Home() {
 
   return (
     <main className="space-y-12">
-      <section className="bg-lime-50 border-b py-12">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center space-y-4">
-          <h1 className="text-3xl sm:text-4xl font-bold text-lime-700">Bienvenido a Lunaria</h1>
-          <p className="text-gray-700 text-lg">
+      <section className="relative bg-gray-100">
+        <div className="absolute inset-0">
+          <img
+            src="https://supabase-storage-url.lunaria.hero.jpg"  // ← reemplaza con tu URL real
+            alt="Hero Lunaria"
+            className="w-full h-full object-cover opacity-40"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-20 text-center text-gray-900">
+          <h1 className="text-4xl sm:text-5xl font-bold mb-4">Bienvenido a Lunaria</h1>
+          <p className="text-lg sm:text-xl mb-6">
             Productos útiles y bonitos con envío simple. Todo sustentable, todo fácil.
           </p>
           <Link
             href="/categorias"
-            className="inline-block mt-4 px-6 py-3 bg-lime-600 text-white rounded-full font-semibold hover:bg-lime-700 transition"
+            className="inline-block px-6 py-3 bg-lime-600 text-white rounded-full font-semibold hover:bg-lime-700 transition"
           >
             Explorar categorías
           </Link>
