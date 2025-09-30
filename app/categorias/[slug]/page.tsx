@@ -1,6 +1,6 @@
 "use client";
-import { categorias.getProductsByCategory } from "@/lib/products";
-import { categorias.getCategory } from "@/lib/categorias";
+import { getProductsByCategory } from "@/lib/products";
+import { getCategory } from "@/lib/categorias";
 
 export default async function CategoriaPage({ params }: { params: { slug: string } }) {
   const categoria = await categorias.getCategory(params.slug);
