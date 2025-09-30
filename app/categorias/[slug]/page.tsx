@@ -1,10 +1,10 @@
 "use client";
-import { getProductsByCategory } from "@/lib/products";
-import { getCategory } from "@/lib/categorias";
+import { categorias.getProductsByCategory } from "@/lib/products";
+import { categorias.getCategory } from "@/lib/categorias";
 
 export default async function CategoriaPage({ params }: { params: { slug: string } }) {
-  const categoria = await getCategory(params.slug);
-  const productos = await getProductsByCategory(params.slug);
+  const categoria = await categorias.getCategory(params.slug);
+  const productos = await categorias.getProductsByCategory(params.slug);
 
   return (
     <main className="mx-auto max-w-6xl px-4 sm:px-6 py-12 space-y-12">
