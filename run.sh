@@ -1,69 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "✍️ Corrigiendo app/producto/[id]/page.tsx y app/head.tsx..."
+# Nombre de la rama actual
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-# ========== app/producto/[id]/page.tsx ==========
-cat <<'EOF' > app/producto/[id]/page.tsx
-"use client";
-import Link from "next/link";
-import { getProducts } from "@/lib/products"; // corregido
+echo "🌙 Rama actual: $CURRENT_BRANCH"
 
-export default async function Producto({ params }) {
-  const prod = await getProducts(params.id); // corregido
+# 1. Guardar cambios locales
+echo "📦 Haciendo commit de cambios locales..."
+git add .
+git commit -m "fix: baseline estable sin errores de client/server" || echo "ℹ️ No había cambios nuevos para commitear."
 
-  return (
-    <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="rounded-2xl border bg-white overflow-hidden">
-          <div className="aspect-[4/3] bg-gray-100">
-            <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover" />
-          </div>
-        </div>
-        <div className="rounded-2xl border bg-white p-5">
-          <h1 className="text-2xl font-bold">{prod.nombre}</h1>
-          <div className="mt-3 text-2xl font-black lunaria-price">
-            {Intl.NumberFormat("es-CL", {
-              style: "currency",
-              currency: "CLP",
-              maximumFractionDigits: 0,
-            }).format(prod.precio)}
-          </div>
-          <div className="mt-4 flex items-center gap-3">
-            <button
-              type="button"
-              className="lunaria-cta px-5 py-3 font-semibold"
-              onClick={() => alert(`Agregado: ${prod.nombre}`)}
-            >
-              Agregar al carrito
-            </button>
-            <Link className="btn-brand" href="/">Volver al inicio</Link>
-          </div>
-        </div>
-      </div>
-    </main>
-  );
-}
-EOF
+# 2. Cambiar a main
+echo "🔀 Cambiando a main..."
+git checkout main
 
-# ========== app/head.tsx ==========
-cat <<'EOF' > app/head.tsx
-export default function Head() {
-  return (
-    <>
-      <title>Lunaria — Tienda</title>
-      <meta name="description" content="Tienda dropshipping simple y bonita" />
-      <meta property="og:title" content="Lunaria" />
-      <meta property="og:description" content="Productos útiles y bonitos con envío simple" />
-      <meta property="og:type" content="website" />
-    </>
-  );
-}
-EOF
+# 3. Actualizar main desde remoto
+echo "⬇️  Actualizando main desde origin..."
+git pull origin main
 
-echo "🚀 Archivos corregidos. Haciendo commit y push..."
-git add app/producto/[id]/page.tsx app/head.tsx
-git commit -m "fix: corrige import getProducts y atributo name en head"
+# 4. Hacer merge de la rama actual en main
+if [ "$CURRENT_BRANCH" != "main" ]; then
+  echo "🔗 Haciendo merge de $CURRENT_BRANCH en main..."
+  git merge "$CURRENT_BRANCH"
+fi
+
+# 5. Subir main al remoto
+echo "⬆️  Pusheando main a origin..."
 git push origin main
 
-echo "✅ Correcciones aplicadas e integradas a main."
+echo "✅ Listo. Tu rama main ahora contiene el estado estable que tenías en $CURRENT_BRANCH."

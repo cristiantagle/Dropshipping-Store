@@ -18,7 +18,7 @@ const FALLBACK =
 
 function pickImg(p: Props) {
   const toStr = (v: unknown) => (typeof v === "string" ? v.trim() : "");
-  const cands = [p.imagen, p.imagen_url, p.image_url, p.image].map(toStr).filter(Boolean);
+  const cands = [p.image_url, p.image_url_url, p.image_url, p.image].map(toStr).filter(Boolean);
   return cands[0] || FALLBACK;
 }
 function fmtCLP(v?: number | null) {

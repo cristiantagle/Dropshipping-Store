@@ -1,4 +1,3 @@
-"use client";
 import * as products from "@/lib/products";
 import { useCart } from "@/components/useCart";
 

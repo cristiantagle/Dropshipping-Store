@@ -16,7 +16,7 @@ export default function DiagPage() {
             key={idx}
             className="flex items-center justify-between rounded-lg border p-3"
           >
-            <span>{c.label}</span>
+            <span key={index}>{c.label}</span>
             <span
               className={
                 c.status === "OK"

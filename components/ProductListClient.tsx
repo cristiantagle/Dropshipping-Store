@@ -22,7 +22,7 @@ const FALLBACK =
   "/lunaria-icon.png";
 
 function pickUrl(p: Producto): string {
-  const cands = [p.imagen, p.imagen_url, p.image_url, p.image];
+  const cands = [p.image_url, p.image_url_url, p.image_url, p.image];
   const first = cands.find((v) => typeof v === "string" && v.trim().length > 0);
   return (first ?? "").toString().trim();
 }
@@ -69,7 +69,7 @@ export default function ProductListClient({ items }: Props) {
               <div className="aspect-[4/3] w-full mb-3 overflow-hidden rounded-xl bg-gray-100">
                 <img
                   src={src || FALLBACK}
-                  alt={p.nombre || "Producto"}
+                  alt={p.name || "Producto"}
                   className="w-full h-full object-cover"
                   loading="lazy"
                   decoding="async"
@@ -77,10 +77,10 @@ export default function ProductListClient({ items }: Props) {
                   onError={onErr}
                 />
               </div>
-              <h3 className="font-semibold">{p.nombre}</h3>
+              <h3 className="font-semibold">{p.name}</h3>
               <p className="text-sm text-gray-600">{p.envio || "Envío estándar"}</p>
               <div className="mt-2 flex items-center justify-between">
-                <span className="font-bold">{fmtCLP(p.precio ?? null)}</span>
+                <span className="font-bold">{fmtCLP(p.price_cents ?? null)}</span>
                 <span className="px-3 py-1 rounded-xl bg-black text-white text-sm">Ver</span>
               </div>
             </Link>
