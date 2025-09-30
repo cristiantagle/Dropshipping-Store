@@ -1,46 +1,27 @@
 "use client";
-import Link from "next/link";
-import { getProducts } from "@/lib/products";
+import { getProducto } from "@/lib/productos";
+import { useCarro } from "@/state/carro";
 
-export default async function Producto({ params }: { params: { id: string } }) {
-  const all = await getProducts();
-  const prod = all.find((p: any) => p.id === params.id);
-
-  if (!prod) {
-    return (
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
-        <p className="text-red-600">Producto no encontrado</p>
-      </main>
-    );
-  }
+export default async function ProductoPage({ params }: { params: { id: string } }) {
+  const producto = await getProducto(params.id);
+  const { agregarAlCarro } = useCarro();
 
   return (
-    <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="rounded-2xl border bg-white overflow-hidden">
-          <div className="aspect-[4/3] bg-gray-100">
-            <img src={prod.imagen} alt={prod.nombre} className="w-full h-full object-cover" />
-          </div>
+    <main className="mx-auto max-w-6xl px-4 sm:px-6 py-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="aspect-[4/3] overflow-hidden bg-gray-100 rounded-xl">
+          <img src={producto.imagen} alt={producto.nombre} className="w-full h-full object-cover" />
         </div>
-        <div className="rounded-2xl border bg-white p-5">
-          <h1 className="text-2xl font-bold">{prod.nombre}</h1>
-          <div className="mt-3 text-2xl font-black lunaria-price">
-            {Intl.NumberFormat("es-CL", {
-              style: "currency",
-              currency: "CLP",
-              maximumFractionDigits: 0,
-            }).format(prod.precio)}
-          </div>
-          <div className="mt-4 flex items-center gap-3">
-            <button
-              type="button"
-              className="lunaria-cta px-5 py-3 font-semibold"
-              onClick={() => alert(`Agregado: ${prod.nombre}`)}
-            >
-              Agregar al carrito
-            </button>
-            <Link className="btn-brand" href="/">Volver al inicio</Link>
-          </div>
+        <div className="space-y-6">
+          <h1 className="text-3xl font-bold">{producto.nombre}</h1>
+          <p className="text-gray-600">{producto.descripcion}</p>
+          <div className="text-2xl font-semibold text-lime-700">${producto.precio}</div>
+          <button
+            onClick={() => agregarAlCarro(producto)}
+            className="px-6 py-3 bg-lime-600 text-white rounded-full font-semibold hover:bg-lime-700 transition"
+          >
+            Agregar al carrito
+          </button>
         </div>
       </div>
     </main>
