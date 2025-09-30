@@ -3,7 +3,16 @@ import Link from "next/link";
 import { getProducts } from "@/lib/products";
 
 export default async function Producto({ params }: { params: { id: string } }) {
-  const prod = await getProducts(params.id);
+  const all = await getProducts();
+  const prod = all.find((p: any) => p.id === params.id);
+
+  if (!prod) {
+    return (
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
+        <p className="text-red-600">Producto no encontrado</p>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
