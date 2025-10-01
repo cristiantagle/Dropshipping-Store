@@ -51,7 +51,7 @@ export default function CategoryGrid() {
         return (
           <li key={c.slug} className="group relative overflow-hidden rounded-2xl border bg-white hover:shadow-md transition">
             <Link href={`/categorias/${c.slug}`} className="block">
-              <div key={item.id} className="relative aspect-[4/3] bg-neutral-100">
+              <div key={c.id} className="relative aspect-[4/3] bg-neutral-100">
                 <img
                   src={src}
                   alt={c.nombre}

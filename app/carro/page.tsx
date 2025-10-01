@@ -12,12 +12,12 @@ export default function CarroPage() {
       ) : (
         <ul className="space-y-6">
           {items.map((item) => (
-            <li key={item.id} className="flex items-center gap-4">
+            <li key={c.id} className="flex items-center gap-4">
               <div className="w-24 h-24 overflow-hidden rounded-xl bg-gray-100">
                 <img src={item.imagen} alt={item.nombre} className="w-full h-full object-cover" />
               </div>
               <div className="flex-1">
-                <div key={item.id} className="font-semibold">{item.nombre}</div>
+                <div key={c.id} className="font-semibold">{item.nombre}</div>
                 <div className="text-sm text-gray-500">${item.precio}</div>
               </div>
               <button
