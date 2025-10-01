@@ -41,13 +41,3 @@ export const categorias: Categoria[] = [
     image_url: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/tecnologia.svg",
   },
 ];
-
-// ✅ Devuelve todas las categorías
-export function getAllCategories(): Categoria[] {
-  return categorias;
-}
-
-// ✅ Busca una categoría por slug
-export function getCategory(slug: string): Categoria | undefined {
-  return categorias.find((c) => c.slug === slug);
-}

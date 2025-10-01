@@ -1,92 +1,27 @@
 'use client';
-import React from "react";
-import Link from "next/link";
+import { useState } from "react";
+import { Producto } from "@/lib/products";
+import ProductCard from "./ProductCard";
+import ProductSkeleton from "./ProductSkeleton";
 
-export type Producto = {
-  id: string;
-  nombre: string;
-  precio?: number | null;
-  imagen?: string | null;
-  imagen_url?: string | null;
-  image_url?: string | null;
-  image?: string | null;
-  envio?: string | null;
-  destacado?: boolean | null;
-  categoria?: string | null;
-  categoria_slug?: string | null;
-};
+export default function ProductListClient({ initialProducts }: { initialProducts: Producto[] }) {
+  const [products] = useState<Producto[]>(initialProducts || []);
 
-type Props = { items: Producto[] };
-
-const FALLBACK =
-  "/lunaria-icon.png";
-
-function pickUrl(p: Producto): string {
-  const cands = [p.image_url, p.image_url_url, p.image_url, p.image];
-  const first = cands.find((v) => typeof v === "string" && v.trim().length > 0);
-  return (first ?? "").toString().trim();
-}
-function fmtCLP(v?: number | null) {
-  if (v == null) return "$—";
-  try {
-    return Intl.NumberFormat("es-CL", {
-      style: "currency",
-      currency: "CLP",
-      maximumFractionDigits: 0,
-    }).format(v);
-  } catch {
-    return `$${v}`;
-  }
-}
-
-export default function ProductListClient({ items }: Props) {
-  const data = Array.isArray(items) ? items : [];
-  if (data.length === 0) {
+  if (!products || products.length === 0) {
     return (
-      <p className="text-gray-600">
-        No hay productos disponibles en esta categoría por ahora.
-      </p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {[...Array(8)].map((_, i) => (
+          <ProductSkeleton key={i} />
+        ))}
+      </div>
     );
   }
 
   return (
-    <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {data.map((p) => {
-        let src = pickUrl(p);
-        if (!src && p.categoria_slug === "bienestar") {
-          src = FALLBACK;
-        }
-        const onErr: React.ReactEventHandler<HTMLImageElement> = (e) => {
-          const img = e.currentTarget as HTMLImageElement;
-          if (img.dataset.fallbackApplied !== "1") {
-            img.dataset.fallbackApplied = "1";
-            img.src = FALLBACK;
-          }
-        };
-        return (
-          <li key={p.id} className="border rounded-2xl hover:bg-gray-50 transition">
-            <Link href={`/producto/${p.id}`} className="block p-4">
-              <div className="aspect-[4/3] w-full mb-3 overflow-hidden rounded-xl bg-gray-100">
-                <img
-                  src={src || FALLBACK}
-                  alt={p.name || "Producto"}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  decoding="async"
-                  referrerPolicy="no-referrer"
-                  onError={onErr}
-                />
-              </div>
-              <h3 className="font-semibold">{p.name}</h3>
-              <p className="text-sm text-gray-600">{p.envio || "Envío estándar"}</p>
-              <div className="mt-2 flex items-center justify-between">
-                <span className="font-bold">{fmtCLP(p.price_cents ?? null)}</span>
-                <span className="px-3 py-1 rounded-xl bg-black text-white text-sm">Ver</span>
-              </div>
-            </Link>
-          </li>
-        );
-      })}
-    </ul>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      {products.map((p) => (
+        <ProductCard key={p.id} product={p} />
+      ))}
+    </div>
   );
 }
