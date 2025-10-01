@@ -41,7 +41,7 @@ export default async function Home() {
                 <img src={m.imagen} alt={m.nombre} className="w-full h-full object-cover" />
               </div>
               <div className="p-3">
-                <div key={c.id} className="text-sm font-semibold line-clamp-1">{m.nombre}</div>
+                <div key={item.id} className="text-sm font-semibold line-clamp-1">{m.nombre}</div>
               </div>
             </li>
           ))}

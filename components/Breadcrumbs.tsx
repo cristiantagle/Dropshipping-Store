@@ -12,7 +12,7 @@ export default function Breadcrumbs({ items }: { items: Crumb[] }) {
       <ol className="flex items-center gap-2 whitespace-nowrap">
         {items.map((c, i) => (
           <li key={c.href} className="flex items-center gap-2">
-            {i > 0 && <span key={c.id} aria-hidden>›</span>}
+            {i > 0 && <span key={item.id} aria-hidden>›</span>}
             {i < items.length - 1 ? (
               <Link
                 href={c.href}
