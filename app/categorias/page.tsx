@@ -8,7 +8,6 @@ export default async function Categorias() {
     <main className="mx-auto max-w-6xl px-4 sm:px-6 py-12">
       <h1 className="text-2xl font-bold mb-6">Categorías</h1>
       <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lunaria-grid-in">
-    console.log("categorias:", categorias.map(c => c.slug));
         {categorias.map((c, index) => (
           <li key={`${c.slug}-${index}`}>
             <Link href={`/categorias/${c.slug}`}>
