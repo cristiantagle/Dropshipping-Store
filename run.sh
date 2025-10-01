@@ -19,7 +19,7 @@ fi
 
 # 1. Guardar cambios locales
 git add .
-git commit -m "fix: remover console.log dentro de JSX para evitar errores de compilación" || echo "ℹ️ No había cambios nuevos para commitear."
+git commit -m "fix: remover console.log incrustados en JSX para evitar errores de compilación" || echo "ℹ️ No había cambios nuevos para commitear."
 
 # 2. Cambiar a main
 git checkout main
