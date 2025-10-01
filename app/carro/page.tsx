@@ -17,7 +17,7 @@ export default function CarroPage() {
                 <img src={item.imagen} alt={item.nombre} className="w-full h-full object-cover" />
               </div>
               <div className="flex-1">
-                <div key={index} className="font-semibold">{item.nombre}</div>
+                <div key={item.id} className="font-semibold">{item.nombre}</div>
                 <div className="text-sm text-gray-500">${item.precio}</div>
               </div>
               <button
