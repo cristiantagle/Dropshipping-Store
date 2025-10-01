@@ -10,6 +10,7 @@ export const categorias = [
 
 export type Categoria = {
   nombre: string;
+  descripcion?: string;
   slug?: string;
   icon: string;
 };
