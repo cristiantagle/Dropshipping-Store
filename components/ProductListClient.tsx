@@ -1,26 +1,24 @@
-'use client';
-import { useState } from "react";
-import { Producto } from "@/lib/products";
 import ProductCard from "./ProductCard";
-import ProductSkeleton from "./ProductSkeleton";
 
-export default function ProductListClient({ initialProducts }: { initialProducts: Producto[] }) {
-  const [products] = useState<Producto[]>(initialProducts || []);
+interface Producto {
+  id: string;
+  name: string;
+  image_url: string | null;
+  price_cents: number | null;
+  category_slug: string;
+}
 
-  if (!products || products.length === 0) {
-    return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {[...Array(8)].map((_, i) => (
-          <ProductSkeleton key={i} />
-        ))}
-      </div>
-    );
-  }
-
+export default function ProductListClient({ products }: { products: Producto[] }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
       {products.map((p) => (
-        <ProductCard key={p.id} product={p} />
+        <ProductCard
+          key={p.id}
+          id={p.id}
+          name={p.name}
+          image_url={p.image_url ?? ""}
+          price_cents={p.price_cents ?? 0}
+        />
       ))}
     </div>
   );

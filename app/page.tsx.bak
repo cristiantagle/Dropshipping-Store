@@ -1,56 +1,29 @@
-"use client";
-import Link from "next/link";
+import Hero from "@/components/Hero";
+import ProductListClient from "@/components/ProductListClient";
+import { getAllProducts } from "@/lib/products";
 
-type Producto = {
-  id: string;
-  nombre?: string | null;
-  imagen_url?: string | null;
-  image_url?: string | null;
-};
-
-export default function HomePage() {
-  // Nota: en App Router, la page no recibe props; los datos reales deben venir de fetch/Server Components.
-  const productos: Producto[] = [];
-
-  if (productos.length === 0) {
-    return (
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <h1 className="text-2xl font-bold mb-6">Productos</h1>
-        <p className="text-gray-600">No hay productos disponibles por ahora.</p>
-      </div>
-    );
-  }
+export default async function HomePage() {
+  const products = (await getAllProducts()).slice(0, 8);
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10">
-      <h1 className="text-2xl font-bold mb-6">Productos</h1>
-      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {productos.map((m) => (
-          <li
-            key={m.id}
-            className="border rounded-xl overflow-hidden hover:shadow-md transition"
+    <main>
+      <Hero />
+      <section id="nuevos" className="max-w-7xl mx-auto px-4 py-12">
+        <h2 className="text-2xl font-bold mb-6">Nuevos</h2>
+        <div className="overflow-x-auto">
+          <div className="flex gap-6">
+            <ProductListClient initialProducts={products} />
+          </div>
+        </div>
+        <div className="mt-6 text-center">
+          <a
+            href="/categorias"
+            className="inline-block bg-lime-600 hover:bg-lime-700 text-white px-6 py-3 rounded-md font-semibold"
           >
-            <div className="aspect-[4/3] w-full bg-gray-100">
-              <img
-                src={m.imagen_url || m.image_url || "/lunaria-icon.png"}
-                alt={m.nombre || "Producto"}
-                className="w-full h-full object-cover"
-                loading="lazy"
-                decoding="async"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-            <div className="p-3">
-              <div className="text-sm font-semibold line-clamp-1">
-                {m.nombre || "Producto"}
-              </div>
-            </div>
-            <Link href={`/producto/${m.id}`} className="block p-3 text-sm font-medium text-blue-600">
-              Ver producto
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+            Ver todos
+          </a>
+        </div>
+      </section>
+    </main>
   );
 }
