@@ -775,24 +775,11 @@ html { scroll-behavior: smooth; }
 /* Respeto accesibilidad (reduce motion) */
 
 /* Hero parallax con imagen Supabase (limpio y acotado) */
-
-
-
-/* Respeto accesibilidad (reduce motion) */
-
-/* Respeto accesibilidad (reduce motion) */
-
-
-/* Respeto accesibilidad (reduce motion) */
-
-/* === Hero parallax con imagen Supabase (limpio y único) === */
-/* Contenedor: el ::before pinta el fondo. La altura/offset se definen en TSX. */
 .lunaria-parallax {
   position: relative;
   overflow: hidden;
 }
 
-/* Fondo del Hero (imagen desde Supabase) */
 .lunaria-parallax::before {
   content: "";
   position: absolute;
@@ -800,25 +787,24 @@ html { scroll-behavior: smooth; }
   background-image: url("https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/hero/hero.png");
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
-  /* Orden de capas: fondo z-0, overlay z-10 (en TSX), contenido z-20 */
-  z-index: 0;
+  z-index: -2;
   pointer-events: none;
 
-  /* Nitidez y respuesta */
+  /* Nitidez sin blur */
   image-rendering: crisp-edges;
   filter: saturate(1.15) contrast(1.1);
   transition: transform 1.2s ease, filter 0.5s ease;
 }
 
-/* Hover sutil (parallax óptico) */
 .lunaria-parallax:hover::before {
   transform: scale(1.05) translateY(-5px);
   filter: saturate(1.2) contrast(1.15);
 }
 
-/* Accesibilidad: reducir movimiento */
+/* Respeto accesibilidad (reduce motion) */
+
+/* Respeto accesibilidad (reduce motion) */
 @media (prefers-reduced-motion: reduce) {
   .lunaria-parallax::after { animation: none; }
-  .lunaria-parallax::before { transform: none !important; background-attachment: scroll; }
+  .lunaria-parallax::before { background-attachment: scroll; }
 }

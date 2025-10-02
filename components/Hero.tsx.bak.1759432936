@@ -4,11 +4,14 @@ import { ShoppingBag } from "lucide-react";
 
 export default function Hero() {
   return (
-    <section className="lunaria-parallax relative overflow-hidden mt-16 h-[400px] flex items-center">
-      {/* Overlay */}
+    <section className="relative overflow-hidden mt-16 h-[400px] flex items-center">
+      {/* Fondo con parallax (desde globals.css) */}
+      <div className="lunaria-parallax absolute inset-0 w-full"></div>
+
+      {/* Overlay sin blur */}
       <div className="absolute inset-0 bg-black/25 z-0"></div>
 
-      {/* Contenido limitado al ancho de la tienda */}
+      {/* Contenido alineado con la grilla de productos */}
       <div className="relative z-10 max-w-7xl mx-auto w-full px-6 text-center lg:text-left">
         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white drop-shadow-xl">
           Descubre productos que <span className="text-lime-300">inspiran</span>
