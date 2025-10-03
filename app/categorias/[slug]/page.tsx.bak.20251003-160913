@@ -1,5 +1,4 @@
 import { supabaseServer } from "@/lib/supabase/server";
-import ProductCard from "@/components/ProductCard";
 
 export default async function CategoriaPage({ params }: { params: { slug: string } }) {
   const supabase = supabaseServer();
@@ -33,13 +32,22 @@ export default async function CategoriaPage({ params }: { params: { slug: string
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {productos.map((p) => (
-            <ProductCard
-              key={p.id}
-              id={p.id}
-              name={p.name}
-              image_url={p.image_url}
-              price_cents={p.price_cents}
-            />
+            <article key={p.id} className="border rounded-lg p-4">
+              <img
+                src={p.image_url || "/placeholder.jpg"}
+                alt={p.name}
+                className="w-full h-48 object-cover mb-2"
+              />
+              <h2 className="font-semibold">{p.name}</h2>
+              <p className="text-sm text-gray-600">{p.description || "Sin descripción"}</p>
+              <p className="text-lg font-bold mt-2">
+                {Intl.NumberFormat("es-CL", {
+                  style: "currency",
+                  currency: "CLP",
+                  maximumFractionDigits: 0,
+                }).format(p.price_cents)}
+              </p>
+            </article>
           ))}
         </div>
       )}
