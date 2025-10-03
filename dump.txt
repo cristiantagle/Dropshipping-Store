@@ -1,0 +1,158 @@
+Organizador multiuso,12990,hogar,0
+Set brochas maquillaje,14990,belleza,0
+Cargador inalámbrico,17990,tecnologia,0
+Auriculares Bluetooth,25990,tecnologia,0
+Banda elástica resistencia,9990,bienestar,0
+Botella térmica,11990,bienestar,0
+Bolsas reutilizables,6990,eco,0
+Cepillo bambú,3990,eco,0
+Juguete interactivo,5990,mascotas,0
+Correa retráctil,8990,mascotas,0
+Lámpara LED de escritorio,19990,hogar,0
+Organizador multiuso,12990,hogar,0
+Set brochas maquillaje,14990,belleza,0
+Espejo con luz LED,22990,belleza,0
+Cargador inalámbrico,17990,tecnologia,0
+Auriculares Bluetooth,25990,tecnologia,0
+Banda elástica resistencia,9990,bienestar,0
+Botella térmica,11990,bienestar,0
+Bolsas reutilizables,6990,eco,0
+Cepillo bambú,3990,eco,0
+Juguete interactivo,5990,mascotas,0
+Correa retráctil,8990,mascotas,0
+Arnés acolchado,12990,belleza,0
+Bolsas produce mesh,5990,belleza,0
+Cámara web HD,24990,belleza,0
+Cepillo facial suave,7990,belleza,0
+Esterilla antideslizante,13990,belleza,0
+Luz LED ambient,10990,belleza,0
+Pack eco contenedores,14990,belleza,0
+Pulverizador recargable,6990,belleza,0
+Arnés acolchado,12990,bienestar,0
+Bolsas produce mesh,5990,bienestar,0
+Cámara web HD,24990,bienestar,0
+Cepillo facial suave,7990,bienestar,0
+Esterilla antideslizante,13990,bienestar,0
+Luz LED ambient,10990,bienestar,0
+Espejo con luz LED,22990,belleza,0
+Pack eco contenedores,14990,bienestar,0
+Pulverizador recargable,6990,bienestar,0
+Arnés acolchado,12990,eco,0
+Bolsas produce mesh,5990,eco,0
+Cámara web HD,24990,eco,0
+Cepillo facial suave,7990,eco,0
+Esterilla antideslizante,13990,eco,0
+Luz LED ambient,10990,eco,0
+Pack eco contenedores,14990,eco,0
+Pulverizador recargable,6990,eco,0
+Arnés acolchado,12990,hogar,0
+Bolsas produce mesh,5990,hogar,0
+Cámara web HD,24990,hogar,0
+Cepillo facial suave,7990,hogar,0
+Esterilla antideslizante,13990,hogar,0
+Luz LED ambient,10990,hogar,0
+Pack eco contenedores,14990,hogar,0
+Pulverizador recargable,6990,hogar,0
+Arnés acolchado,12990,mascotas,0
+Bolsas produce mesh,5990,mascotas,0
+Cámara web HD,24990,mascotas,0
+Cepillo facial suave,7990,mascotas,0
+Esterilla antideslizante,13990,mascotas,0
+Luz LED ambient,10990,mascotas,0
+Pack eco contenedores,14990,mascotas,0
+Pulverizador recargable,6990,mascotas,0
+Arnés acolchado,12990,tecnologia,0
+Bolsas produce mesh,5990,tecnologia,0
+Cámara web HD,24990,tecnologia,0
+Cepillo facial suave,7990,tecnologia,0
+Esterilla antideslizante,13990,tecnologia,0
+Luz LED ambient,10990,tecnologia,0
+Pack eco contenedores,14990,tecnologia,0
+Pulverizador recargable,6990,tecnologia,0
+Cargador solar portátil 10.000mAh,29990,tecnologia,85
+Difusor de Aromas,19990,hogar,0
+Serum Facial,12990,belleza,0
+Auriculares Bluetooth,29990,tecnologia,0
+Esterilla Yoga,15990,bienestar,0
+Botella Reutilizable,9990,eco,0
+Cama para Mascotas,24990,mascotas,0
+Lámpara LED de escritorio,19990,hogar,0
+Producto de prueba Lunaria,19990,tecnologia,0
+Audífonos inalámbricos Bluetooth,34990,tecnologia,0
+Cargador solar portátil 10.000mAh,29990,tecnologia,0
+Teclado mecánico retroiluminado,42990,tecnologia,0
+Mouse ergonómico inalámbrico,19990,tecnologia,0
+Soporte ajustable para notebook,18990,tecnologia,0
+Set de organizadores de cocina,24990,hogar,0
+Lámpara LED de escritorio,21990,hogar,0
+Difusor de aromas ultrasónico,28990,hogar,0
+Almohada viscoelástica cervical,34990,hogar,0
+Set de velas aromáticas naturales,15990,hogar,0
+Cepillo facial sónico recargable,29990,belleza,0
+Mascarilla facial de arcilla verde,8990,belleza,0
+Aceite de argán puro 30ml,14990,belleza,0
+Set de brochas de maquillaje veganas,19990,belleza,0
+Esmalte de uñas ecológico,5990,belleza,0
+Colchoneta de yoga antideslizante,24990,bienestar,0
+Rodillo de masaje muscular,17990,bienestar,0
+Botella térmica acero inoxidable 750ml,15990,bienestar,0
+Set de bandas elásticas de resistencia,13990,bienestar,0
+Pulsera de meditación con piedras naturales,11990,bienestar,0
+Cepillos de dientes de bambú (pack x4),7990,eco,0
+Bolsas reutilizables para frutas y verduras,6990,eco,0
+Detergente biodegradable concentrado,11990,eco,0
+Shampoo sólido vegano,9990,eco,0
+Servilletas de tela compostables (pack x6),10990,eco,0
+Cama acolchada para perro mediano,34990,mascotas,0
+Juguete interactivo para gato,7990,mascotas,0
+Shampoo natural para mascotas,11990,mascotas,0
+Plato doble de acero inoxidable,9990,mascotas,0
+Collar reflectante ajustable,6990,mascotas,0
+Producto de prueba Lunaria,19990,belleza,0
+Audífonos inalámbricos Bluetooth,34990,tecnologia,120
+Teclado mecánico retroiluminado,42990,tecnologia,210
+Mouse ergonómico inalámbrico,19990,tecnologia,60
+Soporte ajustable para notebook,18990,tecnologia,45
+Set de organizadores de cocina,24990,hogar,130
+Lámpara LED de escritorio,21990,hogar,75
+Difusor de aromas ultrasónico,28990,hogar,180
+Almohada viscoelástica cervical,34990,hogar,95
+Set de velas aromáticas naturales,15990,hogar,40
+Cepillo facial sónico recargable,29990,belleza,220
+Mascarilla facial de arcilla verde,8990,belleza,35
+Aceite de argán puro 30ml,14990,belleza,110
+Set de brochas de maquillaje veganas,19990,belleza,50
+Esmalte de uñas ecológico,5990,belleza,25
+Colchoneta de yoga antideslizante,24990,bienestar,140
+Rodillo de masaje muscular,17990,bienestar,65
+Botella térmica acero inoxidable 750ml,15990,bienestar,90
+Set de bandas elásticas de resistencia,13990,bienestar,30
+Pulsera de meditación con piedras naturales,11990,bienestar,20
+Cepillos de dientes de bambú (pack x4),7990,eco,100
+Bolsas reutilizables para frutas y verduras,6990,eco,45
+Detergente biodegradable concentrado,11990,eco,80
+Shampoo sólido vegano,9990,eco,35
+Servilletas de tela compostables (pack x6),10990,eco,25
+Cama acolchada para perro mediano,34990,mascotas,150
+Juguete interactivo para gato,7990,mascotas,40
+Shampoo natural para mascotas,11990,mascotas,70
+Plato doble de acero inoxidable,9990,mascotas,30
+Collar reflectante ajustable,6990,mascotas,20
+Organizador minimal,15990,hogar,0
+Botella térmica,8990,bienestar,0
+Auriculares inalámbricos,24990,tecnologia,0
+Silla ergonómica,79990,hogar,0
+Lámpara cálida,11990,hogar,0
+Teclado mecánico,45990,tecnologia,0
+Cojín ortopédico,13990,bienestar,0
+Smartwatch básico,32990,tecnologia,0
+Tetera eléctrica,15990,hogar,0
+Organizador minimal,15990,hogar,12
+Botella térmica,8990,bienestar,25
+Auriculares inalámbricos,24990,tecnologia,48
+Silla ergonómica,79990,hogar,5
+Lámpara cálida,11990,hogar,33
+Teclado mecánico,45990,tecnologia,64
+Cojín ortopédico,13990,bienestar,18
+Smartwatch básico,32990,tecnologia,41
+Tetera eléctrica,15990,hogar,22

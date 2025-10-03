@@ -9,3 +9,4 @@ dist/
 coverage/
 *.bak
 run.sh
+.backups/
