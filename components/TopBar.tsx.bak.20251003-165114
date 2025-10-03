@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ShoppingCart, Menu, X } from "lucide-react";
-import Image from "next/image";
+import { ShoppingCart, Menu, X } from "lucide-react"; // íconos
 import SearchBar from "./SearchBar";
 
 export default function TopBar() {
@@ -12,22 +11,13 @@ export default function TopBar() {
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur shadow-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-4 flex items-center justify-between">
-        {/* Logo con ícono */}
-        <Link href="/" className="flex items-center gap-2 text-xl font-bold text-lime-700">
-          <Image
-            src="/lunaria-icon.png" // o la URL de Supabase Storage si prefieres
-            alt="Lunaria logo"
-            width={28}
-            height={28}
-            className="rounded"
-          />
+        {/* Logo */}
+        <Link href="/" className="text-xl font-bold text-lime-700">
           Lunaria
         </Link>
 
-        {/* Buscador centrado en desktop */}
-        <div className="hidden md:flex flex-1 justify-center mx-6">
-          <SearchBar className="w-full max-w-md" />
-        </div>
+        {/* Buscador (solo desktop) */}
+        <SearchBar className="hidden md:flex flex-1 mx-6" />
 
         {/* Navegación desktop */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700">
@@ -43,6 +33,7 @@ export default function TopBar() {
           >
             <ShoppingCart className="w-5 h-5 mr-1" />
             Carrito
+            {/* Badge de cantidad (ejemplo estático, luego se conecta a useCart) */}
             <span className="absolute -top-2 -right-2 bg-lime-600 text-white text-xs rounded-full px-1">
               0
             </span>
