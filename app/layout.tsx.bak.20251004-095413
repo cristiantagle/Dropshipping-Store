@@ -1,6 +1,5 @@
 import "./globals.css";
 import TopBar from "@/components/TopBar";
-import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Lunaria",
@@ -13,7 +12,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans bg-gray-50 text-gray-900 antialiased">
         <TopBar />
         {children}
-        <Footer />
+        <footer className="bg-white border-t mt-20">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 text-sm text-gray-500 text-center">
+            © 2025 Lunaria — E-commerce sustentable
+          </div>
+        </footer>
       </body>
     </html>
   );

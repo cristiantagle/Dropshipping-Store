@@ -6,9 +6,9 @@ import { Mail, Phone, Instagram, Facebook, Twitter } from "lucide-react";
 export default function Footer() {
   return (
     <footer className="mt-20 border-t bg-white/80 backdrop-blur-md text-sm text-neutral-700">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <div className="inline-flex items-center gap-2 mb-3 transition hover:-translate-y-1 hover:shadow-lg">
+          <div className="inline-flex items-center gap-2 mb-3">
             <Image
               src="/lunaria-icon.png"
               alt="Lunaria"
@@ -16,7 +16,7 @@ export default function Footer() {
               height={32}
               className="rounded-lg shadow-md"
             />
-            <span className="font-display font-bold tracking-tight text-lg text-lime-700">Lunaria</span>
+            <span className="font-display font-bold tracking-tight text-lg text-gray-900">Lunaria</span>
           </div>
           <p className="text-neutral-600 leading-relaxed">Cosas útiles y bonitas. Envíos simples.</p>
         </div>

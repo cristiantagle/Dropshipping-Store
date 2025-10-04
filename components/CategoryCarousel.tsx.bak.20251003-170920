@@ -29,44 +29,44 @@ export default function CategoryCarousel({ title, description, products, link }:
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-20">
-      <div className="mb-8">
-        <h2 className="text-3xl font-display tracking-tight mb-2">{title}</h2>
-        <p className="text-gray-600 leading-relaxed max-w-2xl">{description}</p>
+    <section className="max-w-7xl mx-auto px-4 py-16 relative">
+      <div className="mb-6">
+        <h2 className="text-3xl font-extrabold text-gray-900">{title}</h2>
+        <p className="text-gray-600 max-w-2xl">{description}</p>
       </div>
 
       <div className="relative">
-        {/* Carrusel */}
-        <div
-          ref={scrollRef}
-          className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-hide pb-4 -mx-4 px-4"
-        >
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="snap-start min-w-[200px]"
-            >
-              <ProductCard {...product} />
-            </div>
-          ))}
-        </div>
-
-        {/* Botones de navegación (desktop) */}
+        {/* Botones de navegación (solo desktop) */}
         <button
           onClick={() => scroll("left")}
-          className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-lg p-2 transition"
+          className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-lg p-2 transition"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
         <button
           onClick={() => scroll("right")}
-          className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-lg p-2 transition"
+          className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-lg p-2 transition"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
+
+        {/* Carrusel */}
+        <div
+          ref={scrollRef}
+          className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-hide pb-4"
+        >
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className="snap-start min-w-[220px] bg-white rounded-xl shadow-md hover:shadow-xl transition overflow-hidden"
+            >
+              <ProductCard {...product} />
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="mt-10 text-center">
+      <div className="mt-8 text-center">
         <a
           href={link}
           className="inline-block bg-lime-600 hover:bg-lime-700 text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transition"

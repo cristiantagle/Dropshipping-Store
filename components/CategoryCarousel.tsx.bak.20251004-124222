@@ -29,10 +29,10 @@ export default function CategoryCarousel({ title, description, products, link }:
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-20">
-      <div className="mb-8">
-        <h2 className="text-3xl font-display tracking-tight mb-2">{title}</h2>
-        <p className="text-gray-600 leading-relaxed max-w-2xl">{description}</p>
+    <section className="max-w-7xl mx-auto px-4 py-16 relative">
+      <div className="mb-6">
+        <h2 className="text-3xl font-extrabold text-gray-900">{title}</h2>
+        <p className="text-gray-600 max-w-2xl">{description}</p>
       </div>
 
       <div className="relative">
@@ -44,7 +44,7 @@ export default function CategoryCarousel({ title, description, products, link }:
           {products.map((product) => (
             <div
               key={product.id}
-              className="snap-start min-w-[200px]"
+              className="snap-start min-w-[220px]"
             >
               <ProductCard {...product} />
             </div>
@@ -66,7 +66,7 @@ export default function CategoryCarousel({ title, description, products, link }:
         </button>
       </div>
 
-      <div className="mt-10 text-center">
+      <div className="mt-8 text-center">
         <a
           href={link}
           className="inline-block bg-lime-600 hover:bg-lime-700 text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transition"

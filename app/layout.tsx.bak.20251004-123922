@@ -1,0 +1,26 @@
+import "./globals.css";
+import { Inter } from "next/font/google";
+import TopBar from "@/components/TopBar";
+
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata = {
+  title: "Lunaria",
+  description: "E-commerce sustentable",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="es">
+      <body className={inter.className}>
+        <TopBar />
+        {children}
+        <footer className="bg-white border-t mt-20">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 text-sm text-gray-500 text-center">
+            © 2025 Lunaria — E-commerce sustentable
+          </div>
+        </footer>
+      </body>
+    </html>
+  );
+}
