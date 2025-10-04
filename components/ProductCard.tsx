@@ -5,9 +5,10 @@ interface Product {
   name: string;
   image_url: string;
   price_cents: number;
+  badge?: "Nuevo" | "Oferta";
 }
 
-export default function ProductCard({ id, name, image_url, price_cents }: Product) {
+export default function ProductCard({ id, name, image_url, price_cents, badge }: Product) {
   const formatPrice = (cents: number) =>
     new Intl.NumberFormat("es-CL", {
       style: "currency",
@@ -18,8 +19,13 @@ export default function ProductCard({ id, name, image_url, price_cents }: Produc
   return (
     <Link
       href={`/producto/${id}`}
-      className="min-w-[200px] flex-shrink-0 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 duration-300 flex flex-col group"
+      className="relative min-w-[200px] flex-shrink-0 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 duration-300 flex flex-col group"
     >
+      {badge && (
+        <span className="absolute top-2 left-2 bg-lime-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md">
+          {badge}
+        </span>
+      )}
       <div className="w-full h-40 flex items-center justify-center bg-gray-50 rounded-t-xl overflow-hidden">
         <img
           src={image_url}

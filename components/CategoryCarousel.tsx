@@ -1,7 +1,7 @@
 "use client";
 
 import ProductCard from "./ProductCard";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, PackageOpen } from "lucide-react";
 import { useRef } from "react";
 
 interface Product {
@@ -9,6 +9,7 @@ interface Product {
   name: string;
   image_url: string;
   price_cents: number;
+  badge?: "Nuevo" | "Oferta";
 }
 
 interface Props {
@@ -35,31 +36,39 @@ export default function CategoryCarousel({ title, description, products, link }:
         <p className="text-gray-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">{description}</p>
       </div>
 
-      <div className="relative">
-        <div
-          ref={scrollRef}
-          className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-hide pb-4 -mx-4 px-4"
-        >
-          {products.map((product) => (
-            <div key={product.id} className="snap-start min-w-[200px]">
-              <ProductCard {...product} />
-            </div>
-          ))}
+      {products.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+          <PackageOpen className="w-12 h-12 mb-4 opacity-70" />
+          <p className="text-lg font-medium">Muy pronto</p>
+          <p className="text-sm">Estamos preparando productos para esta categoría</p>
         </div>
+      ) : (
+        <div className="relative">
+          <div
+            ref={scrollRef}
+            className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-hide pb-4 -mx-4 px-4"
+          >
+            {products.map((product) => (
+              <div key={product.id} className="snap-start min-w-[200px]">
+                <ProductCard {...product} />
+              </div>
+            ))}
+          </div>
 
-        <button
-          onClick={() => scroll("left")}
-          className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-lg p-2 transition"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <button
-          onClick={() => scroll("right")}
-          className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-lg p-2 transition"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
+          <button
+            onClick={() => scroll("left")}
+            className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-lg p-2 transition"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => scroll("right")}
+            className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-lg p-2 transition"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      )}
 
       <div className="mt-10 text-center">
         <a
