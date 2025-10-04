@@ -29,24 +29,29 @@ export default function CategoryCarousel({ title, description, products, link }:
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-20 border-t">
-      <div className="mb-8 text-center lg:text-left">
-        <h2 className="text-3xl font-display font-bold tracking-tight text-gray-900 mb-2">{title}</h2>
-        <p className="text-gray-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">{description}</p>
+    <section className="max-w-7xl mx-auto px-4 py-20">
+      <div className="mb-8">
+        <h2 className="text-3xl font-display tracking-tight mb-2">{title}</h2>
+        <p className="text-gray-600 leading-relaxed max-w-2xl">{description}</p>
       </div>
 
       <div className="relative">
+        {/* Carrusel */}
         <div
           ref={scrollRef}
           className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-hide pb-4 -mx-4 px-4"
         >
           {products.map((product) => (
-            <div key={product.id} className="snap-start min-w-[200px]">
+            <div
+              key={product.id}
+              className="snap-start min-w-[200px]"
+            >
               <ProductCard {...product} />
             </div>
           ))}
         </div>
 
+        {/* Botones de navegación (desktop) */}
         <button
           onClick={() => scroll("left")}
           className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-lg p-2 transition"
