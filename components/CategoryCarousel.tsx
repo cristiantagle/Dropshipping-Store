@@ -1,82 +1,40 @@
 "use client";
 
-import ProductCard from "./ProductCard";
-import { ChevronLeft, ChevronRight, PackageOpen } from "lucide-react";
-import { useRef } from "react";
-
-interface Product {
-  id: string;
-  name: string;
-  image_url: string;
-  price_cents: number;
-  badge?: "Nuevo" | "Oferta";
-}
+import Link from "next/link";
+import ProductCarousel from "./ProductCarousel";
 
 interface Props {
   title: string;
   description: string;
-  products: Product[];
+  products: {
+    id: string;
+    name: string;
+    image_url: string;
+    price_cents: number;
+  }[];
   link: string;
 }
 
 export default function CategoryCarousel({ title, description, products, link }: Props) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  const scroll = (dir: "left" | "right") => {
-    if (scrollRef.current) {
-      const amount = dir === "left" ? -300 : 300;
-      scrollRef.current.scrollBy({ left: amount, behavior: "smooth" });
-    }
-  };
-
   return (
-    <section className="max-w-7xl mx-auto px-4 py-20 border-t">
-      <div className="mb-8 text-center lg:text-left">
-        <h2 className="text-3xl font-display font-bold tracking-tight text-gray-900 mb-2">{title}</h2>
-        <p className="text-gray-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">{description}</p>
+    <section className="my-12">
+      <div className="text-center mb-6 max-w-screen-md mx-auto px-4">
+        <h2 className="text-2xl font-bold">{title}</h2>
+        <p className="text-gray-600">{description}</p>
       </div>
 
-      {products.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-gray-500">
-          <PackageOpen className="w-12 h-12 mb-4 opacity-70" />
-          <p className="text-lg font-medium">Muy pronto</p>
-          <p className="text-sm">Estamos preparando productos para esta categoría</p>
-        </div>
-      ) : (
-        <div className="relative">
-          <div
-            ref={scrollRef}
-            className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-hide pb-4 -mx-4 px-4"
-          >
-            {products.map((product) => (
-              <div key={product.id} className="snap-start min-w-[200px]">
-                <ProductCard {...product} />
-              </div>
-            ))}
-          </div>
+      {/* Carrusel centrado en la página */}
+      <div className="max-w-screen-xl mx-auto px-6">
+        <ProductCarousel products={products} />
+      </div>
 
-          <button
-            onClick={() => scroll("left")}
-            className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-lg p-2 transition"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => scroll("right")}
-            className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full shadow-lg p-2 transition"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
-      )}
-
-      <div className="mt-10 text-center">
-        <a
+      <div className="mt-6 text-center">
+        <Link
           href={link}
-          className="inline-block bg-lime-600 hover:bg-lime-700 text-white px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transition"
+          className="inline-block px-6 py-2 bg-lime-600 text-white rounded-lg hover:bg-lime-700 transition-colors"
         >
           Ver todo
-        </a>
+        </Link>
       </div>
     </section>
   );
