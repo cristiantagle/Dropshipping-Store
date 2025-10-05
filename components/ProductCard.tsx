@@ -1,41 +1,50 @@
+"use client";
+
 import Link from "next/link";
 
-interface Product {
+export default function ProductCard({
+  id,
+  name,
+  image_url,
+  price_cents,
+}: {
   id: string;
   name: string;
   image_url: string;
   price_cents: number;
-  badge?: "Nuevo" | "Oferta";
-}
-
-export default function ProductCard({ id, name, image_url, price_cents, badge }: Product) {
-  const formatPrice = (cents: number) =>
-    new Intl.NumberFormat("es-CL", {
+}) {
+  const fmtCLP = (cents: number) =>
+    Intl.NumberFormat("es-CL", {
       style: "currency",
       currency: "CLP",
-      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(cents);
 
   return (
     <Link
       href={`/producto/${id}`}
-      className="relative min-w-[200px] flex-shrink-0 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 duration-300 flex flex-col group"
+      className="group block bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
     >
-      {badge && (
-        <span className="absolute top-2 left-2 bg-lime-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md">
-          {badge}
-        </span>
-      )}
-      <div className="w-full h-40 flex items-center justify-center bg-gray-50 rounded-t-xl overflow-hidden">
+      {/* Imagen */}
+      <div className="aspect-[4/3] bg-gray-50 rounded-t-xl overflow-hidden">
         <img
-          src={image_url}
+          src={image_url || "/lunaria-icon.png"}
           alt={name}
-          className="max-h-36 object-contain transition-transform duration-300 ease-out group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
         />
       </div>
-      <div className="p-4 flex flex-col flex-1 justify-between">
-        <h3 className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2">{name}</h3>
-        <p className="text-lime-700 font-bold text-lg mt-3">{formatPrice(price_cents)}</p>
+
+      {/* Info */}
+      <div className="p-4">
+        <h3 className="text-base font-semibold text-gray-800 group-hover:text-lime-600 transition-colors line-clamp-2">
+          {name}
+        </h3>
+        <p className="mt-2 text-lg font-bold text-lime-700">
+          {fmtCLP(price_cents)}
+        </p>
       </div>
     </Link>
   );
