@@ -8,7 +8,7 @@ export default async function HomePage() {
   const fetchCategory = async (slug: string) => {
     const { data, error } = await supabase
       .from("products")
-      .select("id, name, image_url, price_cents, category_slug")
+      .select("id, name, name_es, image_url, price_cents, category_slug") // 👈 añadimos name_es
       .eq("category_slug", slug)
       .not("image_url", "is", null)
       .order("price_cents", { ascending: true })
