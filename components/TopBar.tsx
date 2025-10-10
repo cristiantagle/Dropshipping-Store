@@ -6,9 +6,11 @@ import { ShoppingCart, Menu, X } from "lucide-react";
 import Image from "next/image";
 import SearchBar from "./SearchBar";
 import { useCart } from '../contexts/CartContext';
+import MiniCart from './MiniCart';
 
 export default function TopBar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showMiniCart, setShowMiniCart] = useState(false);
   const { totalItems, toggleCart } = useCart();
 
   return (
@@ -39,10 +41,15 @@ export default function TopBar() {
           <Link href="/diag" className="hover:text-lime-700">
             Diag
           </Link>
-          <button
-            onClick={toggleCart}
-            className="relative flex items-center hover:text-lime-700 transition-colors"
+          <div 
+            className="relative"
+            onMouseEnter={() => setShowMiniCart(true)}
+            onMouseLeave={() => setShowMiniCart(false)}
           >
+            <button
+              onClick={toggleCart}
+              className="relative flex items-center hover:text-lime-700 transition-colors"
+            >
             <ShoppingCart className="w-5 h-5 mr-1" />
             Carrito
             {totalItems > 0 && (
@@ -50,7 +57,11 @@ export default function TopBar() {
                 {totalItems > 99 ? '99+' : totalItems}
               </span>
             )}
-          </button>
+            </button>
+            
+            {/* Mini Cart Preview */}
+            <MiniCart isVisible={showMiniCart} />
+          </div>
         </nav>
 
         {/* Botón menú móvil */}

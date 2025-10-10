@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart } from '../contexts/CartContext';
+import { useToast } from '../contexts/ToastContext';
 import { ShoppingCart, Check } from 'lucide-react';
 import { useState } from 'react';
 
@@ -20,6 +21,7 @@ interface AddToCartButtonProps {
 
 export default function AddToCartButton({ product, className = "" }: AddToCartButtonProps) {
   const { addToCart, isInCart, getItemQuantity } = useCart();
+  const { showCartAction } = useToast();
   const [isAdding, setIsAdding] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
 
@@ -35,6 +37,12 @@ export default function AddToCartButton({ product, className = "" }: AddToCartBu
         price_cents: product.price_cents,
         category_slug: product.category_slug,
       });
+
+      // Show toast notification
+      showCartAction(
+        '¡Agregado al carrito!',
+        `${product.name_es || product.name} se agregó correctamente`
+      );
 
       setJustAdded(true);
       setTimeout(() => setJustAdded(false), 2000);

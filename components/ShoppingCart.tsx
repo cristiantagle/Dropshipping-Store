@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart } from '../contexts/CartContext';
+import { useToast } from '../contexts/ToastContext';
 import { X, Plus, Minus, ShoppingBag, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -15,6 +16,7 @@ export default function ShoppingCart() {
     removeFromCart,
     formatPrice
   } = useCart();
+  const { showError, showCartAction } = useToast();
 
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
@@ -143,7 +145,13 @@ export default function ShoppingCart() {
 
                   {/* Botón eliminar */}
                   <button
-                    onClick={() => removeFromCart(item.id)}
+                    onClick={() => {
+                      removeFromCart(item.id);
+                      showError(
+                        'Producto eliminado',
+                        `${item.name_es || item.name} se eliminó del carrito`
+                      );
+                    }}
                     className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
