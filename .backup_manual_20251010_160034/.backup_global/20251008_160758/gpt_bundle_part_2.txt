@@ -1,0 +1,2360 @@
+# GPT bundle - Parte 2
+# Generado: 2025-10-07T19:26:39Z
+
+=== FILE: cj_import/cj_insert.ts ===
+```
+// cj_insert.ts
+// Inserta productos de CJ en Supabase y registra auditoría en product_changes
+
+import "dotenv/config";
+import { createClient } from "@supabase/supabase-js";
+import { fetchCJProducts } from "./cj_fetch.ts";
+import { validateCJProduct } from "./cj_validate.ts";
+import { transformCJProduct } from "./cj_transform.ts";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+const dryRun = false;
+
+async function insertarProductos() {
+  console.log("📥 Ejecutando importación CJdropshipping...");
+
+  const productos = await fetchCJProducts();
+
+  console.log(`📦 Obtenidos ${productos.length} productos de CJ`);
+  if (productos.length > 0) {
+    console.log("🔍 Ejemplo:", {
+      pid: productos[0].pid,
+      name: productos[0].productNameEn,
+      productsku: productos[0].productSku,
+      price: productos[0].sellPrice,
+      category: productos[0].categoryName,
+    });
+  }
+
+  const transformedAll = productos.map(transformCJProduct);
+  const otrosCount = transformedAll.filter(p => p.category_slug === "otros").length;
+  if (otrosCount > 0) {
+    console.log(`⚠️ ${otrosCount} productos cayeron en 'otros'. Revisa CATEGORY_MAP.`);
+  }
+
+  let insertados = 0, actualizados = 0, rechazados = 0;
+
+  for (let i = 0; i < productos.length; i++) {
+    const p = productos[i];
+
+    if (!validateCJProduct(p, i)) {
+      rechazados++;
+      if (!dryRun) {
+        await supabase.from("product_errors").insert({
+          cj_id: p.pid,
+          reason: "Validación fallida",
+          raw: p,
+        });
+      }
+      continue;
+    }
+
+    const transformed = await transformCJProduct(p);
+
+    if (dryRun) {
+      console.log(`🧪 [dryRun] Producto listo: ${transformed.name}`);
+      continue;
+    }
+
+    // Verificar si ya existe
+    const { data: existente } = await supabase
+      .from("products")
+      .select("id")
+      .eq("cj_id", transformed.cj_id)
+      .maybeSingle();
+
+    if (existente) {
+      // Obtener datos previos para auditoría
+      const { data: before } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", existente.id)
+        .maybeSingle();
+
+      const { error } = await supabase
+        .from("products")
+        .update(transformed)
+        .eq("id", existente.id);
+
+      if (error) {
+        console.error("❌ Error al actualizar:", error.message);
+        rechazados++;
+        continue;
+      }
+      actualizados++;
+
+      // Auditoría: registrar siempre el update
+      await supabase.from("product_changes").insert({
+        product_id: existente.id,
+        cj_id: transformed.cj_id,
+        action: "update",
+        change_type: "sync",
+        old_data: before,
+        new_data: transformed,
+        timestamp: new Date().toISOString(),
+      });
+
+    } else {
+      // Insertar nuevo producto
+      const { data: inserted, error } = await supabase
+        .from("products")
+        .insert(transformed)
+        .select("id")
+        .maybeSingle();
+
+      if (error) {
+        console.error("❌ Error al insertar:", error.message);
+        rechazados++;
+        continue;
+      }
+      insertados++;
+
+      // Auditoría: registrar siempre el insert
+      await supabase.from("product_changes").insert({
+        product_id: inserted.id,
+        cj_id: transformed.cj_id,
+        action: "insert",
+        change_type: "sync",
+        old_data: null,
+        new_data: transformed,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }
+
+  console.log("\n📊 Resumen de importación:");
+  console.log(`- Insertados: ${insertados}`);
+  console.log(`- Actualizados: ${actualizados}`);
+  console.log(`- Rechazados: ${rechazados}`);
+  console.log("✅ Importación completada.");
+}
+
+insertarProductos();
+```
+
+=== FILE: cj_import/cj_report.ts ===
+```
+import "dotenv/config";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+async function generarReporte() {
+  console.log("📊 Generando reporte de importación...");
+
+  // 1. Consultar productos
+  const { data: productos, error: prodError } = await supabase
+    .from("products")
+    .select("id, category_slug, price_cents");
+
+  if (prodError) {
+    console.error("❌ Error al consultar tabla 'products':", prodError.message);
+    return;
+  }
+
+  // 2. Consultar auditoría
+  const { data: auditoria, error: auditError } = await supabase
+    .from("product_changes")
+    .select("id, action, cj_id, timestamp");
+
+  if (auditError) {
+    console.error("❌ Error al consultar tabla 'product_changes':", auditError.message);
+    return;
+  }
+
+  // 3. Consultar errores
+  const { data: errores, error: errError } = await supabase
+    .from("product_errors")
+    .select("id, cj_id, reason, timestamp");
+
+  if (errError) {
+    console.error("❌ Error al consultar tabla 'product_errors':", errError.message);
+    return;
+  }
+
+  // 4. Procesar productos
+  if (!productos || productos.length === 0) {
+    console.log("⚠️ No hay productos en la tabla.");
+    return;
+  }
+
+  const porCategoria: Record<string, { count: number; total: number }> = {};
+
+  for (const p of productos) {
+    const cat = p.category_slug || "sin_categoria";
+    if (!porCategoria[cat]) {
+      porCategoria[cat] = { count: 0, total: 0 };
+    }
+    porCategoria[cat].count++;
+    porCategoria[cat].total += p.price_cents || 0;
+  }
+
+  console.log("\n📂 Productos por categoría:");
+  for (const [cat, stats] of Object.entries(porCategoria)) {
+    const promedio = stats.total / stats.count / 100; // convertir a USD
+    console.log(`- ${cat}: ${stats.count} productos (precio promedio: $${promedio.toFixed(2)})`);
+  }
+
+  // 5. Auditoría
+  console.log("\n📝 Auditoría de cambios:");
+  console.log(`- Total registros: ${auditoria?.length ?? 0}`);
+  const inserts = auditoria?.filter(a => a.action === "insert").length ?? 0;
+  const updates = auditoria?.filter(a => a.action === "update").length ?? 0;
+  console.log(`  • Inserts: ${inserts}`);
+  console.log(`  • Updates: ${updates}`);
+
+  // 6. Errores
+  console.log("\n⚠️ Errores registrados:");
+  console.log(`- Total: ${errores?.length ?? 0}`);
+  if (errores && errores.length > 0) {
+    console.log("  Ejemplo:", errores[0]);
+  }
+
+  console.log("\n✅ Reporte completado.");
+}
+
+generarReporte();
+```
+
+=== FILE: cj_import/cj_test.ts ===
+```
+import "dotenv/config";
+import { createClient } from "@supabase/supabase-js";
+
+const REQUIRED_KEYS = [
+  "NEXT_PUBLIC_SUPABASE_URL",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "CJ_ACCESS_TOKEN"
+];
+
+const TABLES = ["products", "product_changes", "product_errors"];
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+async function testCJEnvironment() {
+  console.log("🧪 Verificando entorno CJdropshipping...\n");
+
+  // 1. Verificar claves .env
+  let envOk = true;
+  for (const key of REQUIRED_KEYS) {
+    const value = process.env[key];
+    if (!value || value.trim() === "") {
+      console.error(`❌ Falta clave .env: ${key}`);
+      envOk = false;
+    } else {
+      console.log(`✅ Clave .env presente: ${key}`);
+    }
+  }
+
+  // 2. Verificar conexión Supabase
+  const { data, error } = await supabase.from("products").select("*").limit(1);
+  if (error) {
+    console.error("❌ Error de conexión con Supabase:", error.message);
+  } else {
+    console.log("✅ Conexión con Supabase exitosa");
+  }
+
+  // 3. Verificar existencia de tablas
+  for (const table of TABLES) {
+    const { error: tableError } = await supabase.from(table).select("*").limit(1);
+    if (tableError) {
+      console.error(`❌ Tabla faltante o inaccesible: ${table}`);
+    } else {
+      console.log(`✅ Tabla accesible: ${table}`);
+    }
+  }
+
+  console.log("\n🔍 Diagnóstico completado.");
+}
+
+testCJEnvironment();
+```
+
+=== FILE: cj_import/cj_transform.ts ===
+```
+// cj_transform.ts
+// Transforma productos crudos de CJ en filas listas para Supabase
+
+import { mapCategory } from "./cj_config.ts";
+
+// 👇 tasa de conversión configurable desde .env
+const USD_TO_CLP = parseFloat(process.env.USD_TO_CLP || "950");
+
+export interface CJRawProduct {
+  pid: string;
+  productNameEn: string;
+  productSku: string;
+  productImage: string;
+  sellPrice: string;
+  categoryName: string | null;
+}
+
+export interface ProductRow {
+  cj_id: string;
+  name: string;        // nombre original en inglés
+  name_es: string;     // 👈 nuevo: nombre traducido
+  productsku: string;
+  image_url: string;
+  price_cents: number; // precio convertido a CLP
+  category_slug: string;
+}
+
+// 👇 función simple de traducción (puedes mejorarla con API externa)
+function translateNameToSpanish(name: string): string {
+  // Diccionario básico de palabras frecuentes
+  const dictionary: Record<string, string> = {
+    "Household": "Hogar",
+    "Desk": "Escritorio",
+    "Lamp": "Lámpara",
+    "Bag": "Bolso",
+    "Dress": "Vestido",
+    "Ring": "Anillo",
+    "Bracelet": "Pulsera",
+    "Pearl": "Perla",
+    "Christmas": "Navidad",
+    "Girls": "Niñas",
+    "Men's": "Hombres",
+    "Women's": "Mujeres",
+    "Outdoor": "Exterior",
+    "Fashion": "Moda",
+    "New": "Nuevo",
+  };
+
+  let translated = name;
+  for (const [en, es] of Object.entries(dictionary)) {
+    const regex = new RegExp(`\\b${en}\\b`, "gi");
+    translated = translated.replace(regex, es);
+  }
+
+  return translated;
+}
+
+export function transformCJProduct(raw: CJRawProduct): ProductRow {
+  const usdPrice = parseFloat(raw.sellPrice);
+  const clpPrice = usdPrice * USD_TO_CLP;
+
+  return {
+    cj_id: raw.pid,
+    name: raw.productNameEn, // original en inglés
+    name_es: translateNameToSpanish(raw.productNameEn), // traducido
+    productsku: raw.productSku,
+    image_url: raw.productImage,
+    price_cents: Math.round(clpPrice), // guardamos en CLP
+    category_slug: mapCategory(raw.categoryName),
+  };
+}
+```
+
+=== FILE: cj_import/cj_validate.ts ===
+```
+export function validateCJProduct(p: any, index?: number): boolean {
+  const errors: string[] = [];
+
+  if (typeof p.productName !== "string") errors.push("productName inválido");
+  if (typeof p.productImage !== "string" || !p.productImage.startsWith("http")) errors.push("productImage inválido");
+
+  if (errors.length > 0) {
+    console.warn(`❌ Producto #${index ?? "?"} rechazado: ${errors.join(", ")}`);
+    return false;
+  }
+
+  return true;
+}
+```
+
+=== FILE: cj_import/copilot_request.txt ===
+```
+# Aquí puedes escribir ajustes que quieras que Copilot haga sobre los archivos.
+# Ejemplo: "Quiero que el token se lea desde una variable de entorno"
+```
+
+=== FILE: cj_import/package.json ===
+```
+{
+  "name": "cj-import",
+  "type": "module",
+  "scripts": {
+    "start": "ts-node cj_insert.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.0.0",
+    "dotenv": "^16.3.1",
+    "node-fetch": "^3.3.2",
+    "translate-google": "^1.5.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
+```
+
+=== FILE: cj_import/package-lock.json ===
+```
+{
+  "name": "cj-import",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "cj-import",
+      "dependencies": {
+        "@supabase/supabase-js": "^2.0.0",
+        "dotenv": "^16.3.1",
+        "node-fetch": "^3.3.2",
+        "translate-google": "^1.5.0"
+      },
+      "devDependencies": {
+        "ts-node": "^10.9.1",
+        "typescript": "^5.2.2"
+      }
+    },
+    "node_modules/@cspotcode/source-map-support": {
+      "version": "0.8.1",
+      "resolved": "https://registry.npmjs.org/@cspotcode/source-map-support/-/source-map-support-0.8.1.tgz",
+      "integrity": "sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==",
+      "dev": true,
+      "license": "MIT",
+      "dependencies": {
+        "@jridgewell/trace-mapping": "0.3.9"
+      },
+      "engines": {
+        "node": ">=12"
+      }
+    },
+    "node_modules/@jridgewell/resolve-uri": {
+      "version": "3.1.2",
+      "resolved": "https://registry.npmjs.org/@jridgewell/resolve-uri/-/resolve-uri-3.1.2.tgz",
+      "integrity": "sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==",
+      "dev": true,
+      "license": "MIT",
+      "engines": {
+        "node": ">=6.0.0"
+      }
+    },
+    "node_modules/@jridgewell/sourcemap-codec": {
+      "version": "1.5.5",
+      "resolved": "https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.5.tgz",
+      "integrity": "sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==",
+      "dev": true,
+      "license": "MIT"
+    },
+    "node_modules/@jridgewell/trace-mapping": {
+      "version": "0.3.9",
+      "resolved": "https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.9.tgz",
+      "integrity": "sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==",
+      "dev": true,
+      "license": "MIT",
+      "dependencies": {
+        "@jridgewell/resolve-uri": "^3.0.3",
+        "@jridgewell/sourcemap-codec": "^1.4.10"
+      }
+    },
+    "node_modules/@sindresorhus/is": {
+      "version": "4.6.0",
+      "resolved": "https://registry.npmjs.org/@sindresorhus/is/-/is-4.6.0.tgz",
+      "integrity": "sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=10"
+      },
+      "funding": {
+        "url": "https://github.com/sindresorhus/is?sponsor=1"
+      }
+    },
+    "node_modules/@supabase/auth-js": {
+      "version": "2.72.0",
+      "resolved": "https://registry.npmjs.org/@supabase/auth-js/-/auth-js-2.72.0.tgz",
+      "integrity": "sha512-4+bnUrtTDK1YD0/FCx2YtMiQH5FGu9Jlf4IQi5kcqRwRwqp2ey39V61nHNdH86jm3DIzz0aZKiWfTW8qXk1swQ==",
+      "license": "MIT",
+      "dependencies": {
+        "@supabase/node-fetch": "^2.6.14"
+      }
+    },
+    "node_modules/@supabase/functions-js": {
+      "version": "2.5.0",
+      "resolved": "https://registry.npmjs.org/@supabase/functions-js/-/functions-js-2.5.0.tgz",
+      "integrity": "sha512-SXBx6Jvp+MOBekeKFu+G11YLYPeVeGQl23eYyAG9+Ro0pQ1aIP0UZNIBxHKNHqxzR0L0n6gysNr2KT3841NATw==",
+      "license": "MIT",
+      "dependencies": {
+        "@supabase/node-fetch": "^2.6.14"
+      }
+    },
+    "node_modules/@supabase/node-fetch": {
+      "version": "2.6.15",
+      "resolved": "https://registry.npmjs.org/@supabase/node-fetch/-/node-fetch-2.6.15.tgz",
+      "integrity": "sha512-1ibVeYUacxWYi9i0cf5efil6adJ9WRyZBLivgjs+AUpewx1F3xPi7gLgaASI2SmIQxPoCEjAsLAzKPgMJVgOUQ==",
+      "license": "MIT",
+      "dependencies": {
+        "whatwg-url": "^5.0.0"
+      },
+      "engines": {
+        "node": "4.x || >=6.0.0"
+      }
+    },
+    "node_modules/@supabase/postgrest-js": {
+      "version": "1.21.4",
+      "resolved": "https://registry.npmjs.org/@supabase/postgrest-js/-/postgrest-js-1.21.4.tgz",
+      "integrity": "sha512-TxZCIjxk6/dP9abAi89VQbWWMBbybpGWyvmIzTd79OeravM13OjR/YEYeyUOPcM1C3QyvXkvPZhUfItvmhY1IQ==",
+      "license": "MIT",
+      "dependencies": {
+        "@supabase/node-fetch": "^2.6.14"
+      }
+    },
+    "node_modules/@supabase/realtime-js": {
+      "version": "2.15.5",
+      "resolved": "https://registry.npmjs.org/@supabase/realtime-js/-/realtime-js-2.15.5.tgz",
+      "integrity": "sha512-/Rs5Vqu9jejRD8ZeuaWXebdkH+J7V6VySbCZ/zQM93Ta5y3mAmocjioa/nzlB6qvFmyylUgKVS1KpE212t30OA==",
+      "license": "MIT",
+      "dependencies": {
+        "@supabase/node-fetch": "^2.6.13",
+        "@types/phoenix": "^1.6.6",
+        "@types/ws": "^8.18.1",
+        "ws": "^8.18.2"
+      }
+    },
+    "node_modules/@supabase/storage-js": {
+      "version": "2.12.2",
+      "resolved": "https://registry.npmjs.org/@supabase/storage-js/-/storage-js-2.12.2.tgz",
+      "integrity": "sha512-SiySHxi3q7gia7NBYpsYRu8gyI0NhFwSORMxbZIxJ/zAVkN6QpwDRan158CJ+UdzD4WB/rQMAGRqIJQP+7ccAQ==",
+      "license": "MIT",
+      "dependencies": {
+        "@supabase/node-fetch": "^2.6.14"
+      }
+    },
+    "node_modules/@supabase/supabase-js": {
+      "version": "2.58.0",
+      "resolved": "https://registry.npmjs.org/@supabase/supabase-js/-/supabase-js-2.58.0.tgz",
+      "integrity": "sha512-Tm1RmQpoAKdQr4/8wiayGti/no+If7RtveVZjHR8zbO7hhQjmPW2Ok5ZBPf1MGkt5c+9R85AVMsTfSaqAP1sUg==",
+      "license": "MIT",
+      "dependencies": {
+        "@supabase/auth-js": "2.72.0",
+        "@supabase/functions-js": "2.5.0",
+        "@supabase/node-fetch": "2.6.15",
+        "@supabase/postgrest-js": "1.21.4",
+        "@supabase/realtime-js": "2.15.5",
+        "@supabase/storage-js": "2.12.2"
+      }
+    },
+    "node_modules/@szmarczak/http-timer": {
+      "version": "4.0.6",
+      "resolved": "https://registry.npmjs.org/@szmarczak/http-timer/-/http-timer-4.0.6.tgz",
+      "integrity": "sha512-4BAffykYOgO+5nzBWYwE3W90sBgLJoUPRWWcL8wlyiM8IB8ipJz3UMJ9KXQd1RKQXpKp8Tutn80HZtWsu2u76w==",
+      "license": "MIT",
+      "dependencies": {
+        "defer-to-connect": "^2.0.0"
+      },
+      "engines": {
+        "node": ">=10"
+      }
+    },
+    "node_modules/@tsconfig/node10": {
+      "version": "1.0.11",
+      "resolved": "https://registry.npmjs.org/@tsconfig/node10/-/node10-1.0.11.tgz",
+      "integrity": "sha512-DcRjDCujK/kCk/cUe8Xz8ZSpm8mS3mNNpta+jGCA6USEDfktlNvm1+IuZ9eTcDbNk41BHwpHHeW+N1lKCz4zOw==",
+      "dev": true,
+      "license": "MIT"
+    },
+    "node_modules/@tsconfig/node12": {
+      "version": "1.0.11",
+      "resolved": "https://registry.npmjs.org/@tsconfig/node12/-/node12-1.0.11.tgz",
+      "integrity": "sha512-cqefuRsh12pWyGsIoBKJA9luFu3mRxCA+ORZvA4ktLSzIuCUtWVxGIuXigEwO5/ywWFMZ2QEGKWvkZG1zDMTag==",
+      "dev": true,
+      "license": "MIT"
+    },
+    "node_modules/@tsconfig/node14": {
+      "version": "1.0.3",
+      "resolved": "https://registry.npmjs.org/@tsconfig/node14/-/node14-1.0.3.tgz",
+      "integrity": "sha512-ysT8mhdixWK6Hw3i1V2AeRqZ5WfXg1G43mqoYlM2nc6388Fq5jcXyr5mRsqViLx/GJYdoL0bfXD8nmF+Zn/Iow==",
+      "dev": true,
+      "license": "MIT"
+    },
+    "node_modules/@tsconfig/node16": {
+      "version": "1.0.4",
+      "resolved": "https://registry.npmjs.org/@tsconfig/node16/-/node16-1.0.4.tgz",
+      "integrity": "sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==",
+      "dev": true,
+      "license": "MIT"
+    },
+    "node_modules/@types/cacheable-request": {
+      "version": "6.0.3",
+      "resolved": "https://registry.npmjs.org/@types/cacheable-request/-/cacheable-request-6.0.3.tgz",
+      "integrity": "sha512-IQ3EbTzGxIigb1I3qPZc1rWJnH0BmSKv5QYTalEwweFvyBDLSAe24zP0le/hyi7ecGfZVlIVAg4BZqb8WBwKqw==",
+      "license": "MIT",
+      "dependencies": {
+        "@types/http-cache-semantics": "*",
+        "@types/keyv": "^3.1.4",
+        "@types/node": "*",
+        "@types/responselike": "^1.0.0"
+      }
+    },
+    "node_modules/@types/http-cache-semantics": {
+      "version": "4.0.4",
+      "resolved": "https://registry.npmjs.org/@types/http-cache-semantics/-/http-cache-semantics-4.0.4.tgz",
+      "integrity": "sha512-1m0bIFVc7eJWyve9S0RnuRgcQqF/Xd5QsUZAZeQFr1Q3/p9JWoQQEqmVy+DPTNpGXwhgIetAoYF8JSc33q29QA==",
+      "license": "MIT"
+    },
+    "node_modules/@types/keyv": {
+      "version": "3.1.4",
+      "resolved": "https://registry.npmjs.org/@types/keyv/-/keyv-3.1.4.tgz",
+      "integrity": "sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==",
+      "license": "MIT",
+      "dependencies": {
+        "@types/node": "*"
+      }
+    },
+    "node_modules/@types/node": {
+      "version": "24.6.2",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-24.6.2.tgz",
+      "integrity": "sha512-d2L25Y4j+W3ZlNAeMKcy7yDsK425ibcAOO2t7aPTz6gNMH0z2GThtwENCDc0d/Pw9wgyRqE5Px1wkV7naz8ang==",
+      "license": "MIT",
+      "peer": true,
+      "dependencies": {
+        "undici-types": "~7.13.0"
+      }
+    },
+    "node_modules/@types/phoenix": {
+      "version": "1.6.6",
+      "resolved": "https://registry.npmjs.org/@types/phoenix/-/phoenix-1.6.6.tgz",
+      "integrity": "sha512-PIzZZlEppgrpoT2QgbnDU+MMzuR6BbCjllj0bM70lWoejMeNJAxCchxnv7J3XFkI8MpygtRpzXrIlmWUBclP5A==",
+      "license": "MIT"
+    },
+    "node_modules/@types/responselike": {
+      "version": "1.0.3",
+      "resolved": "https://registry.npmjs.org/@types/responselike/-/responselike-1.0.3.tgz",
+      "integrity": "sha512-H/+L+UkTV33uf49PH5pCAUBVPNj2nDBXTN+qS1dOwyyg24l3CcicicCA7ca+HMvJBZcFgl5r8e+RR6elsb4Lyw==",
+      "license": "MIT",
+      "dependencies": {
+        "@types/node": "*"
+      }
+    },
+    "node_modules/@types/ws": {
+      "version": "8.18.1",
+      "resolved": "https://registry.npmjs.org/@types/ws/-/ws-8.18.1.tgz",
+      "integrity": "sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==",
+      "license": "MIT",
+      "dependencies": {
+        "@types/node": "*"
+      }
+    },
+    "node_modules/acorn": {
+      "version": "8.15.0",
+      "resolved": "https://registry.npmjs.org/acorn/-/acorn-8.15.0.tgz",
+      "integrity": "sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==",
+      "dev": true,
+      "license": "MIT",
+      "bin": {
+        "acorn": "bin/acorn"
+      },
+      "engines": {
+        "node": ">=0.4.0"
+      }
+    },
+    "node_modules/acorn-walk": {
+      "version": "8.3.4",
+      "resolved": "https://registry.npmjs.org/acorn-walk/-/acorn-walk-8.3.4.tgz",
+      "integrity": "sha512-ueEepnujpqee2o5aIYnvHU6C0A42MNdsIDeqy5BydrkuC5R1ZuUFnm27EeFJGoEHJQgn3uleRvmTXaJgfXbt4g==",
+      "dev": true,
+      "license": "MIT",
+      "dependencies": {
+        "acorn": "^8.11.0"
+      },
+      "engines": {
+        "node": ">=0.4.0"
+      }
+    },
+    "node_modules/arg": {
+      "version": "4.1.3",
+      "resolved": "https://registry.npmjs.org/arg/-/arg-4.1.3.tgz",
+      "integrity": "sha512-58S9QDqG0Xx27YwPSt9fJxivjYl432YCwfDMfZ+71RAqUrZef7LrKQZ3LHLOwCS4FLNBplP533Zx895SeOCHvA==",
+      "dev": true,
+      "license": "MIT"
+    },
+    "node_modules/cacheable-lookup": {
+      "version": "5.0.4",
+      "resolved": "https://registry.npmjs.org/cacheable-lookup/-/cacheable-lookup-5.0.4.tgz",
+      "integrity": "sha512-2/kNscPhpcxrOigMZzbiWF7dz8ilhb/nIHU3EyZiXWXpeq/au8qJ8VhdftMkty3n7Gj6HIGalQG8oiBNB3AJgA==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=10.6.0"
+      }
+    },
+    "node_modules/cacheable-request": {
+      "version": "7.0.4",
+      "resolved": "https://registry.npmjs.org/cacheable-request/-/cacheable-request-7.0.4.tgz",
+      "integrity": "sha512-v+p6ongsrp0yTGbJXjgxPow2+DL93DASP4kXCDKb8/bwRtt9OEF3whggkkDkGNzgcWy2XaF4a8nZglC7uElscg==",
+      "license": "MIT",
+      "dependencies": {
+        "clone-response": "^1.0.2",
+        "get-stream": "^5.1.0",
+        "http-cache-semantics": "^4.0.0",
+        "keyv": "^4.0.0",
+        "lowercase-keys": "^2.0.0",
+        "normalize-url": "^6.0.1",
+        "responselike": "^2.0.0"
+      },
+      "engines": {
+        "node": ">=8"
+      }
+    },
+    "node_modules/clone-response": {
+      "version": "1.0.3",
+      "resolved": "https://registry.npmjs.org/clone-response/-/clone-response-1.0.3.tgz",
+      "integrity": "sha512-ROoL94jJH2dUVML2Y/5PEDNaSHgeOdSDicUyS7izcF63G6sTc/FTjLub4b8Il9S8S0beOfYt0TaA5qvFK+w0wA==",
+      "license": "MIT",
+      "dependencies": {
+        "mimic-response": "^1.0.0"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/sindresorhus"
+      }
+    },
+    "node_modules/configstore": {
+      "version": "6.0.0",
+      "resolved": "https://registry.npmjs.org/configstore/-/configstore-6.0.0.tgz",
+      "integrity": "sha512-cD31W1v3GqUlQvbBCGcXmd2Nj9SvLDOP1oQ0YFuLETufzSPaKp11rYBsSOm7rCsW3OnIRAFM3OxRhceaXNYHkA==",
+      "license": "BSD-2-Clause",
+      "dependencies": {
+        "dot-prop": "^6.0.1",
+        "graceful-fs": "^4.2.6",
+        "unique-string": "^3.0.0",
+        "write-file-atomic": "^3.0.3",
+        "xdg-basedir": "^5.0.1"
+      },
+      "engines": {
+        "node": ">=12"
+      },
+      "funding": {
+        "url": "https://github.com/yeoman/configstore?sponsor=1"
+      }
+    },
+    "node_modules/create-require": {
+      "version": "1.1.1",
+      "resolved": "https://registry.npmjs.org/create-require/-/create-require-1.1.1.tgz",
+      "integrity": "sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==",
+      "dev": true,
+      "license": "MIT"
+    },
+    "node_modules/crypto-random-string": {
+      "version": "4.0.0",
+      "resolved": "https://registry.npmjs.org/crypto-random-string/-/crypto-random-string-4.0.0.tgz",
+      "integrity": "sha512-x8dy3RnvYdlUcPOjkEHqozhiwzKNSq7GcPuXFbnyMOCHxX8V3OgIg/pYuabl2sbUPfIJaeAQB7PMOK8DFIdoRA==",
+      "license": "MIT",
+      "dependencies": {
+        "type-fest": "^1.0.1"
+      },
+      "engines": {
+        "node": ">=12"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/sindresorhus"
+      }
+    },
+    "node_modules/data-uri-to-buffer": {
+      "version": "4.0.1",
+      "resolved": "https://registry.npmjs.org/data-uri-to-buffer/-/data-uri-to-buffer-4.0.1.tgz",
+      "integrity": "sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 12"
+      }
+    },
+    "node_modules/decompress-response": {
+      "version": "6.0.0",
+      "resolved": "https://registry.npmjs.org/decompress-response/-/decompress-response-6.0.0.tgz",
+      "integrity": "sha512-aW35yZM6Bb/4oJlZncMH2LCoZtJXTRxES17vE3hoRiowU2kWHaJKFkSBDnDR+cm9J+9QhXmREyIfv0pji9ejCQ==",
+      "license": "MIT",
+      "dependencies": {
+        "mimic-response": "^3.1.0"
+      },
+      "engines": {
+        "node": ">=10"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/sindresorhus"
+      }
+    },
+    "node_modules/decompress-response/node_modules/mimic-response": {
+      "version": "3.1.0",
+      "resolved": "https://registry.npmjs.org/mimic-response/-/mimic-response-3.1.0.tgz",
+      "integrity": "sha512-z0yWI+4FDrrweS8Zmt4Ej5HdJmky15+L2e6Wgn3+iK5fWzb6T3fhNFq2+MeTRb064c6Wr4N/wv0DzQTjNzHNGQ==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=10"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/sindresorhus"
+      }
+    },
+    "node_modules/defer-to-connect": {
+      "version": "2.0.1",
+      "resolved": "https://registry.npmjs.org/defer-to-connect/-/defer-to-connect-2.0.1.tgz",
+      "integrity": "sha512-4tvttepXG1VaYGrRibk5EwJd1t4udunSOVMdLSAL6mId1ix438oPwPZMALY41FCijukO1L0twNcGsdzS7dHgDg==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=10"
+      }
+    },
+    "node_modules/diff": {
+      "version": "4.0.2",
+      "resolved": "https://registry.npmjs.org/diff/-/diff-4.0.2.tgz",
+      "integrity": "sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==",
+      "dev": true,
+      "license": "BSD-3-Clause",
+      "engines": {
+        "node": ">=0.3.1"
+      }
+    },
+    "node_modules/dot-prop": {
+      "version": "6.0.1",
+      "resolved": "https://registry.npmjs.org/dot-prop/-/dot-prop-6.0.1.tgz",
+      "integrity": "sha512-tE7ztYzXHIeyvc7N+hR3oi7FIbf/NIjVP9hmAt3yMXzrQ072/fpjGLx2GxNxGxUl5V73MEqYzioOMoVhGMJ5cA==",
+      "license": "MIT",
+      "dependencies": {
+        "is-obj": "^2.0.0"
+      },
+      "engines": {
+        "node": ">=10"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/sindresorhus"
+      }
+    },
+    "node_modules/dotenv": {
+      "version": "16.6.1",
+      "resolved": "https://registry.npmjs.org/dotenv/-/dotenv-16.6.1.tgz",
+      "integrity": "sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==",
+      "license": "BSD-2-Clause",
+      "engines": {
+        "node": ">=12"
+      },
+      "funding": {
+        "url": "https://dotenvx.com"
+      }
+    },
+    "node_modules/end-of-stream": {
+      "version": "1.4.5",
+      "resolved": "https://registry.npmjs.org/end-of-stream/-/end-of-stream-1.4.5.tgz",
+      "integrity": "sha512-ooEGc6HP26xXq/N+GCGOT0JKCLDGrq2bQUZrQ7gyrJiZANJ/8YDTxTpQBXGMn+WbIQXNVpyWymm7KYVICQnyOg==",
+      "license": "MIT",
+      "dependencies": {
+        "once": "^1.4.0"
+      }
+    },
+    "node_modules/fetch-blob": {
+      "version": "3.2.0",
+      "resolved": "https://registry.npmjs.org/fetch-blob/-/fetch-blob-3.2.0.tgz",
+      "integrity": "sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==",
+      "funding": [
+        {
+          "type": "github",
+          "url": "https://github.com/sponsors/jimmywarting"
+        },
+        {
+          "type": "paypal",
+          "url": "https://paypal.me/jimmywarting"
+        }
+      ],
+      "license": "MIT",
+      "dependencies": {
+        "node-domexception": "^1.0.0",
+        "web-streams-polyfill": "^3.0.3"
+      },
+      "engines": {
+        "node": "^12.20 || >= 14.13"
+      }
+    },
+    "node_modules/formdata-polyfill": {
+      "version": "4.0.10",
+      "resolved": "https://registry.npmjs.org/formdata-polyfill/-/formdata-polyfill-4.0.10.tgz",
+      "integrity": "sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==",
+      "license": "MIT",
+      "dependencies": {
+        "fetch-blob": "^3.1.2"
+      },
+      "engines": {
+        "node": ">=12.20.0"
+      }
+    },
+    "node_modules/get-stream": {
+      "version": "5.2.0",
+      "resolved": "https://registry.npmjs.org/get-stream/-/get-stream-5.2.0.tgz",
+      "integrity": "sha512-nBF+F1rAZVCu/p7rjzgA+Yb4lfYXrpl7a6VmJrU8wF9I1CKvP/QwPNZHnOlwbTkY6dvtFIzFMSyQXbLoTQPRpA==",
+      "license": "MIT",
+      "dependencies": {
+        "pump": "^3.0.0"
+      },
+      "engines": {
+        "node": ">=8"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/sindresorhus"
+      }
+    },
+```
+
+=== FILE: cj_import/package-lock.json ===
+```
+    "node_modules/got": {
+      "version": "11.8.6",
+      "resolved": "https://registry.npmjs.org/got/-/got-11.8.6.tgz",
+      "integrity": "sha512-6tfZ91bOr7bOXnK7PRDCGBLa1H4U080YHNaAQ2KsMGlLEzRbk44nsZF2E1IeRc3vtJHPVbKCYgdFbaGO2ljd8g==",
+      "license": "MIT",
+      "dependencies": {
+        "@sindresorhus/is": "^4.0.0",
+        "@szmarczak/http-timer": "^4.0.5",
+        "@types/cacheable-request": "^6.0.1",
+        "@types/responselike": "^1.0.0",
+        "cacheable-lookup": "^5.0.3",
+        "cacheable-request": "^7.0.2",
+        "decompress-response": "^6.0.0",
+        "http2-wrapper": "^1.0.0-beta.5.2",
+        "lowercase-keys": "^2.0.0",
+        "p-cancelable": "^2.0.0",
+        "responselike": "^2.0.0"
+      },
+      "engines": {
+        "node": ">=10.19.0"
+      },
+      "funding": {
+        "url": "https://github.com/sindresorhus/got?sponsor=1"
+      }
+    },
+    "node_modules/graceful-fs": {
+      "version": "4.2.11",
+      "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.11.tgz",
+      "integrity": "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==",
+      "license": "ISC"
+    },
+    "node_modules/http-cache-semantics": {
+      "version": "4.2.0",
+      "resolved": "https://registry.npmjs.org/http-cache-semantics/-/http-cache-semantics-4.2.0.tgz",
+      "integrity": "sha512-dTxcvPXqPvXBQpq5dUr6mEMJX4oIEFv6bwom3FDwKRDsuIjjJGANqhBuoAn9c1RQJIdAKav33ED65E2ys+87QQ==",
+      "license": "BSD-2-Clause"
+    },
+    "node_modules/http2-wrapper": {
+      "version": "1.0.3",
+      "resolved": "https://registry.npmjs.org/http2-wrapper/-/http2-wrapper-1.0.3.tgz",
+      "integrity": "sha512-V+23sDMr12Wnz7iTcDeJr3O6AIxlnvT/bmaAAAP/Xda35C90p9599p0F1eHR/N1KILWSoWVAiOMFjBBXaXSMxg==",
+      "license": "MIT",
+      "dependencies": {
+        "quick-lru": "^5.1.1",
+        "resolve-alpn": "^1.0.0"
+      },
+      "engines": {
+        "node": ">=10.19.0"
+      }
+    },
+    "node_modules/imurmurhash": {
+      "version": "0.1.4",
+      "resolved": "https://registry.npmjs.org/imurmurhash/-/imurmurhash-0.1.4.tgz",
+      "integrity": "sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=0.8.19"
+      }
+    },
+    "node_modules/is-keyword-js": {
+      "version": "1.0.3",
+      "resolved": "https://registry.npmjs.org/is-keyword-js/-/is-keyword-js-1.0.3.tgz",
+      "integrity": "sha512-EW8wNCNvomPa/jsH1g0DmLfPakkRCRTcTML1v1fZMLiVCvQ/1YB+tKsRzShBiWQhqrYCi5a+WsepA4Z8TA9iaA==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=0.10.0"
+      }
+    },
+    "node_modules/is-obj": {
+      "version": "2.0.0",
+      "resolved": "https://registry.npmjs.org/is-obj/-/is-obj-2.0.0.tgz",
+      "integrity": "sha512-drqDG3cbczxxEJRoOXcOjtdp1J/lyp1mNn0xaznRs8+muBhgQcrnbspox5X5fOw0HnMnbfDzvnEMEtqDEJEo8w==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=8"
+      }
+    },
+    "node_modules/is-typedarray": {
+      "version": "1.0.0",
+      "resolved": "https://registry.npmjs.org/is-typedarray/-/is-typedarray-1.0.0.tgz",
+      "integrity": "sha512-cyA56iCMHAh5CdzjJIa4aohJyeO1YbwLi3Jc35MmRU6poroFjIGZzUzupGiRPOjgHg9TLu43xbpwXk523fMxKA==",
+      "license": "MIT"
+    },
+    "node_modules/is-url": {
+      "version": "1.2.4",
+      "resolved": "https://registry.npmjs.org/is-url/-/is-url-1.2.4.tgz",
+      "integrity": "sha512-ITvGim8FhRiYe4IQ5uHSkj7pVaPDrCTkNd3yq3cV7iZAcJdHTUMPMEHcqSOy9xZ9qFenQCvi+2wjH9a1nXqHww==",
+      "license": "MIT"
+    },
+    "node_modules/json-buffer": {
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/json-buffer/-/json-buffer-3.0.1.tgz",
+      "integrity": "sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==",
+      "license": "MIT"
+    },
+    "node_modules/keyv": {
+      "version": "4.5.4",
+      "resolved": "https://registry.npmjs.org/keyv/-/keyv-4.5.4.tgz",
+      "integrity": "sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==",
+      "license": "MIT",
+      "dependencies": {
+        "json-buffer": "3.0.1"
+      }
+    },
+    "node_modules/lodash": {
+      "version": "4.17.21",
+      "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz",
+      "integrity": "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==",
+      "license": "MIT"
+    },
+    "node_modules/lodash.clonedeep": {
+      "version": "4.5.0",
+      "resolved": "https://registry.npmjs.org/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz",
+      "integrity": "sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==",
+      "license": "MIT"
+    },
+    "node_modules/lowercase-keys": {
+      "version": "2.0.0",
+      "resolved": "https://registry.npmjs.org/lowercase-keys/-/lowercase-keys-2.0.0.tgz",
+      "integrity": "sha512-tqNXrS78oMOE73NMxK4EMLQsQowWf8jKooH9g7xPavRT706R6bkQJ6DY2Te7QukaZsulxa30wQ7bk0pm4XiHmA==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=8"
+      }
+    },
+    "node_modules/make-error": {
+      "version": "1.3.6",
+      "resolved": "https://registry.npmjs.org/make-error/-/make-error-1.3.6.tgz",
+      "integrity": "sha512-s8UhlNe7vPKomQhC1qFelMokr/Sc3AgNbso3n74mVPA5LTZwkB9NlXf4XPamLxJE8h0gh73rM94xvwRT2CVInw==",
+      "dev": true,
+      "license": "ISC"
+    },
+    "node_modules/mimic-response": {
+      "version": "1.0.1",
+      "resolved": "https://registry.npmjs.org/mimic-response/-/mimic-response-1.0.1.tgz",
+      "integrity": "sha512-j5EctnkH7amfV/q5Hgmoal1g2QHFJRraOtmx0JpIqkxhBhI/lJSl1nMpQ45hVarwNETOoWEimndZ4QK0RHxuxQ==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=4"
+      }
+    },
+    "node_modules/node-domexception": {
+      "version": "1.0.0",
+      "resolved": "https://registry.npmjs.org/node-domexception/-/node-domexception-1.0.0.tgz",
+      "integrity": "sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==",
+      "deprecated": "Use your platform's native DOMException instead",
+      "funding": [
+        {
+          "type": "github",
+          "url": "https://github.com/sponsors/jimmywarting"
+        },
+        {
+          "type": "github",
+          "url": "https://paypal.me/jimmywarting"
+        }
+      ],
+      "license": "MIT",
+      "engines": {
+        "node": ">=10.5.0"
+      }
+    },
+    "node_modules/node-fetch": {
+      "version": "3.3.2",
+      "resolved": "https://registry.npmjs.org/node-fetch/-/node-fetch-3.3.2.tgz",
+      "integrity": "sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==",
+      "license": "MIT",
+      "dependencies": {
+        "data-uri-to-buffer": "^4.0.0",
+        "fetch-blob": "^3.1.4",
+        "formdata-polyfill": "^4.0.10"
+      },
+      "engines": {
+        "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+      },
+      "funding": {
+        "type": "opencollective",
+        "url": "https://opencollective.com/node-fetch"
+      }
+    },
+    "node_modules/normalize-url": {
+      "version": "6.1.0",
+      "resolved": "https://registry.npmjs.org/normalize-url/-/normalize-url-6.1.0.tgz",
+      "integrity": "sha512-DlL+XwOy3NxAQ8xuC0okPgK46iuVNAK01YN7RueYBqqFeGsBjV9XmCAzAdgt+667bCl5kPh9EqKKDwnaPG1I7A==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=10"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/sindresorhus"
+      }
+    },
+    "node_modules/num-or-not": {
+      "version": "1.0.1",
+      "resolved": "https://registry.npmjs.org/num-or-not/-/num-or-not-1.0.1.tgz",
+      "integrity": "sha512-IMyEpYE7hBjD/fKvZu7/jhy05scXUYy0KXOoKVjoFNU6di56wpGjCok3SoC9k51993v9N7GSLPf+9PuWq220cg==",
+      "license": "MIT",
+      "dependencies": {
+        "trim": "0.0.1"
+      }
+    },
+    "node_modules/once": {
+      "version": "1.4.0",
+      "resolved": "https://registry.npmjs.org/once/-/once-1.4.0.tgz",
+      "integrity": "sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==",
+      "license": "ISC",
+      "dependencies": {
+        "wrappy": "1"
+      }
+    },
+    "node_modules/p-cancelable": {
+      "version": "2.1.1",
+      "resolved": "https://registry.npmjs.org/p-cancelable/-/p-cancelable-2.1.1.tgz",
+      "integrity": "sha512-BZOr3nRQHOntUjTrH8+Lh54smKHoHyur8We1V8DSMVrl5A2malOOwuJRnKRDjSnkoeBh4at6BwEnb5I7Jl31wg==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=8"
+      }
+    },
+    "node_modules/pump": {
+      "version": "3.0.3",
+      "resolved": "https://registry.npmjs.org/pump/-/pump-3.0.3.tgz",
+      "integrity": "sha512-todwxLMY7/heScKmntwQG8CXVkWUOdYxIvY2s0VWAAMh/nd8SoYiRaKjlr7+iCs984f2P8zvrfWcDDYVb73NfA==",
+      "license": "MIT",
+      "dependencies": {
+        "end-of-stream": "^1.1.0",
+        "once": "^1.3.1"
+      }
+    },
+    "node_modules/quick-lru": {
+      "version": "5.1.1",
+      "resolved": "https://registry.npmjs.org/quick-lru/-/quick-lru-5.1.1.tgz",
+      "integrity": "sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=10"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/sindresorhus"
+      }
+    },
+    "node_modules/resolve-alpn": {
+      "version": "1.2.1",
+      "resolved": "https://registry.npmjs.org/resolve-alpn/-/resolve-alpn-1.2.1.tgz",
+      "integrity": "sha512-0a1F4l73/ZFZOakJnQ3FvkJ2+gSTQWz/r2KE5OdDY0TxPm5h4GkqkWWfM47T7HsbnOtcJVEF4epCVy6u7Q3K+g==",
+      "license": "MIT"
+    },
+    "node_modules/responselike": {
+      "version": "2.0.1",
+      "resolved": "https://registry.npmjs.org/responselike/-/responselike-2.0.1.tgz",
+      "integrity": "sha512-4gl03wn3hj1HP3yzgdI7d3lCkF95F21Pz4BPGvKHinyQzALR5CapwC8yIi0Rh58DEMQ/SguC03wFj2k0M/mHhw==",
+      "license": "MIT",
+      "dependencies": {
+        "lowercase-keys": "^2.0.0"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/sindresorhus"
+      }
+    },
+    "node_modules/safe-eval": {
+      "version": "0.4.1",
+      "resolved": "https://registry.npmjs.org/safe-eval/-/safe-eval-0.4.1.tgz",
+      "integrity": "sha512-wmiu4RSYVZ690RP1+cv/LxfPK1dIlEN35aW7iv4SMYdqDrHbkll4+NJcHmKm7PbCuI1df1otOcPwgcc2iFR85g==",
+      "license": "MIT"
+    },
+    "node_modules/signal-exit": {
+      "version": "3.0.7",
+      "resolved": "https://registry.npmjs.org/signal-exit/-/signal-exit-3.0.7.tgz",
+      "integrity": "sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==",
+      "license": "ISC"
+    },
+    "node_modules/tr46": {
+      "version": "0.0.3",
+      "resolved": "https://registry.npmjs.org/tr46/-/tr46-0.0.3.tgz",
+      "integrity": "sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==",
+      "license": "MIT"
+    },
+    "node_modules/translate-google": {
+      "version": "1.5.0",
+      "resolved": "https://registry.npmjs.org/translate-google/-/translate-google-1.5.0.tgz",
+      "integrity": "sha512-wI/oX3U3t78PthVkvO7BdvKRcjb03JaUs53oAhs0NVmzFJUEm5ROiYWH7gomRHFZ5bL7LKxrFRx8Qy/l1eB46g==",
+      "license": "MIT",
+      "dependencies": {
+        "configstore": "^6.0.0",
+        "got": "^11.8.2",
+        "is-keyword-js": "^1.0.3",
+        "is-url": "^1.2.4",
+        "lodash": "^4.17.21",
+        "num-or-not": "^1.0.1",
+        "safe-eval": "^0.4.1",
+        "user-agents": "^1.0.779"
+      }
+    },
+    "node_modules/trim": {
+      "version": "0.0.1",
+      "resolved": "https://registry.npmjs.org/trim/-/trim-0.0.1.tgz",
+      "integrity": "sha512-YzQV+TZg4AxpKxaTHK3c3D+kRDCGVEE7LemdlQZoQXn0iennk10RsIoY6ikzAqJTc9Xjl9C1/waHom/J86ziAQ==",
+      "deprecated": "Use String.prototype.trim() instead"
+    },
+    "node_modules/ts-node": {
+      "version": "10.9.2",
+      "resolved": "https://registry.npmjs.org/ts-node/-/ts-node-10.9.2.tgz",
+      "integrity": "sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==",
+      "dev": true,
+      "license": "MIT",
+      "dependencies": {
+        "@cspotcode/source-map-support": "^0.8.0",
+        "@tsconfig/node10": "^1.0.7",
+        "@tsconfig/node12": "^1.0.7",
+        "@tsconfig/node14": "^1.0.0",
+        "@tsconfig/node16": "^1.0.2",
+        "acorn": "^8.4.1",
+        "acorn-walk": "^8.1.1",
+        "arg": "^4.1.0",
+        "create-require": "^1.1.0",
+        "diff": "^4.0.1",
+        "make-error": "^1.1.1",
+        "v8-compile-cache-lib": "^3.0.1",
+        "yn": "3.1.1"
+      },
+      "bin": {
+        "ts-node": "dist/bin.js",
+        "ts-node-cwd": "dist/bin-cwd.js",
+        "ts-node-esm": "dist/bin-esm.js",
+        "ts-node-script": "dist/bin-script.js",
+        "ts-node-transpile-only": "dist/bin-transpile.js",
+        "ts-script": "dist/bin-script-deprecated.js"
+      },
+      "peerDependencies": {
+        "@swc/core": ">=1.2.50",
+        "@swc/wasm": ">=1.2.50",
+        "@types/node": "*",
+        "typescript": ">=2.7"
+      },
+      "peerDependenciesMeta": {
+        "@swc/core": {
+          "optional": true
+        },
+        "@swc/wasm": {
+          "optional": true
+        }
+      }
+    },
+    "node_modules/type-fest": {
+      "version": "1.4.0",
+      "resolved": "https://registry.npmjs.org/type-fest/-/type-fest-1.4.0.tgz",
+      "integrity": "sha512-yGSza74xk0UG8k+pLh5oeoYirvIiWo5t0/o3zHHAO2tRDiZcxWP7fywNlXhqb6/r6sWvwi+RsyQMWhVLe4BVuA==",
+      "license": "(MIT OR CC0-1.0)",
+      "engines": {
+        "node": ">=10"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/sindresorhus"
+      }
+    },
+    "node_modules/typedarray-to-buffer": {
+      "version": "3.1.5",
+      "resolved": "https://registry.npmjs.org/typedarray-to-buffer/-/typedarray-to-buffer-3.1.5.tgz",
+      "integrity": "sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==",
+      "license": "MIT",
+      "dependencies": {
+        "is-typedarray": "^1.0.0"
+      }
+    },
+    "node_modules/typescript": {
+      "version": "5.9.3",
+      "resolved": "https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz",
+      "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
+      "dev": true,
+      "license": "Apache-2.0",
+      "peer": true,
+      "bin": {
+        "tsc": "bin/tsc",
+        "tsserver": "bin/tsserver"
+      },
+      "engines": {
+        "node": ">=14.17"
+      }
+    },
+    "node_modules/undici-types": {
+      "version": "7.13.0",
+      "resolved": "https://registry.npmjs.org/undici-types/-/undici-types-7.13.0.tgz",
+      "integrity": "sha512-Ov2Rr9Sx+fRgagJ5AX0qvItZG/JKKoBRAVITs1zk7IqZGTJUwgUr7qoYBpWwakpWilTZFM98rG/AFRocu10iIQ==",
+      "license": "MIT"
+    },
+    "node_modules/unique-string": {
+      "version": "3.0.0",
+      "resolved": "https://registry.npmjs.org/unique-string/-/unique-string-3.0.0.tgz",
+      "integrity": "sha512-VGXBUVwxKMBUznyffQweQABPRRW1vHZAbadFZud4pLFAqRGvv/96vafgjWFqzourzr8YonlQiPgH0YCJfawoGQ==",
+      "license": "MIT",
+      "dependencies": {
+        "crypto-random-string": "^4.0.0"
+      },
+      "engines": {
+        "node": ">=12"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/sindresorhus"
+      }
+    },
+    "node_modules/user-agents": {
+      "version": "1.1.668",
+      "resolved": "https://registry.npmjs.org/user-agents/-/user-agents-1.1.668.tgz",
+      "integrity": "sha512-NBr7L9Y/Y8hz4nP5EQMeEuZCGTZ9ok+xLedLfqZnP4UfV7qC29Tjx6rpt0Ep1U2UxzuS+zYJt07OEV1SmAm1iw==",
+      "license": "BSD-2-Clause",
+      "dependencies": {
+        "lodash.clonedeep": "^4.5.0"
+      }
+    },
+    "node_modules/v8-compile-cache-lib": {
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/v8-compile-cache-lib/-/v8-compile-cache-lib-3.0.1.tgz",
+      "integrity": "sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==",
+      "dev": true,
+      "license": "MIT"
+    },
+    "node_modules/web-streams-polyfill": {
+      "version": "3.3.3",
+      "resolved": "https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-3.3.3.tgz",
+      "integrity": "sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 8"
+      }
+    },
+    "node_modules/webidl-conversions": {
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/webidl-conversions/-/webidl-conversions-3.0.1.tgz",
+      "integrity": "sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==",
+      "license": "BSD-2-Clause"
+    },
+    "node_modules/whatwg-url": {
+      "version": "5.0.0",
+      "resolved": "https://registry.npmjs.org/whatwg-url/-/whatwg-url-5.0.0.tgz",
+      "integrity": "sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==",
+      "license": "MIT",
+      "dependencies": {
+        "tr46": "~0.0.3",
+        "webidl-conversions": "^3.0.0"
+      }
+    },
+    "node_modules/wrappy": {
+      "version": "1.0.2",
+      "resolved": "https://registry.npmjs.org/wrappy/-/wrappy-1.0.2.tgz",
+      "integrity": "sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==",
+      "license": "ISC"
+    },
+    "node_modules/write-file-atomic": {
+      "version": "3.0.3",
+      "resolved": "https://registry.npmjs.org/write-file-atomic/-/write-file-atomic-3.0.3.tgz",
+      "integrity": "sha512-AvHcyZ5JnSfq3ioSyjrBkH9yW4m7Ayk8/9My/DD9onKeu/94fwrMocemO2QAJFAlnnDN+ZDS+ZjAR5ua1/PV/Q==",
+      "license": "ISC",
+      "dependencies": {
+        "imurmurhash": "^0.1.4",
+        "is-typedarray": "^1.0.0",
+        "signal-exit": "^3.0.2",
+        "typedarray-to-buffer": "^3.1.5"
+      }
+    },
+    "node_modules/ws": {
+      "version": "8.18.3",
+      "resolved": "https://registry.npmjs.org/ws/-/ws-8.18.3.tgz",
+      "integrity": "sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=10.0.0"
+      },
+      "peerDependencies": {
+        "bufferutil": "^4.0.1",
+        "utf-8-validate": ">=5.0.2"
+      },
+      "peerDependenciesMeta": {
+        "bufferutil": {
+          "optional": true
+        },
+        "utf-8-validate": {
+          "optional": true
+        }
+      }
+    },
+    "node_modules/xdg-basedir": {
+      "version": "5.1.0",
+      "resolved": "https://registry.npmjs.org/xdg-basedir/-/xdg-basedir-5.1.0.tgz",
+      "integrity": "sha512-GCPAHLvrIH13+c0SuacwvRYj2SxJXQ4kaVTT5xgL3kPrz56XxkF21IGhjSE1+W0aw7gpBWRGXLCPnPby6lSpmQ==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=12"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/sindresorhus"
+      }
+    },
+    "node_modules/yn": {
+      "version": "3.1.1",
+      "resolved": "https://registry.npmjs.org/yn/-/yn-3.1.1.tgz",
+      "integrity": "sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==",
+      "dev": true,
+      "license": "MIT",
+      "engines": {
+        "node": ">=6"
+      }
+```
+
+=== FILE: cj_import/package-lock.json ===
+```
+    }
+  }
+}
+```
+
+=== FILE: cj_import/tsconfig.json ===
+```
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": false
+  }
+}
+```
+
+=== FILE: components/BackButton.tsx ===
+```
+'use client';
+import { useCallback } from "react";
+
+export default function BackButton({
+  fallbackHref = "/",
+  className = "",
+}: { fallbackHref?: string; className?: string }) {
+  const goBack = useCallback(() => {
+    if (typeof window !== "undefined") {
+      try {
+        if (window.history && window.history.length > 1) {
+          window.history.back();
+          return;
+        }
+      } catch {}
+      window.location.href = fallbackHref;
+    }
+  }, [fallbackHref]);
+
+  return (
+    <button
+      type="button"
+      onClick={goBack}
+      className={`inline-flex items-center gap-2 rounded-xl bg-lime-600 px-3 py-2 text-white font-semibold hover:bg-lime-700 transition shadow-sm ${className}`}
+      aria-label="Volver"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2"
+          strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      <span>Volver</span>
+    </button>
+  );
+}
+```
+
+=== FILE: components/BackNav.tsx ===
+```
+'use client';
+
+import { useRouter, usePathname } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+
+export default function BackNav() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [canGoBack, setCanGoBack] = useState(false);
+
+  // Rutas donde NO se muestra
+  const hiddenHere = useMemo(() => {
+    if (!pathname) return false;
+    if (pathname === '/') return true;
+    if (pathname === '/categorias') return true;
+    if (pathname.startsWith('/carro')) return true;
+    return false;
+  }, [pathname]);
+
+  if (hiddenHere) return null;
+
+  // Sólo mostrar en páginas de detalle de categoría: /categorias/[slug]
+  const isCategoriaDetalle =
+    typeof pathname === 'string' &&
+    pathname.startsWith('/categorias/') &&
+    pathname.split('/').filter(Boolean).length === 2;
+
+  if (!isCategoriaDetalle) return null;
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCanGoBack(window.history.length > 1);
+    }
+  }, [pathname]);
+
+  const onClick = () => {
+    if (canGoBack) router.back();
+    else router.push('/categorias');
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="Volver"
+      className="fixed bottom-24 left-4 z-[60] inline-flex items-center gap-2 rounded-full bg-lime-600 text-white px-4 py-2 shadow-lg hover:bg-lime-700 transition
+                 backdrop-blur-sm/0 sm:backdrop-blur-sm
+                 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-500/60
+                 active:scale-[0.98]
+                 text-sm sm:text-base"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" className="-ml-1">
+        <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      <span className="hidden sm:inline">Volver</span>
+    </button>
+  );
+}
+```
+
+=== FILE: components/BackToTop.tsx ===
+```
+'use client';
+
+import { useEffect, useState } from 'react';
+
+export default function BackToTop() {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 600);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const onClick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  return (
+    <button
+      aria-label="Volver arriba"
+      onClick={onClick}
+      className={[
+        "fixed left-4 bottom-4 z-[60]",
+        "rounded-full px-4 py-2 text-sm font-medium",
+        "bg-emerald-600 text-white shadow-lg",
+        "hover:bg-emerald-700 active:scale-[0.98]",
+        "transition-all duration-200",
+        show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3 pointer-events-none"
+      ].join(' ')}
+    >
+      ↑ Arriba
+    </button>
+  );
+}
+```
+
+=== FILE: components/BackToTopGuard.tsx ===
+```
+'use client';
+export default function BackToTopGuard() { return null; }
+```
+
+=== FILE: components/Breadcrumb.tsx ===
+```
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
+
+export interface Crumb {
+  label: string;
+  href?: string;
+}
+
+interface BreadcrumbProps {
+  items: Crumb[];
+}
+
+export default function Breadcrumb({ items }: BreadcrumbProps) {
+  return (
+    <nav className="text-xl mb-10" aria-label="Breadcrumb">
+      <ol className="flex items-center space-x-3">
+        {items.map((item, idx) => (
+          <li key={idx} className="flex items-center space-x-3">
+            {item.href ? (
+              <Link
+                href={item.href}
+                className="text-lime-600 hover:text-lime-700 hover:underline font-semibold transition-colors"
+              >
+                {item.label}
+              </Link>
+            ) : (
+              <span className="font-bold text-gray-900">{item.label}</span>
+            )}
+            {idx < items.length - 1 && (
+              <ChevronRight className="w-5 h-5 text-gray-400" />
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+```
+
+=== FILE: components/Breadcrumbs.tsx ===
+```
+'use client';
+import Link from "next/link";
+
+type Crumb = {
+  href: string;
+  label: string;
+};
+
+export default function Breadcrumbs({ items }: { items: Crumb[] }) {
+  if (!items || items.length === 0) return null;
+
+  return (
+    <nav aria-label="Breadcrumb">
+      <ol className="flex items-center gap-2 text-sm text-gray-600">
+        {items.map((c, i) => (
+          <li key={c.href} className="flex items-center gap-2">
+            {i > 0 && <span aria-hidden>›</span>}
+            {i < items.length - 1 ? (
+              <Link href={c.href} className="hover:underline">
+                {c.label}
+              </Link>
+            ) : (
+              <span className="font-semibold">{c.label}</span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+```
+
+=== FILE: components/CarroClient.tsx ===
+```
+"use client";
+import { useCart } from "@/components/useCart";
+
+export default function CarroClient() {
+  const { items, remove } = useCart();
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-6">Tu carrito</h1>
+      {items.length === 0 ? (
+        <p className="text-gray-600">El carrito está vacío.</p>
+      ) : (
+        <ul>
+          {items.map((p) => (
+            <li key={p.id} className="flex justify-between border-b py-2">
+              <span>{p.name}</span>
+              <button
+                onClick={() => remove(p.id)}
+                className="text-red-600 hover:underline"
+              >
+                Quitar
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+```
+
+=== FILE: components/Categorias.tsx ===
+```
+"use client";
+
+const categorias = [
+  { nombre: "Belleza", icono: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/belleza.svg" },
+  { nombre: "Bienestar", icono: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/bienestar.svg" },
+  { nombre: "Eco", icono: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/eco.svg" },
+  { nombre: "Hogar", icono: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/hogar.svg" },
+  { nombre: "Mascotas", icono: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/mascotas.svg" },
+  { nombre: "Oficina", icono: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/oficina.svg" },
+  { nombre: "Tecnología", icono: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/tecnologia.svg" },
+];
+
+export default function Categorias() {
+  return (
+    <section className="py-16 bg-white">
+      <div className="max-w-7xl mx-auto px-6">
+        <h2 className="text-3xl font-bold text-gray-900 mb-10">Categorías</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8">
+          {categorias.map((cat) => (
+            <div key={cat.nombre} className="flex flex-col items-center text-center group">
+              <img
+                src={cat.icono}
+                alt={cat.nombre}
+                className="w-16 h-16 mb-4 transition-transform duration-300 group-hover:scale-110"
+              />
+              <span className="text-lg font-medium text-gray-700">{cat.nombre}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+```
+
+=== FILE: components/CategoryCarousel.tsx ===
+```
+"use client";
+
+import Link from "next/link";
+import ProductCarousel from "./ProductCarousel";
+
+interface Props {
+  title: string;
+  description: string;
+  products: {
+    id: string;
+    name: string;
+    image_url: string;
+    price_cents: number;
+  }[];
+  link: string;
+}
+
+export default function CategoryCarousel({ title, description, products, link }: Props) {
+  return (
+    <section className="my-12">
+      <div className="text-center mb-6 max-w-screen-md mx-auto px-4">
+        <h2 className="text-2xl font-bold">{title}</h2>
+        <p className="text-gray-600">{description}</p>
+      </div>
+
+      {/* Carrusel centrado en la página */}
+      <div className="max-w-screen-xl mx-auto px-6">
+        <ProductCarousel products={products} />
+      </div>
+
+      <div className="mt-6 text-center">
+        <Link
+          href={link}
+          className="inline-block px-6 py-2 bg-lime-600 text-white rounded-lg hover:bg-lime-700 transition-colors"
+        >
+          Ver todo
+        </Link>
+      </div>
+    </section>
+  );
+}
+```
+
+=== FILE: components/CategoryGrid.tsx ===
+```
+'use client';
+import Link from "next/link";
+import { categorias } from "@/lib/categorias";
+
+export default function CategoryGrid() {
+  if (!categorias || categorias.length === 0) {
+    return <p className="text-gray-600">No hay categorías disponibles.</p>;
+  }
+
+  return (
+    <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {categorias.map((c) => (
+        <li
+          key={c.slug}
+          className="group relative overflow-hidden rounded-2xl border bg-white hover:shadow-md transition"
+        >
+          <Link href={`/categorias/${c.slug}`} className="block">
+            <div className="relative aspect-[4/3] bg-neutral-100">
+              <img
+                src={c.image_url}
+                alt={c.nombre}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                loading="lazy"
+                decoding="async"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            <h3 className="mt-3 text-lg font-semibold">{c.nombre}</h3>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+=== FILE: components/ClientShell.tsx ===
+```
+'use client';
+import React from "react";
+import TopBar from "@/components/TopBar";
+import Footer from "@/components/Footer";
+import FloatingCart from "@/components/FloatingCart";
+import BackToTop from "@/components/BackToTop";
+import PreviewBadge from "@/components/PreviewBadge";
+
+export default function ClientShell({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      {/* Barra superior fija */}
+      <TopBar />
+
+      {/* Contenido */}
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6">
+        {children}
+      </div>
+
+      {/* Footer al fondo */}
+      <Footer />
+
+      {/* UI flotante (no tapa el footer) */}
+      <FloatingCart />
+      <BackToTop />
+      <PreviewBadge />
+    </>
+  );
+}
+```
+
+=== FILE: components/FloatingCart.tsx ===
+```
+"use client";
+import React from "react";
+
+const LUNARIA_GREEN = "#2bb673";
+
+function getCount(): number {
+  if (typeof window === "undefined") return 0;
+  try {
+    const raw = localStorage.getItem("carro") || "[]";
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr.length : 0;
+  } catch { return 0; }
+}
+
+export default function FloatingCart() {
+  const [count, setCount] = React.useState(0);
+
+  React.useEffect(() => {
+    setCount(getCount());
+    const onStorage = (e: StorageEvent) => { if (e.key === "carro") setCount(getCount()); };
+    const onCustom = () => setCount(getCount());
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("carro:updated", onCustom as EventListener);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("carro:updated", onCustom as EventListener);
+    };
+  }, []);
+
+  return (
+    <button
+      aria-label="Abrir carro"
+      onClick={() => (window.location.href = "/carro")}
+      className="fixed bottom-4 right-4 z-[9990] w-14 h-14 rounded-full shadow-lg border border-emerald-600/20 transition-transform hover:scale-105 active:scale-95"
+      style={{ background: `linear-gradient(180deg, ${LUNARIA_GREEN} 0%, #23a765 100%)`, WebkitTapHighlightColor: "transparent" }}
+      data-testid="floating-cart"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 mx-auto text-white drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path strokeWidth="2" d="M3 3h2l.4 2M7 13h10l2-7H6.4M7 13l-1.3 5H19M7 13l-1.6-6M10 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm8 21a1 1 0 1 0 .001-2.001A1 1 0 0 0 18 21Z"/>
+      </svg>
+      <span
+        className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full text-[11px] font-semibold text-white ring-2 ring-white flex items-center justify-center shadow"
+        style={{ backgroundColor: LUNARIA_GREEN }}
+        aria-label={`Productos en el carro: ${count}`}
+        data-testid="cart-badge"
+      >
+        {count}
+      </span>
+    </button>
+  );
+}
+```
+
+=== FILE: components/Footer.tsx ===
+```
+'use client';
+import Link from "next/link";
+import Image from "next/image";
+import { Mail, Phone, Instagram, Facebook, Twitter } from "lucide-react";
+
+export default function Footer() {
+  return (
+    <footer className="mt-20 border-t bg-white/80 backdrop-blur-md text-sm text-neutral-700">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <div className="inline-flex items-center gap-2 mb-3 transition hover:-translate-y-1 hover:shadow-lg">
+            <Image
+              src="/lunaria-icon.png"
+              alt="Lunaria"
+              width={32}
+              height={32}
+              className="rounded-lg shadow-md"
+            />
+            <span className="font-display font-bold tracking-tight text-lg text-lime-700">Lunaria</span>
+          </div>
+          <p className="text-neutral-600 leading-relaxed">Cosas útiles y bonitas. Envíos simples.</p>
+        </div>
+        <div>
+          <h4 className="font-semibold text-gray-800 mb-3">Tienda</h4>
+          <ul className="space-y-1">
+            <li><Link className="hover:text-lime-700 transition" href="/categorias">Categorías</Link></li>
+            <li><a className="hover:text-lime-700 transition" href="#">Novedades</a></li>
+            <li><a className="hover:text-lime-700 transition" href="#">Ofertas</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-semibold text-gray-800 mb-3">Soporte</h4>
+          <ul className="space-y-1">
+            <li><a className="hover:text-lime-700 transition" href="#">Contacto</a></li>
+            <li><a className="hover:text-lime-700 transition" href="#">Envíos y devoluciones</a></li>
+            <li><a className="hover:text-lime-700 transition" href="#">FAQ</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-semibold text-gray-800 mb-3">Contacto</h4>
+          <ul className="space-y-2">
+            <li className="flex items-center gap-2 text-neutral-700">
+              <Mail className="w-4 h-4 text-lime-600" />
+              <a href="mailto:soporte@lunaria.cl" className="hover:text-lime-700 transition">soporte@lunaria.cl</a>
+            </li>
+            <li className="flex items-center gap-2 text-neutral-700">
+              <Phone className="w-4 h-4 text-lime-600" />
+              <span>+56 9 1234 5678</span>
+            </li>
+            <li className="flex gap-4 mt-2">
+              <a href="#" className="text-neutral-500 hover:text-lime-600 transition"><Instagram className="w-5 h-5" /></a>
+              <a href="#" className="text-neutral-500 hover:text-lime-600 transition"><Facebook className="w-5 h-5" /></a>
+              <a href="#" className="text-neutral-500 hover:text-lime-600 transition"><Twitter className="w-5 h-5" /></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div className="border-t">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-4 text-xs text-neutral-500 text-center">
+          © <span>{new Date().getFullYear()}</span> Lunaria — E-commerce sustentable. Todos los derechos reservados.
+        </div>
+      </div>
+    </footer>
+  );
+}
+```
+
+=== FILE: components/Hero.tsx ===
+```
+"use client";
+
+import { ShoppingBag, Sparkles } from "lucide-react";
+
+export default function Hero() {
+  return (
+    <section className="lunaria-parallax relative overflow-hidden mt-16 h-[450px] flex items-center">
+      <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent z-0"></div>
+
+      <div className="relative z-10 max-w-7xl mx-auto w-full px-6 text-center lg:text-left animate-fadeIn">
+        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white drop-shadow-xl">
+          Descubre productos que{" "}
+          <span className="bg-gradient-to-r from-lime-300 to-emerald-400 bg-clip-text text-transparent">
+            inspiran
+          </span>
+        </h1>
+        <p className="mt-4 text-lg text-white/90 drop-shadow-md max-w-xl">
+          Tu tienda de confianza para belleza, hogar y más. Calidad real, precios accesibles.
+        </p>
+        <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+          <a
+            href="/categorias"
+            className="inline-flex items-center gap-2 bg-lime-500 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:bg-lime-600 hover:scale-105 transition-all duration-300 ease-in-out"
+          >
+            <ShoppingBag className="w-5 h-5" />
+            Explorar categorías
+          </a>
+          <a
+            href="/ofertas"
+            className="inline-flex items-center gap-2 border border-white/70 text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/10 transition-all duration-300 ease-in-out"
+          >
+            <Sparkles className="w-5 h-5" />
+            Ver ofertas
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+```
+
+=== FILE: components/PreviewBadge.tsx ===
+```
+"use client";
+import React from "react";
+
+function isPreview(): boolean {
+  const env = (process.env.NEXT_PUBLIC_VERCEL_ENV || "").toLowerCase();
+  if (env && env !== "production") return true;
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname || "";
+    if (host.includes("-git-") || host.includes(".vercel.app") || host.includes("localhost")) return true;
+  }
+  return false;
+}
+
+export default function PreviewBadge() {
+  if (!isPreview()) return null;
+  const ref = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF || "preview";
+  const sha = (process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || "").slice(0,7) || "no-sha";
+  return (
+    <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none" data-testid="preview-badge">
+      <span className="pointer-events-auto select-none rounded-full bg-black/80 text-white text-xs px-3 py-1.5 shadow-md backdrop-blur">
+        preview • <strong>{ref}</strong> • {sha}
+      </span>
+    </div>
+  );
+}
+```
+
+=== FILE: components/PreviewDebug.tsx ===
+```
+'use client';
+type Props = {
+  isPreview: boolean;
+  hasSupabase: boolean;
+  counts: { nuevos: number; destacados: number; top: number };
+};
+export default function PreviewDebug({ isPreview, hasSupabase, counts }: Props) {
+  if (!isPreview) return null;
+  return (
+    <div style={{
+      position:'fixed', bottom:16, left:16, zIndex:60,
+      background:'rgba(255,255,255,.95)', border:'1px solid #e5e7eb',
+      borderRadius:12, padding:'10px 12px', boxShadow:'0 8px 24px rgba(0,0,0,.08)'
+    }}>
+      <div style={{fontWeight:800, fontSize:12, marginBottom:6}}>PreviewDebug</div>
+      <ul style={{fontSize:12, lineHeight:1.3}}>
+        <li>VERCEL_ENV: <b>{isPreview ? 'preview' : 'other'}</b></li>
+        <li>Supabase envs: <b style={{color:hasSupabase?'#16a34a':'#dc2626'}}>
+          {hasSupabase ? 'OK' : 'FALTAN'}</b></li>
+        <li>Nuevos: <b>{counts.nuevos}</b></li>
+        <li>Destacados: <b>{counts.destacados}</b></li>
+        <li>Top: <b>{counts.top}</b></li>
+      </ul>
+    </div>
+  );
+}
+```
+
+=== FILE: components/ProductCard.tsx ===
+```
+"use client";
+
+import Link from "next/link";
+
+export default function ProductCard({
+  id,
+  name,
+  name_es,        // 👈 nuevo: nombre traducido opcional
+  image_url,
+  price_cents,
+}: {
+  id: string;
+  name: string;
+  name_es?: string;   // 👈 opcional para compatibilidad
+  image_url: string;
+  price_cents: number;
+}) {
+  const fmtCLP = (cents: number) =>
+    Intl.NumberFormat("es-CL", {
+      style: "currency",
+      currency: "CLP",
+      maximumFractionDigits: 0,
+    }).format(cents);
+
+  return (
+    <Link
+      href={`/producto/${id}`}
+      className="group block bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+    >
+      {/* Imagen */}
+      <div className="aspect-[4/3] bg-gray-50 rounded-t-xl overflow-hidden">
+        <img
+          src={image_url || "/lunaria-icon.png"}
+          alt={name_es || name}   // 👈 usamos el traducido si existe
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+        />
+      </div>
+
+      {/* Info */}
+      <div className="p-4">
+        <h3 className="text-base font-semibold text-gray-800 group-hover:text-lime-600 transition-colors line-clamp-2">
+          {name_es || name}   {/* 👈 mostramos name_es si está disponible */}
+        </h3>
+        <p className="mt-2 text-lg font-bold text-lime-700">
+          {fmtCLP(price_cents)}
+        </p>
+      </div>
+    </Link>
+  );
+}
+```
+
+=== FILE: components/ProductCarousel.module.css ===
+```
+.card {
+  width: 15rem;
+  height: 360px;
+  display: grid;
+  grid-template-rows: 180px 1fr;
+  border-radius: 0.75rem;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: box-shadow 300ms, transform 300ms;
+}
+.card:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  transform: translateY(-4px);
+}
+.imageWrap {
+  background: #f9fafb;
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 0.75rem;
+  overflow: hidden;
+}
+.titleClamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.price {
+  color: #3f9f3f;
+  font-weight: 700;
+}
+```
+
+=== FILE: components/ProductCarousel.tsx ===
+```
+"use client";
+
+import Link from "next/link";
+
+interface Props {
+  products: {
+    id: string;
+    name: string;
+    image_url: string;
+    price_cents: number;
+  }[];
+}
+
+export default function ProductCarousel({ products }: Props) {
+  const fmtCLP = (cents: number) =>
+    Intl.NumberFormat("es-CL", {
+      style: "currency",
+      currency: "CLP",
+      maximumFractionDigits: 0,
+    }).format(cents);
+
+  return (
+    <div className="overflow-x-auto">
+      <div className="flex gap-4 snap-x snap-mandatory pb-4 items-stretch">
+        {products.map((product) => (
+          <Link
+            key={product.id}
+            href={`/producto/${product.id}`}
+            className="group flex-shrink-0 w-52 flex flex-col bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+          >
+            {/* Imagen fija */}
+            <div className="h-[140px] bg-gray-50 rounded-t-xl overflow-hidden">
+              <img
+                src={product.image_url || "/lunaria-icon.png"}
+                alt={product.name}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+                decoding="async"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+
+            {/* Caja inferior compacta */}
+            <div className="p-3">
+              <h3 className="text-sm font-semibold text-gray-800 group-hover:text-lime-600 transition-colors leading-snug line-clamp-4">
+                {product.name}
+              </h3>
+              <p className="mt-2 text-base font-bold text-lime-700">
+                {fmtCLP(product.price_cents)}
+              </p>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+=== FILE: components/ProductDetailClient.tsx ===
+```
+"use client";
+
+import { useCart } from "@/components/useCart";
+import { ShieldCheck, Truck } from "lucide-react";
+
+export default function ProductDetailClient({ producto }: { producto: any }) {
+  const { add: agregarAlCarro } = useCart();
+
+  const fmtCLP = (cents: number) =>
+    Intl.NumberFormat("es-CL", {
+      style: "currency",
+      currency: "CLP",
+      maximumFractionDigits: 0,
+    }).format(cents);
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+      {/* Imagen */}
+      <div className="aspect-[4/3] w-full bg-gray-50 rounded-2xl overflow-hidden shadow-sm">
+        <img
+          src={producto.image_url || "/lunaria-icon.png"}
+          // 👈 usamos traducción si existe
+          alt={producto.name_es || producto.name}
+          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+        />
+      </div>
+
+      {/* Detalles */}
+      <div>
+        <h1 className="text-3xl font-display font-bold text-gray-900 mb-4">
+          {producto.name_es || producto.name}   {/* 👈 mostramos name_es si está */}
+        </h1>
+        <p className="text-gray-600 leading-relaxed mb-6">
+          {producto.description || "Sin descripción disponible."}
+        </p>
+
+        <p className="text-2xl font-semibold text-lime-700 mb-8">
+          {fmtCLP(producto.price_cents)}
+        </p>
+
+        <button
+          onClick={() => agregarAlCarro(producto)}
+          className="w-full md:w-auto px-6 py-3 bg-black text-white rounded-xl font-medium shadow-md hover:bg-gray-800 hover:scale-[1.02] active:scale-[0.98] transition-transform duration-200"
+        >
+          Agregar al carro
+        </button>
+
+        {/* Bloque de confianza */}
+        <div className="mt-8 flex flex-col sm:flex-row gap-6 text-sm text-gray-600">
+          <div className="flex items-center gap-2">
+            <Truck className="w-5 h-5 text-lime-600" />
+            <span>Envío rápido a todo Chile</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-lime-600" />
+            <span>Pago seguro garantizado</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+=== FILE: components/ProductListClient.tsx ===
+```
+import ProductCard from "./ProductCard";
+
+interface Producto {
+  id: string;
+  name: string;
+  image_url: string | null;
+  price_cents: number | null;
+  category_slug: string;
+}
+
+export default function ProductListClient({ products }: { products: Producto[] }) {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      {products.map((p) => (
+        <ProductCard
+          key={p.id}
+          id={p.id}
+          name={p.name}
+          image_url={p.image_url ?? ""}
+          price_cents={p.price_cents ?? 0}
+        />
+      ))}
+    </div>
+  );
+}
+```
+
+=== FILE: components/ProductSkeleton.tsx ===
+```
+'use client';
+export default function ProductSkeleton(){
+  return (
+    <div className="rounded-xl border overflow-hidden bg-white">
+      <div className="aspect-[4/3] bg-gray-100 skeleton" />
+      <div className="p-4 space-y-2">
+        <div className="h-4 w-2/3 bg-gray-200 rounded skeleton" />
+        <div className="h-3 w-1/2 bg-gray-200 rounded skeleton" />
+        <div className="h-8 w-24 bg-gray-200 rounded-lg skeleton" />
+      </div>
+    </div>
+  );
+}
+```
+
+=== FILE: components/SafeImage.tsx ===
+```
+"use client";
+import Image, { ImageProps } from "next/image";
+import { useState } from "react";
+
+// Usa src de Supabase si viene; si falla o está vacío, muestra /lunaria-icon.png.
+// No rompe el render en Server Components porque el error se maneja en cliente.
+export default function SafeImage(props: ImageProps) {
+  const { src, alt, ...rest } = props;
+  const [error, setError] = useState(false);
+
+  const resolved =
+    !src || error || (typeof src === "string" && src.startsWith("http") && src.includes("images.unsplash.com"))
+      ? "/lunaria-icon.png"
+      : src;
+
+  return (
+    <Image
+      {...rest}
+      src={resolved as string}
+      alt={alt || "Imagen"}
+      onError={() => setError(true)}
+    />
+  );
+}
+```
+

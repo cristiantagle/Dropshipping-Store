@@ -1,0 +1,2 @@
+# Aquí puedes escribir ajustes que quieras que Copilot haga sobre los archivos.
+# Ejemplo: "Quiero que el token se lea desde una variable de entorno"

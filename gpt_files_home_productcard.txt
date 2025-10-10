@@ -1,9 +1,0 @@
-# Pégame el contenido EXACTO de estos archivos en el próximo mensaje (en un GPT BUNDLE):
-app/page.tsx
-app/globals.css
-
-# (Opcional, solo si quieres que también deje 100% coherente el resto de la UI más adelante)
-# components/ProductListClient.tsx
-# components/SectionHeader.tsx
-# components/ProductSkeleton.tsx
-# components/Hero.tsx

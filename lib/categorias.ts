@@ -40,6 +40,26 @@ export const categorias: Categoria[] = [
     nombre: "Tecnología",
     image_url: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/tecnologia.svg",
   },
+  {
+    slug: "ropa_hombre",
+    nombre: "Ropa Hombre",
+    image_url: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/belleza.svg", // Placeholder consistente
+  },
+  {
+    slug: "ropa_mujer",
+    nombre: "Ropa Mujer",
+    image_url: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/belleza.svg", // Placeholder consistente
+  },
+  {
+    slug: "accesorios",
+    nombre: "Accesorios",
+    image_url: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/oficina.svg", // Reusar icono existente
+  },
+  {
+    slug: "otros",
+    nombre: "Otros",
+    image_url: "https://iowpylofmfzlbvlhlqih.supabase.co/storage/v1/object/public/branding/categorias/hogar.svg", // Reusar icono existente
+  },
 ];
 
 // ✅ Devuelve todas las categorías

@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+.env*
+.vercel/
+pnpm-lock.yaml
+yarn.lock
+dist/
+coverage/
+*.bak
+run.sh
+.backups/
