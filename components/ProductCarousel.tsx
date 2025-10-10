@@ -1,6 +1,7 @@
 "use client";
 
 import ProductCard from "./ProductCard";
+import { ProductCardSkeleton } from "./Skeleton";
 
 interface Props {
   products: {
@@ -10,9 +11,21 @@ interface Props {
     image_url: string;
     price_cents: number;
   }[];
+  loading?: boolean;
+  skeletonCount?: number;
 }
 
-export default function ProductCarousel({ products }: Props) {
+export default function ProductCarousel({ products, loading = false, skeletonCount = 6 }: Props) {
+  if (loading) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        {Array.from({ length: skeletonCount }, (_, i) => (
+          <ProductCardSkeleton key={`skeleton-${i}`} />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
       {products.map((p) => (

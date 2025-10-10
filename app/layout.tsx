@@ -1,6 +1,7 @@
 import "./globals.css";
 import TopBar from "@/components/TopBar";
 import Footer from "@/components/Footer";
+import { CartProvider } from "../contexts/CartContext";
 
 export const metadata = {
   title: "Lunaria",
@@ -19,9 +20,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="description" content="Descubre productos útiles, bonitos y sustentables en Lunaria. Envíos simples, calidad real." />
       </head>
       <body className="font-sans bg-gray-50 text-gray-900 antialiased">
-        <TopBar />
-        {children}
-        <Footer />
+        <CartProvider>
+          <TopBar />
+          {children}
+          <Footer />
+        </CartProvider>
       </body>
     </html>
   );

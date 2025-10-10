@@ -192,6 +192,72 @@ a[data-cat]:hover, .cat-tile:hover {
   @apply inline-flex items-center gap-2 rounded-xl bg-lime-600/95 text-white px-3 py-1.5 shadow-md;
 }
 
+/* === SKELETON ANIMATIONS === */
+@keyframes skeleton-wave {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-wave {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-wave::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: skeleton-wave 1.6s ease-in-out infinite;
+  content: '';
+}
+
+/* === HERO ANIMATIONS === */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.bg-300% {
+  background-size: 300% 100%;
+}
+
 /* === LUNARIA: visual-pack-level4 (do not remove) === */
 /* Paleta y tokens */
 :root {
