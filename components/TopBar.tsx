@@ -6,7 +6,6 @@ import { ShoppingCart, Menu, X } from "lucide-react";
 import Image from "next/image";
 import SearchBar from "./SearchBar";
 import { useCart } from '../contexts/CartContext';
-import ShoppingCartModal from './ShoppingCart';
 
 export default function TopBar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -88,9 +87,6 @@ export default function TopBar() {
           </nav>
         </div>
       )}
-      
-      {/* Shopping Cart Modal */}
-      <ShoppingCartModal />
     </header>
   );
 }

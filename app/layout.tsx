@@ -2,6 +2,7 @@ import "./globals.css";
 import TopBar from "@/components/TopBar";
 import Footer from "@/components/Footer";
 import { CartProvider } from "../contexts/CartContext";
+import ShoppingCart from "@/components/ShoppingCart";
 
 export const metadata = {
   title: "Lunaria",
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <TopBar />
           {children}
           <Footer />
+          <ShoppingCart />
         </CartProvider>
       </body>
     </html>
