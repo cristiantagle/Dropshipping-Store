@@ -6,12 +6,23 @@ import { ShoppingCart, Menu, X } from "lucide-react";
 import Image from "next/image";
 import SearchBar from "./SearchBar";
 import { useCart } from '../contexts/CartContext';
+import { useEffect } from 'react';
 import MiniCart from './MiniCart';
 
 export default function TopBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showMiniCart, setShowMiniCart] = useState(false);
+  const [cartPulse, setCartPulse] = useState(false);
   const { totalItems, toggleCart } = useCart();
+
+  // Animate cart counter when totalItems changes
+  useEffect(() => {
+    if (totalItems > 0) {
+      setCartPulse(true);
+      const timer = setTimeout(() => setCartPulse(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [totalItems]);
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur shadow-sm">
@@ -52,11 +63,14 @@ export default function TopBar() {
             >
             <ShoppingCart className="w-5 h-5 mr-1" />
             Carrito
-            {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] flex items-center justify-center">
-                {totalItems > 99 ? '99+' : totalItems}
-              </span>
-            )}
+              {totalItems > 0 && (
+                <span className={`
+                  absolute -top-2 -right-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] flex items-center justify-center transition-all duration-200
+                  ${cartPulse ? 'animate-cartPulse' : ''}
+                `}>
+                  {totalItems > 99 ? '99+' : totalItems}
+                </span>
+              )}
             </button>
             
             {/* Mini Cart Preview */}

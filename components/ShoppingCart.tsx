@@ -2,6 +2,7 @@
 
 import { useCart } from '../contexts/CartContext';
 import { useToast } from '../contexts/ToastContext';
+import { useCartAnimations } from '../hooks/useCartAnimations';
 import { X, Plus, Minus, ShoppingBag, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -17,7 +18,7 @@ export default function ShoppingCart() {
     formatPrice
   } = useCart();
   const { showError, showCartAction } = useToast();
-
+  const { animateItemRemove, isJustAdded } = useCartAnimations();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   if (!isOpen) return null;
@@ -72,7 +73,7 @@ export default function ShoppingCart() {
       className="fixed inset-0 z-[9999] bg-black bg-opacity-50 flex items-center justify-center p-4"
       onClick={handleOverlayClick}
     >
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden animate-modalIn">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
@@ -103,8 +104,23 @@ export default function ShoppingCart() {
             </div>
           ) : (
             <div className="p-6 space-y-4">
-              {items.map((item) => (
-                <div key={item.id} className="flex items-center gap-4 bg-gray-50 rounded-xl p-4">
+              {items.map((item, index) => (
+                <div 
+                  key={item.id} 
+                  className={`
+                    flex items-center gap-4 bg-gray-50 rounded-xl p-4 transition-all duration-300 ease-out
+                    transform
+                    ${
+                      isJustAdded(item.id)
+                        ? 'ring-2 ring-purple-300 bg-purple-25 scale-105'
+                        : 'hover:bg-gray-100 hover:scale-102'
+                    }
+                  `}
+                  style={{
+                    animationDelay: `${index * 50}ms`,
+                    animation: 'slideIn 0.4s ease-out forwards',
+                  }}
+                >
                   {/* Imagen del producto */}
                   <div className="flex-shrink-0">
                     <img
@@ -146,11 +162,14 @@ export default function ShoppingCart() {
                   {/* Botón eliminar */}
                   <button
                     onClick={() => {
-                      removeFromCart(item.id);
-                      showError(
-                        'Producto eliminado',
-                        `${item.name_es || item.name} se eliminó del carrito`
-                      );
+                      animateItemRemove(item.id);
+                      setTimeout(() => {
+                        removeFromCart(item.id);
+                        showError(
+                          'Producto eliminado',
+                          `${item.name_es || item.name} se eliminó del carrito`
+                        );
+                      }, 300);
                     }}
                     className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
                   >
