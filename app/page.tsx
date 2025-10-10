@@ -11,6 +11,7 @@ interface Product {
   name_es?: string;
   image_url: string;
   price_cents: number;
+  category_slug?: string;
 }
 
 interface CategoryData {

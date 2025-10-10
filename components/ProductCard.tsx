@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { useProductText } from "@/lib/useProductText";
 import AddToCartButton from './AddToCartButton';

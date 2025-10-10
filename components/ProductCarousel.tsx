@@ -10,6 +10,7 @@ interface Props {
     name_es?: string;
     image_url: string;
     price_cents: number;
+    category_slug?: string;
   }[];
   loading?: boolean;
   skeletonCount?: number;
@@ -36,6 +37,7 @@ export default function ProductCarousel({ products, loading = false, skeletonCou
           name_es={p.name_es}
           image_url={p.image_url}
           price_cents={p.price_cents}
+          category_slug={p.category_slug}
         />
       ))}
     </div>

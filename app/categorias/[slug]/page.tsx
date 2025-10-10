@@ -62,6 +62,7 @@ export default async function CategoriaPage({ params }: { params: { slug: string
               name_es={p.name_es}   // 👈 pasamos el traducido si existe
               image_url={p.image_url}
               price_cents={p.price_cents}
+              category_slug={p.category_slug}
             />
           ))}
         </div>
