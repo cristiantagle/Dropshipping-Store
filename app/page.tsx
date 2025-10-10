@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Hero from "@/components/Hero";
 import CategoryCarousel from "@/components/CategoryCarousel";
+import RecentlyViewed from "@/components/RecentlyViewed";
 import { createClient } from '@supabase/supabase-js';
 
 interface Product {
@@ -130,6 +131,9 @@ export default function HomePage() {
         link="/categorias/tecnologia"
         loading={categories.tecnologia.loading}
       />
+      
+      {/* Recently Viewed Products */}
+      <RecentlyViewed maxItems={6} />
     </main>
   );
 }

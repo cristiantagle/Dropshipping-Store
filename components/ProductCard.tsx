@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useProductText } from "@/lib/useProductText";
+import { useRecentlyViewed } from '../contexts/RecentlyViewedContext';
 import AddToCartButton from './AddToCartButton';
+import WishlistButton from './WishlistButton';
 
 interface Product {
   id: string;
@@ -16,6 +18,7 @@ interface Product {
 
 export default function ProductCard({ id, name, name_es, image_url, price_cents, badge, category_slug }: Product) {
   const { name: displayName } = useProductText({ name, name_es });
+  const { addProduct } = useRecentlyViewed();
 
   const USD_TO_CLP = Number(process.env.NEXT_PUBLIC_USD_TO_CLP) || 950;
   const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.3;
@@ -36,14 +39,44 @@ export default function ProductCard({ id, name, name_es, image_url, price_cents,
     e.stopPropagation();
   };
 
+  const handleProductView = () => {
+    // Track product as viewed when user hovers
+    addProduct({
+      id,
+      name,
+      name_es,
+      image_url,
+      price_cents,
+      category_slug,
+    });
+  };
+
   return (
-    <div className="relative min-w-[200px] flex-shrink-0 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 duration-300 flex flex-col group">
+    <div 
+      className="relative min-w-[200px] flex-shrink-0 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 duration-300 flex flex-col group"
+      onMouseEnter={handleProductView}
+    >
       <Link href={`/producto/${id}`} className="flex flex-col flex-1">
       {badge && (
-        <span className="absolute top-2 left-2 bg-lime-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md">
+        <span className="absolute top-2 left-2 bg-lime-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md z-10">
           {badge}
         </span>
       )}
+      
+      {/* Wishlist Button */}
+      <div className="absolute top-2 right-2 z-10">
+        <WishlistButton 
+          product={{
+            id,
+            name,
+            name_es,
+            image_url,
+            price_cents,
+            category_slug,
+          }}
+          size="sm"
+        />
+      </div>
       <div className="w-full h-40 flex items-center justify-center bg-gray-50 rounded-t-xl overflow-hidden">
         <img
           src={image_url}

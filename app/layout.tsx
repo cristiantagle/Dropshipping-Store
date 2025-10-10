@@ -3,6 +3,8 @@ import TopBar from "@/components/TopBar";
 import Footer from "@/components/Footer";
 import { CartProvider } from "../contexts/CartContext";
 import { ToastProvider } from "../contexts/ToastContext";
+import { WishlistProvider } from "../contexts/WishlistContext";
+import { RecentlyViewedProvider } from "../contexts/RecentlyViewedContext";
 import ShoppingCart from "@/components/ShoppingCart";
 
 export const metadata = {
@@ -23,12 +25,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans bg-gray-50 text-gray-900 antialiased">
         <ToastProvider>
-          <CartProvider>
-            <TopBar />
-            {children}
-            <Footer />
-            <ShoppingCart />
-          </CartProvider>
+          <RecentlyViewedProvider>
+            <WishlistProvider>
+              <CartProvider>
+                <TopBar />
+                {children}
+                <Footer />
+                <ShoppingCart />
+              </CartProvider>
+            </WishlistProvider>
+          </RecentlyViewedProvider>
         </ToastProvider>
       </body>
     </html>
