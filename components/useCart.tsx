@@ -83,7 +83,7 @@ export function useCart() {
     try {
       const stored = localStorage.getItem('carro');
       const parsed = stored ? JSON.parse(stored) : [];
-      logToPersistentLog('info', '📥 [HIDRATACIÓN] Items cargados', { count: parsed.length, items: parsed.map(i => ({ id: i.id, qty: i.qty })) });
+      logToPersistentLog('info', '📥 [HIDRATACIÓN] Items cargados', { count: parsed.length, items: parsed.map((i: CartItem) => ({ id: i.id, qty: i.qty })) });
       setItems(parsed);
     } catch {
       logToPersistentLog('error', '❌ [HIDRATACIÓN] Error al cargar, usando array vacío');
@@ -166,7 +166,7 @@ export function useCart() {
       try {
         const stored = localStorage.getItem('carro');
         const parsed = stored ? JSON.parse(stored) : [];
-        logToPersistentLog('info', '📥 [SYNC-READ] Items desde localStorage', { count: parsed.length, items: parsed.map(i => ({ id: i.id, qty: i.qty })) });
+        logToPersistentLog('info', '📥 [SYNC-READ] Items desde localStorage', { count: parsed.length, items: parsed.map((i: CartItem) => ({ id: i.id, qty: i.qty })) });
         
         // Prevenir loops infinitos: solo actualizar si realmente cambió
         setItems(prevItems => {
