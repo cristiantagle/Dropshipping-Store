@@ -34,6 +34,13 @@ const initialState: RecentlyViewedState = {
 function recentlyViewedReducer(state: RecentlyViewedState, action: RecentlyViewedAction): RecentlyViewedState {
   switch (action.type) {
     case 'ADD_PRODUCT': {
+      // Verificar si el producto ya es el más reciente para evitar updates innecesarios
+      const existingProduct = state.products.find(p => p.id === action.payload.id);
+      if (existingProduct && state.products[0]?.id === action.payload.id) {
+        // El producto ya es el más reciente, no hacer nada
+        return state;
+      }
+      
       // Remover el producto si ya existe para evitar duplicados
       const filteredProducts = state.products.filter(p => p.id !== action.payload.id);
       
@@ -101,13 +108,19 @@ export function RecentlyViewedProvider({ children }: { children: React.ReactNode
     }
   }, []);
 
-  // Guardar en localStorage cuando cambie el estado
+  // Guardar en localStorage cuando cambie el estado (con debounce)
   useEffect(() => {
-    try {
-      localStorage.setItem('lunaria-recently-viewed', JSON.stringify(state.products));
-    } catch (error) {
-      console.error('Error saving recently viewed to localStorage:', error);
-    }
+    if (state.products.length === 0) return; // No guardar array vacío inicial
+    
+    const timeoutId = setTimeout(() => {
+      try {
+        localStorage.setItem('lunaria-recently-viewed', JSON.stringify(state.products));
+      } catch (error) {
+        console.error('Error saving recently viewed to localStorage:', error);
+      }
+    }, 100); // Debounce de 100ms para evitar escrituras excesivas
+
+    return () => clearTimeout(timeoutId);
   }, [state.products]);
 
   return (

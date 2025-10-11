@@ -63,26 +63,32 @@ export default function RecentlyViewed({
           )}
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {displayProducts.map((product) => (
-            <div key={product.id} className="relative group">
-              <ProductCard
-                id={product.id}
-                name={product.name}
-                name_es={product.name_es}
-                image_url={product.image_url}
-                price_cents={product.price_cents}
-                category_slug={product.category_slug}
-              />
-              
-              {/* Timestamp overlay */}
-              <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-md flex items-center gap-1 z-20">
-                <Clock className="w-3 h-3" />
-                {getRelativeTime(product.viewedAt)}
+        {/* Products Grid - Estabilizado para prevenir flickering */}
+        <div className="recently-viewed-container">
+          <div className="recently-viewed-grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {displayProducts.map((product, index) => (
+              <div 
+                key={`${product.id}-${index}`}
+                className="recently-viewed-item relative group"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <ProductCard
+                  id={product.id}
+                  name={product.name}
+                  name_es={product.name_es}
+                  image_url={product.image_url}
+                  price_cents={product.price_cents}
+                  category_slug={product.category_slug}
+                />
+                
+                {/* Timestamp overlay */}
+                <div className="absolute top-2 left-2 bg-blue-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-md flex items-center gap-1 z-20 shadow-sm">
+                  <Clock className="w-3 h-3" />
+                  {getRelativeTime(product.viewedAt)}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Show more indicator */}

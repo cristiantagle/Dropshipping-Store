@@ -26,24 +26,31 @@ export default function ProductCard({ id, name, name_es, image_url, price_cents,
     e.stopPropagation();
   };
 
+  // Debounced product view tracking to prevent excessive updates
   const handleProductView = () => {
-    // Track product as viewed when user hovers
-    addProduct({
-      id,
-      name,
-      name_es,
-      image_url,
-      price_cents,
-      category_slug,
-    });
+    // Only track on actual click, not hover to prevent flickering
+    // Hover tracking causes excessive re-renders in RecentlyViewed
   };
 
   return (
     <div 
       className="relative min-w-[200px] flex-shrink-0 bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-500 ease-out transform hover:-translate-y-2 hover:scale-[1.02] flex flex-col group overflow-hidden backdrop-blur-sm"
-      onMouseEnter={handleProductView}
     >
-      <Link href={`/producto/${id}`} className="flex flex-col flex-1">
+      <Link 
+        href={`/producto/${id}`} 
+        className="flex flex-col flex-1"
+        onClick={() => {
+          // Track product as viewed only on click to prevent flickering
+          addProduct({
+            id,
+            name,
+            name_es,
+            image_url,
+            price_cents,
+            category_slug,
+          });
+        }}
+      >
       {badge && (
         <span className="absolute top-2 left-2 bg-lime-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md z-10">
           {badge}

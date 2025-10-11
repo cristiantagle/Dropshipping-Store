@@ -13,6 +13,7 @@ export default function TopBar() {
   const [showMiniCart, setShowMiniCart] = useState(false);
   const [cartPulse, setCartPulse] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [cartHoverTimeout, setCartHoverTimeout] = useState<NodeJS.Timeout | null>(null);
   const { totals } = useOptimizedCart();
 
   // Fix hydration by ensuring client-side only rendering of cart count
@@ -28,6 +29,15 @@ export default function TopBar() {
       return () => clearTimeout(timer);
     }
   }, [isClient, totals.itemCount]);
+
+  // Cleanup cart hover timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (cartHoverTimeout) {
+        clearTimeout(cartHoverTimeout);
+      }
+    };
+  }, [cartHoverTimeout]);
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100/50 transition-all duration-300">
@@ -64,8 +74,21 @@ export default function TopBar() {
           </Link>
           <div 
             className="relative group"
-            onMouseEnter={() => setShowMiniCart(true)}
-            onMouseLeave={() => setShowMiniCart(false)}
+            onMouseEnter={() => {
+              // Clear any pending close timeout
+              if (cartHoverTimeout) {
+                clearTimeout(cartHoverTimeout);
+                setCartHoverTimeout(null);
+              }
+              setShowMiniCart(true);
+            }}
+            onMouseLeave={() => {
+              // Add a delay before closing to allow movement to dropdown
+              const timeout = setTimeout(() => {
+                setShowMiniCart(false);
+              }, 150); // 150ms delay gives time to move to dropdown
+              setCartHoverTimeout(timeout);
+            }}
           >
             <Link
               href="/carro"
@@ -84,7 +107,24 @@ export default function TopBar() {
             </Link>
             
             {/* Mini Cart Preview */}
-            <MiniCart isVisible={showMiniCart} />
+            <MiniCart 
+              isVisible={showMiniCart}
+              onMouseEnter={() => {
+                // Clear timeout when hovering over dropdown
+                if (cartHoverTimeout) {
+                  clearTimeout(cartHoverTimeout);
+                  setCartHoverTimeout(null);
+                }
+              }}
+              onMouseLeave={() => {
+                // Close immediately when leaving dropdown
+                setShowMiniCart(false);
+                if (cartHoverTimeout) {
+                  clearTimeout(cartHoverTimeout);
+                  setCartHoverTimeout(null);
+                }
+              }}
+            />
           </div>
         </nav>
 

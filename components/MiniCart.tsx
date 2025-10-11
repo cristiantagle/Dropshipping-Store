@@ -7,9 +7,11 @@ import Link from 'next/link';
 
 interface MiniCartProps {
   isVisible: boolean;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
-export default function MiniCart({ isVisible }: MiniCartProps) {
+export default function MiniCart({ isVisible, onMouseEnter, onMouseLeave }: MiniCartProps) {
   const { items, totals, isEmpty } = useOptimizedCart();
 
   if (!isVisible || isEmpty) return null;
@@ -19,7 +21,18 @@ export default function MiniCart({ isVisible }: MiniCartProps) {
   const remainingCount = items.length - previewItems.length;
 
   return (
-    <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50 overflow-hidden">
+    <div 
+      className="absolute top-full right-0 mt-0 w-80 z-50 transition-all duration-200 ease-out"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      style={{
+        // Create invisible bridge to prevent hover gap
+        paddingTop: '8px',
+        marginTop: '-8px'
+      }}
+    >
+      {/* Actual cart content with proper styling */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
       {/* Header */}
       <div className="p-4 border-b border-gray-100">
         <div className="flex items-center justify-between">
@@ -84,6 +97,7 @@ export default function MiniCart({ isVisible }: MiniCartProps) {
         <p className="text-xs text-gray-500 text-center mt-2">
           Envío gratuito en pedidos sobre $30.000
         </p>
+      </div>
       </div>
     </div>
   );
