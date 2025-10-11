@@ -2434,6 +2434,201 @@ JSON.parse(localStorage.getItem('carro') || '[]')
 
 ---
 
+## 🎉 **SESIÓN DEL 11 DE OCTUBRE 2025 (FINAL) - FIXES UX CRÍTICOS COMPLETADOS**
+
+### 🔧 **PROBLEMAS CRÍTICOS DE UX SOLUCIONADOS**
+
+#### 🎯 **1. RECENTLY VIEWED FLICKERING - COMPLETAMENTE ELIMINADO**
+
+**❌ Problema Original:**
+- **Flickering intenso** al pasar mouse por productos de "Productos vistos recientemente"
+- **Cambio constante de imágenes** debido a re-renders excesivos
+- **Cambios de orden** cada vez que se pasaba el mouse
+- **Performance degradada** por updates constantes de localStorage
+
+**✅ Solución Implementada:**
+
+##### 🎯 **ProductCard.tsx Optimizado:**
+- **❌ Eliminado**: `onMouseEnter={handleProductView}` (causaba updates en cada hover)
+- **✅ Implementado**: Tracking solo en `onClick` del Link al producto
+- **✅ Prevención**: Solo se trackean productos al hacer clic real
+
+##### ⚡ **Context Performance Optimizations:**
+```typescript
+// Debounce localStorage writes (100ms)
+setTimeout(() => {
+  localStorage.setItem('lunaria-recently-viewed', JSON.stringify(state.products));
+}, 100);
+
+// Prevención de updates innecesarios
+if (existingProduct && state.products[0]?.id === action.payload.id) {
+  return state; // No hacer nada si ya es el más reciente
+}
+```
+
+##### 🎨 **CSS Stabilizado:**
+```css
+/* Animaciones optimizadas para RecentlyViewed */
+.recently-viewed-item {
+  animation: fadeInScale 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.recently-viewed-container {
+  min-height: 300px;
+  transition: min-height 0.3s ease;
+}
+
+/* Soporte accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .recently-viewed-item {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+```
+
+##### 🔑 **Keys Estabilizadas:**
+```typescript
+// ANTES: Causaba re-renders por timestamp cambio
+key={`${product.id}-${product.viewedAt}`}
+
+// DESPUÉS: Estable por posición
+key={`${product.id}-${index}`}
+```
+
+---
+
+#### 🛒 **2. MINICART HOVER - FINALMENTE PERSISTENTE**
+
+**❌ Problema Original:**
+- **Cierre inmediato** al mover mouse hacia el dropdown
+- **Gap invisible** entre botón carrito y MiniCart
+- **Imposible interactuar** con contenido del dropdown
+- **UX frustrante** comparado con Amazon/MercadoLibre
+
+**✅ Solución Implementada:**
+
+##### ⏱️ **Timeout Inteligente:**
+```typescript
+// TopBar.tsx - Delay para movimiento natural
+onMouseLeave={() => {
+  const timeout = setTimeout(() => {
+    setShowMiniCart(false);
+  }, 150); // 150ms tolerancia
+  setCartHoverTimeout(timeout);
+}}
+
+// Cancelar timeout si vuelve al área
+onMouseEnter={() => {
+  if (cartHoverTimeout) {
+    clearTimeout(cartHoverTimeout);
+    setCartHoverTimeout(null);
+  }
+  setShowMiniCart(true);
+}}
+```
+
+##### 🌉 **Hover Bridge Invisible:**
+```typescript
+// MiniCart.tsx - Padding bridge para conectar área
+<div 
+  style={{
+    // Bridge invisible para prevenir gap
+    paddingTop: '8px',
+    marginTop: '-8px'
+  }}
+>
+  <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+    {/* Contenido real del MiniCart */}
+  </div>
+</div>
+```
+
+##### 🎯 **Event Handling Coordinado:**
+- **TopBar**: Maneja hover del botón con timeout
+- **MiniCart**: Cancela timeout al entrar, cierra al salir completamente
+- **Cleanup**: Timeouts se limpian automáticamente en unmount
+- **Estado compartido**: Ambos componentes sincronizan showMiniCart
+
+---
+
+### 🏆 **RESULTADO FINAL: UX PREMIUM NIVEL E-COMMERCE**
+
+#### ✅ **Recently Viewed - Sin Flickering:**
+- ✅ **Movimiento del mouse**: Completamente suave, sin cambios visuales
+- ✅ **Orden estable**: Los productos mantienen su posición
+- ✅ **Performance**: Solo trackea al hacer clic real en productos
+- ✅ **Animaciones fluidas**: FadeIn escalonado profesional
+- ✅ **Accesibilidad**: Reduced motion support
+
+#### ✅ **MiniCart - Hover Persistente:**
+- ✅ **Movimiento natural**: 150ms de tolerancia para movimiento del mouse
+- ✅ **Sin gaps**: Área continua entre botón y dropdown
+- ✅ **Interactividad completa**: Scroll, click, hover dentro del cart
+- ✅ **Cierre inteligente**: Solo al salir completamente del área
+- ✅ **UX nivel Amazon**: Misma experiencia que grandes e-commerce
+
+### 💎 **IMPACTO EN CONVERSIONES**
+
+#### 🎯 **Antes vs Después:**
+
+**❌ ANTES:**
+- Usuarios frustrados por flickering constante
+- Imposible revisar carrito sin ir a página completa
+- Experiencia amateur comparado con competencia
+
+**✅ DESPUÉS:**
+- Experiencia visual estable y profesional
+- Preview de carrito funcional como sitios premium
+- UX que genera confianza y aumenta conversiones
+
+### 🔧 **ARCHIVOS MODIFICADOS EN ESTA SOLUCIÓN**
+
+#### **Archivos Actualizados:**
+- **components/ProductCard.tsx**: Tracking optimizado, solo onClick
+- **components/RecentlyViewed.tsx**: Keys estables, CSS optimizado
+- **contexts/RecentlyViewedContext.tsx**: Debounce y prevención duplicados
+- **components/TopBar.tsx**: Hover timeout inteligente con cleanup
+- **components/MiniCart.tsx**: Bridge invisible y event handling
+- **app/globals.css**: Animaciones optimizadas y reduced motion
+
+#### **Nuevas Clases CSS:**
+```css
+.recently-viewed-item     # Animaciones estables
+.recently-viewed-grid     # Layout que previene shifts
+.recently-viewed-container # Contenedor con altura mínima
+```
+
+### 📊 **TESTING COMPLETADO**
+
+#### **Escenarios Verificados:**
+1. ✅ **Recently Viewed Hover**: Mouse movement suave sin flickering
+2. ✅ **MiniCart Persistence**: Hover fluido del botón al dropdown
+3. ✅ **Mobile Responsiveness**: Ambos sistemas funcionan en móvil
+4. ✅ **Navigation Flow**: Comportamiento consistente entre páginas
+5. ✅ **Performance**: Sin degradación en re-renders o memory leaks
+6. ✅ **Accessibility**: Funciona con reduced motion preferences
+
+### 🚀 **COMANDOS PARA VERIFICAR**
+
+```bash
+# Build verificado - Sin errores
+npm run build
+# ✅ Compilado exitosamente
+
+# Probar UX improvements
+npm run dev
+# 1. Navegar a home
+# 2. Hacer hover en productos Recently Viewed (sin flickering)
+# 3. Hacer hover en carrito TopBar (dropdown persistente)
+# 4. Verificar interactividad completa en MiniCart
+```
+
+---
+
 ## 🔧 **SESIÓN DEL 11 DE OCTUBRE 2025 - DOCUMENTACIÓN COMPLETA Y HOTFIX**
 
 ### 📝 **CONTEXTO DE LA SESIÓN**
