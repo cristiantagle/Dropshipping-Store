@@ -1,5 +1,6 @@
 'use client';
 import React from "react";
+import { useRouter } from 'next/navigation';
 
 type Props = {
   className?: string;
@@ -9,8 +10,15 @@ type Props = {
 
 export default function SearchBar({ className = "", onSubmit, placeholder = "Buscar productos…" }: Props) {
   const [q, setQ] = React.useState("");
+  const router = useRouter();
+  
   function submit() {
-    (onSubmit ?? ((val) => alert(`(Demo) Buscar: ${val}`)))(q.trim());
+    if (onSubmit) {
+      onSubmit(q.trim());
+    } else if (q.trim()) {
+      // Redirigir a la página de búsqueda
+      router.push(`/buscar?q=${encodeURIComponent(q.trim())}`);
+    }
   }
   return (
     <div className={`relative flex items-center ${className}`} role="search">

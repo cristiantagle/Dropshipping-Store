@@ -1,10 +1,10 @@
 "use client";
 
-import { useCart } from "@/components/useCart";
+import { useOptimizedCart } from "@/contexts/OptimizedCartContext";
 import { ShieldCheck, Truck } from "lucide-react";
 
 export default function ProductDetailClient({ producto }: { producto: any }) {
-  const { add: agregarAlCarro } = useCart();
+  const { add: agregarAlCarro } = useOptimizedCart();
 
   const fmtCLP = (cents: number) =>
     Intl.NumberFormat("es-CL", {

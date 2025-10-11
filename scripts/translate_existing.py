@@ -15,7 +15,7 @@ def parse_args():
     parser.add_argument("--max-loops", type=int, default=50, help="Máximo de iteraciones (default 50)")
     parser.add_argument("--sleep-ms", type=int, default=2000, help="Espera entre lotes en ms (default 2000)")
     parser.add_argument("--only", type=str, default="all", help="Campos a procesar: all|name|desc|short|long o lista separada por comas")
-    parser.add_argument("--model", type=str, default=os.environ.get("OLLAMA_MODEL", "llama3:8b"))
+    parser.add_argument("--model", type=str, default=os.environ.get("OLLAMA_TRANSLATION_MODEL", os.environ.get("OLLAMA_MODEL", "llama3:8b")))
     parser.add_argument("--ollama-url", type=str, default=os.environ.get("OLLAMA_URL", "http://localhost:11434/api/generate"))
     parser.add_argument("--timeout", type=int, default=30, help="Timeout por petición a Ollama (s)")
     parser.add_argument("--retries", type=int, default=3, help="Reintentos ante error/transient")

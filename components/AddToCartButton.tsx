@@ -1,6 +1,6 @@
 "use client";
 
-import { useCart } from '../contexts/CartContext';
+import { useOptimizedCart } from '@/contexts/OptimizedCartContext';
 import { useToast } from '../contexts/ToastContext';
 import { ShoppingCart, Check } from 'lucide-react';
 import { useState } from 'react';
@@ -20,8 +20,8 @@ interface AddToCartButtonProps {
 }
 
 export default function AddToCartButton({ product, className = "" }: AddToCartButtonProps) {
-  const { addToCart, isInCart, getItemQuantity } = useCart();
-  const { showCartAction } = useToast();
+  const { add, hasItem, getItem } = useOptimizedCart();
+  const { addToast } = useToast();
   const [isAdding, setIsAdding] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
 
@@ -29,7 +29,7 @@ export default function AddToCartButton({ product, className = "" }: AddToCartBu
     setIsAdding(true);
     
     try {
-      addToCart({
+      add({
         id: product.id,
         name: product.name,
         name_es: product.name_es,
@@ -39,10 +39,11 @@ export default function AddToCartButton({ product, className = "" }: AddToCartBu
       });
 
       // Show toast notification
-      showCartAction(
-        '¡Agregado al carrito!',
-        `${product.name_es || product.name} se agregó correctamente`
-      );
+      addToast({ 
+        type: 'cart', 
+        title: '¡Agregado al carrito!', 
+        message: `${product.name_es || product.name} se agregó correctamente` 
+      });
 
       setJustAdded(true);
       setTimeout(() => setJustAdded(false), 2000);
@@ -53,7 +54,7 @@ export default function AddToCartButton({ product, className = "" }: AddToCartBu
     }
   };
 
-  const currentQuantity = getItemQuantity(product.id);
+  const currentQuantity = getItem(product.id)?.qty || 0;
 
   if (justAdded) {
     return (

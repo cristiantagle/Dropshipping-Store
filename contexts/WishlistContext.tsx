@@ -157,10 +157,9 @@ export function useWishlist() {
 
   // Formato de precio helper (reutilizado del carrito)
   const formatPrice = (cents: number) => {
-    const USD_TO_CLP = Number(process.env.NEXT_PUBLIC_USD_TO_CLP) || 950;
     const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.3;
     
-    const clp = (cents / 100) * USD_TO_CLP;
+    const clp = cents / 100; // Convertir de centavos CLP a pesos CLP
     const finalPrice = clp * MARKUP;
     
     return new Intl.NumberFormat("es-CL", {

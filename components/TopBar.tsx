@@ -1,28 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ShoppingCart, Menu, X } from "lucide-react";
 import Image from "next/image";
 import SearchBar from "./SearchBar";
-import { useCart } from '../contexts/CartContext';
-import { useEffect } from 'react';
+import { useOptimizedCart } from '@/contexts/OptimizedCartContext';
 import MiniCart from './MiniCart';
 
 export default function TopBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showMiniCart, setShowMiniCart] = useState(false);
   const [cartPulse, setCartPulse] = useState(false);
-  const { totalItems, toggleCart } = useCart();
+  const [isClient, setIsClient] = useState(false);
+  const { totals } = useOptimizedCart();
+
+  // Fix hydration by ensuring client-side only rendering of cart count
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Animate cart counter when totalItems changes
   useEffect(() => {
-    if (totalItems > 0) {
+    if (isClient && totals.itemCount > 0) {
       setCartPulse(true);
       const timer = setTimeout(() => setCartPulse(false), 300);
       return () => clearTimeout(timer);
     }
-  }, [totalItems]);
+  }, [isClient, totals.itemCount]);
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur shadow-sm">
@@ -49,29 +54,29 @@ export default function TopBar() {
           <Link href="/categorias" className="hover:text-lime-700">
             Categorías
           </Link>
-          <Link href="/diag" className="hover:text-lime-700">
-            Diag
+          <Link href="/buscar" className="hover:text-lime-700">
+            Buscar
           </Link>
           <div 
             className="relative"
             onMouseEnter={() => setShowMiniCart(true)}
             onMouseLeave={() => setShowMiniCart(false)}
           >
-            <button
-              onClick={toggleCart}
+            <Link
+              href="/carro"
               className="relative flex items-center hover:text-lime-700 transition-colors"
             >
             <ShoppingCart className="w-5 h-5 mr-1" />
             Carrito
-              {totalItems > 0 && (
+              {isClient && totals.itemCount > 0 && (
                 <span className={`
                   absolute -top-2 -right-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] flex items-center justify-center transition-all duration-200
                   ${cartPulse ? 'animate-cartPulse' : ''}
                 `}>
-                  {totalItems > 99 ? '99+' : totalItems}
+                  {totals.itemCount > 99 ? '99+' : totals.itemCount}
                 </span>
               )}
-            </button>
+            </Link>
             
             {/* Mini Cart Preview */}
             <MiniCart isVisible={showMiniCart} />
@@ -94,21 +99,21 @@ export default function TopBar() {
             <Link href="/categorias" className="hover:text-lime-700">
               Categorías
             </Link>
-            <Link href="/diag" className="hover:text-lime-700">
-              Diag
+            <Link href="/buscar" className="hover:text-lime-700">
+              Buscar
             </Link>
-            <button 
-              onClick={toggleCart}
+            <Link 
+              href="/carro"
               className="hover:text-lime-700 flex items-center transition-colors"
             >
               <ShoppingCart className="w-5 h-5 mr-2" />
               Carrito
-              {totalItems > 0 && (
+              {isClient && totals.itemCount > 0 && (
                 <span className="ml-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs rounded-full px-2 py-1">
-                  {totalItems}
+                  {totals.itemCount}
                 </span>
               )}
-            </button>
+            </Link>
           </nav>
         </div>
       )}

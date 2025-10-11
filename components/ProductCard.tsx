@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useProductText } from "@/lib/useProductText";
 import { useRecentlyViewed } from '../contexts/RecentlyViewedContext';
+import { formatPrice } from "@/lib/formatPrice";
 import AddToCartButton from './AddToCartButton';
 import WishlistButton from './WishlistButton';
 
@@ -19,20 +20,6 @@ interface Product {
 export default function ProductCard({ id, name, name_es, image_url, price_cents, badge, category_slug }: Product) {
   const { name: displayName } = useProductText({ name, name_es });
   const { addProduct } = useRecentlyViewed();
-
-  const USD_TO_CLP = Number(process.env.NEXT_PUBLIC_USD_TO_CLP) || 950;
-  const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.3;
-
-  const formatPrice = (cents: number) => {
-    const clp = (cents / 100) * USD_TO_CLP;
-    const finalPrice = clp * MARKUP;
-    return new Intl.NumberFormat("es-CL", {
-      style: "currency",
-      currency: "CLP",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(finalPrice);
-  };
 
   const handleCartClick = (e: React.MouseEvent) => {
     e.preventDefault();

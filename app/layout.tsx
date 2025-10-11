@@ -1,11 +1,11 @@
 import "./globals.css";
 import TopBar from "@/components/TopBar";
 import Footer from "@/components/Footer";
-import { CartProvider } from "../contexts/CartContext";
+import { OptimizedCartProvider } from "../contexts/OptimizedCartContext";
 import { ToastProvider } from "../contexts/ToastContext";
 import { WishlistProvider } from "../contexts/WishlistContext";
 import { RecentlyViewedProvider } from "../contexts/RecentlyViewedContext";
-import ShoppingCart from "@/components/ShoppingCart";
+import FloatingCart from "@/components/FloatingCart";
 
 export const metadata = {
   title: "Lunaria",
@@ -27,12 +27,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ToastProvider>
           <RecentlyViewedProvider>
             <WishlistProvider>
-              <CartProvider>
+              <OptimizedCartProvider>
                 <TopBar />
                 {children}
                 <Footer />
-                <ShoppingCart />
-              </CartProvider>
+                <FloatingCart />
+              </OptimizedCartProvider>
             </WishlistProvider>
           </RecentlyViewedProvider>
         </ToastProvider>

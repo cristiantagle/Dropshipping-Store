@@ -1,36 +1,18 @@
 "use client";
 
-import { useCart } from '../contexts/CartContext';
+import { useOptimizedCart } from '@/contexts/OptimizedCartContext';
+import { formatPrice } from '@/lib/formatPrice';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 interface MiniCartProps {
   isVisible: boolean;
 }
 
 export default function MiniCart({ isVisible }: MiniCartProps) {
-  const { items, totalItems, formatPrice, toggleCart } = useCart();
+  const { items, totals, isEmpty } = useOptimizedCart();
 
-  if (!isVisible || totalItems === 0) return null;
-
-  const formatFinalPrice = (cents: number) => {
-    const USD_TO_CLP = Number(process.env.NEXT_PUBLIC_USD_TO_CLP) || 950;
-    const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.3;
-    
-    const clp = (cents / 100) * USD_TO_CLP;
-    const finalPrice = clp * MARKUP;
-    
-    return new Intl.NumberFormat("es-CL", {
-      style: "currency",
-      currency: "CLP",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(finalPrice);
-  };
-
-  const getTotalInCLP = () => {
-    const totalCents = items.reduce((sum, item) => sum + (item.price_cents * item.quantity), 0);
-    return formatFinalPrice(totalCents);
-  };
+  if (!isVisible || isEmpty) return null;
 
   // Show max 3 items in preview
   const previewItems = items.slice(0, 3);
@@ -42,7 +24,7 @@ export default function MiniCart({ isVisible }: MiniCartProps) {
       <div className="p-4 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-gray-900">Tu Carrito</h3>
-          <span className="text-sm text-gray-500">{totalItems} productos</span>
+          <span className="text-sm text-gray-500">{totals.itemCount} productos</span>
         </div>
       </div>
 
@@ -65,9 +47,9 @@ export default function MiniCart({ isVisible }: MiniCartProps) {
                 {item.name_es || item.name}
               </h4>
               <div className="flex items-center justify-between mt-1">
-                <span className="text-xs text-gray-500">Cant: {item.quantity}</span>
+                <span className="text-xs text-gray-500">Cant: {item.qty}</span>
                 <span className="text-sm font-semibold text-purple-600">
-                  {formatFinalPrice(item.price_cents * item.quantity)}
+                  {formatPrice((item.price_cents * item.qty * 1.3))}
                 </span>
               </div>
             </div>
@@ -87,17 +69,17 @@ export default function MiniCart({ isVisible }: MiniCartProps) {
         <div className="flex items-center justify-between mb-3">
           <span className="font-medium text-gray-900">Total:</span>
           <span className="font-bold text-lg text-purple-600">
-            {getTotalInCLP()}
+            {totals.formattedTotal()}
           </span>
         </div>
 
-        <button
-          onClick={toggleCart}
+        <Link
+          href="/carro"
           className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 flex items-center justify-center gap-2"
         >
           Ver Carrito
           <ArrowRight className="w-4 h-4" />
-        </button>
+        </Link>
         
         <p className="text-xs text-gray-500 text-center mt-2">
           Envío gratuito en pedidos sobre $30.000

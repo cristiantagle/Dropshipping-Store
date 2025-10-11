@@ -7,7 +7,23 @@ export const supabaseServer = () =>
   createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { auth: { persistSession: false } }
+    { 
+      auth: { persistSession: false },
+      // ✅ Deshabilitar cache en desarrollo para datos siempre frescos
+      ...(process.env.NODE_ENV === 'development' && {
+        db: {
+          schema: 'public'
+        },
+        global: {
+          fetch: (url, options = {}) => {
+            return fetch(url, {
+              ...options,
+              cache: 'no-store', // 🚀 Sin cache en desarrollo
+            });
+          },
+        },
+      })
+    }
   );
 
 // export const supabaseServer = () =>

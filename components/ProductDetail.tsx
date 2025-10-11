@@ -3,16 +3,11 @@
 import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import { useProductText } from "@/lib/useProductText";
+import { formatPrice } from "@/lib/formatPrice";
 
 export default function ProductDetail({ product, relacionados }: any) {
   const { name, shortDesc, longDesc } = useProductText(product);
   const [activeTab, setActiveTab] = useState<"descripcion" | "envio" | "opiniones">("descripcion");
-
-  const USD_TO_CLP = Number(process.env.NEXT_PUBLIC_USD_TO_CLP) || 950;
-  const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.3;
-  const formatPrice = (cents: number) =>
-    new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", minimumFractionDigits: 0 })
-      .format(((cents / 100) * USD_TO_CLP) * MARKUP);
 
   return (
     <div className="max-w-6xl mx-auto p-6">

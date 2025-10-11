@@ -1,6 +1,10 @@
 import { supabaseServer } from "@/lib/supabase/server";
-import ProductCard from "@/components/ProductCard";
+import CategoryPageClient from "@/components/CategoryPageClient";
 import Breadcrumb from "@/components/Breadcrumb";
+
+// ✅ Deshabilitar cache en desarrollo para datos siempre frescos
+export const dynamic = 'force-dynamic'; // SSR siempre
+export const revalidate = 0; // Sin cache
 
 export default async function CategoriaPage({ params }: { params: { slug: string } }) {
   const supabase = supabaseServer();
@@ -47,26 +51,10 @@ export default async function CategoriaPage({ params }: { params: { slug: string
         </p>
       </div>
 
-      {!productos || productos.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-gray-500 bg-gray-50 rounded-xl">
-          <p className="text-lg font-medium">No hay productos en esta categoría.</p>
-          <p className="text-sm mt-1">Vuelve pronto — estamos agregando nuevas colecciones.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {productos.map((p) => (
-            <ProductCard
-              key={p.id}
-              id={p.id}
-              name={p.name}
-              name_es={p.name_es}   // 👈 pasamos el traducido si existe
-              image_url={p.image_url}
-              price_cents={p.price_cents}
-              category_slug={p.category_slug}
-            />
-          ))}
-        </div>
-      )}
+      <CategoryPageClient 
+        productos={productos || []} 
+        nombreCategoria={nombreCategoria}
+      />
     </main>
   );
 }

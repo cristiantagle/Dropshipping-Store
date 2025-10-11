@@ -66,7 +66,7 @@ export function transformCJProduct(raw: CJRawProduct): ProductRow {
     name_es: translateNameToSpanish(raw.productNameEn), // traducido
     productsku: raw.productSku,
     image_url: raw.productImage,
-    price_cents: Math.round(clpPrice), // guardamos en CLP
+    price_cents: Math.round(clpPrice * 100), // guardamos en centavos de CLP
     category_slug: mapCategory(raw.categoryName), // categoría final
     cj_category: raw.categoryName, // 👈 guardamos la original
   };
