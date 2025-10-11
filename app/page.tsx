@@ -81,59 +81,76 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main>
+    <main className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
       <Hero />
 
-      <CategoryCarousel
-        title="Para tu rutina de belleza"
-        description="Cuida tu piel y estilo con productos ecológicos"
-        products={categories.belleza.products}
-        link="/categorias/belleza"
-        loading={categories.belleza.loading}
-      />
+      {/* Sección de categorías con mejor spacing */}
+      <div className="space-y-8 sm:space-y-12 lg:space-y-16 py-8">
+        <div className="animate-fade-in-up">
+          <CategoryCarousel
+            title="Para tu rutina de belleza"
+            description="Cuida tu piel y estilo con productos ecológicos"
+            products={categories.belleza.products}
+            link="/categorias/belleza"
+            loading={categories.belleza.loading}
+          />
+        </div>
 
-      <CategoryCarousel
-        title="Bienestar diario"
-        description="Hidratación, descanso y energía para tu día"
-        products={categories.bienestar.products}
-        link="/categorias/bienestar"
-        loading={categories.bienestar.loading}
-      />
+        <div className="animate-fade-in-up-delay-1">
+          <CategoryCarousel
+            title="Bienestar diario"
+            description="Hidratación, descanso y energía para tu día"
+            products={categories.bienestar.products}
+            link="/categorias/bienestar"
+            loading={categories.bienestar.loading}
+          />
+        </div>
 
-      <CategoryCarousel
-        title="Hogar sustentable"
-        description="Productos reutilizables que cuidan el planeta"
-        products={categories.eco.products}
-        link="/categorias/eco"
-        loading={categories.eco.loading}
-      />
+        <div className="animate-fade-in-up-delay-2">
+          <CategoryCarousel
+            title="Hogar sustentable"
+            description="Productos reutilizables que cuidan el planeta"
+            products={categories.eco.products}
+            link="/categorias/eco"
+            loading={categories.eco.loading}
+          />
+        </div>
 
-      <CategoryCarousel
-        title="Ambientes que relajan"
-        description="Aromas, luz y orden para tu espacio personal"
-        products={categories.hogar.products}
-        link="/categorias/hogar"
-        loading={categories.hogar.loading}
-      />
+        <div className="animate-fade-in-up-delay-3">
+          <CategoryCarousel
+            title="Ambientes que relajan"
+            description="Aromas, luz y orden para tu espacio personal"
+            products={categories.hogar.products}
+            link="/categorias/hogar"
+            loading={categories.hogar.loading}
+          />
+        </div>
 
-      <CategoryCarousel
-        title="Para tu compañero fiel"
-        description="Accesorios seguros y cómodos para tu mascota"
-        products={categories.mascotas.products}
-        link="/categorias/mascotas"
-        loading={categories.mascotas.loading}
-      />
+        <div className="animate-fade-in-up">
+          <CategoryCarousel
+            title="Para tu compañero fiel"
+            description="Accesorios seguros y cómodos para tu mascota"
+            products={categories.mascotas.products}
+            link="/categorias/mascotas"
+            loading={categories.mascotas.loading}
+          />
+        </div>
 
-      <CategoryCarousel
-        title="Tecnología útil y portátil"
-        description="Gadgets que simplifican tu vida, sin complicaciones"
-        products={categories.tecnologia.products}
-        link="/categorias/tecnologia"
-        loading={categories.tecnologia.loading}
-      />
+        <div className="animate-fade-in-up-delay-1">
+          <CategoryCarousel
+            title="Tecnología útil y portátil"
+            description="Gadgets que simplifican tu vida, sin complicaciones"
+            products={categories.tecnologia.products}
+            link="/categorias/tecnologia"
+            loading={categories.tecnologia.loading}
+          />
+        </div>
+      </div>
       
-      {/* Recently Viewed Products */}
-      <RecentlyViewed maxItems={6} />
+      {/* Recently Viewed Products con mejor separación */}
+      <div className="pt-12 pb-8">
+        <RecentlyViewed maxItems={6} />
+      </div>
     </main>
   );
 }

@@ -40,7 +40,7 @@ export default function ProductCard({ id, name, name_es, image_url, price_cents,
 
   return (
     <div 
-      className="relative min-w-[200px] flex-shrink-0 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 duration-300 flex flex-col group"
+      className="relative min-w-[200px] flex-shrink-0 bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-500 ease-out transform hover:-translate-y-2 hover:scale-[1.02] flex flex-col group overflow-hidden backdrop-blur-sm"
       onMouseEnter={handleProductView}
     >
       <Link href={`/producto/${id}`} className="flex flex-col flex-1">
@@ -64,23 +64,31 @@ export default function ProductCard({ id, name, name_es, image_url, price_cents,
           size="sm"
         />
       </div>
-      <div className="w-full h-40 flex items-center justify-center bg-gray-50 rounded-t-xl overflow-hidden">
+      <div className="w-full h-40 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-t-xl overflow-hidden relative">
+        <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
         <img
           src={image_url}
           alt={displayName}
-          className="max-h-36 object-contain transition-transform duration-300 ease-out group-hover:scale-105"
+          className="max-h-36 object-contain transition-all duration-500 ease-out group-hover:scale-110 group-hover:brightness-105 group-hover:contrast-105 filter drop-shadow-sm"
         />
       </div>
-        <div className="p-4 flex flex-col flex-1 justify-between">
-          <h3 className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2">
+        <div className="p-5 flex flex-col flex-1 justify-between space-y-3">
+          <h3 className="text-sm font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-gray-700 transition-colors duration-300">
             {displayName}
           </h3>
-          <p className="text-lime-700 font-bold text-lg mt-3">{formatPrice(price_cents)}</p>
+          <div className="flex items-center justify-between">
+            <p className="text-lime-700 font-bold text-lg group-hover:text-lime-800 transition-colors duration-300">
+              {formatPrice(price_cents)}
+            </p>
+            <div className="w-6 h-6 bg-lime-100 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-100 scale-75">
+              <div className="w-2 h-2 bg-lime-600 rounded-full" />
+            </div>
+          </div>
         </div>
       </Link>
       
       {/* Botón Add to Cart fuera del Link */}
-      <div className="p-4 pt-0" onClick={handleCartClick}>
+      <div className="px-5 pb-5 pt-0" onClick={handleCartClick}>
         <AddToCartButton 
           product={{
             id,
@@ -90,7 +98,7 @@ export default function ProductCard({ id, name, name_es, image_url, price_cents,
             price_cents,
             category_slug,
           }}
-          className="w-full text-sm"
+          className="w-full text-sm font-medium py-2.5 rounded-lg transition-all duration-300 transform group-hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
         />
       </div>
     </div>
