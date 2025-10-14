@@ -105,3 +105,21 @@
 - Sistema de usuarios (Supabase Auth): login/registro/cerrar sesión, página de cuenta, protección de rutas.
 - Normalizar codificación de `WARP.md` y retomar documentación ahí.
 - Opcional: Magic Link/OAuth, mostrar nombre/avatares en más vistas.
+
+## Recuperación de Sesión (Codex)
+
+- Código fuente: rama `main` (todo lo de hoy ya está mergeado).
+- Dependencias: `npm ci` (o `npm install`).
+- Entorno (dev): crea/ajusta `.env.local` con
+  - `MP_ACCESS_TOKEN=TEST-...` (token de prueba de Mercado Pago)
+  - `NEXT_PUBLIC_URL=http://localhost:3000`
+  - (Supabase) `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` ya están en `.env`.
+- Perfiles: ejecutar una vez `scripts/add_profiles.sql` en el SQL Editor de Supabase para crear `public.profiles` + RLS.
+- Ejecución: `npm run dev` (local) y `npm run build` (validación previa a PR/merge).
+- Verificaciones rápidas:
+  - Usuarios: `/cuenta/registro`, `/cuenta/login`, `/cuenta` (editar perfil).
+  - TopBar: “Hola, {nombre|email}”, avatar y menú (Cuenta/Cerrar sesión).
+  - Carrito: agregar ítems, contador y mini‑cart; checkout sandbox funciona en `/carro` (redirige a Mercado Pago).
+- Checkout Pro (sandbox): si hay error, revisar consola del navegador → "Checkout error details".
+- Backups locales: mantener máx. 2 snapshots; usar scripts de `scripts/` (o snapshot manual). `.backup_global/` está git‑ignored.
+- Flujo de PRs: rama feature (e.g., `feat/<tarea>`), Commits Convencionales, abrir PR a `main`.
