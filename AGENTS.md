@@ -86,6 +86,19 @@
 - Invitado: checkout con email opcional en `components/CarroClient.tsx` (se envía a MP como `payer.email`).
 - Política snapshots: mantenemos solo 2 últimos (limpieza aplicada); últimos: ver `.backup_global`.
 
+### Checkout Pro (Mercado Pago) — 2025-10-14 noche
+
+- Endpoint `app/api/checkout/mercadopago/route.ts` ajustado:
+  - `sandbox_init_point` como fallback si estás en modo test.
+  - `auto_return` y `notification_url` solo cuando `NEXT_PUBLIC_URL` sea `https`.
+  - `back_urls` siempre definidas (dev: `http://localhost:3000/carro?...`).
+- Cliente `components/CarroClient.tsx`:
+  - Manejo de errores: muestra toast y log con `details` del servidor.
+  - Redirección a `init_point` o `sandbox_init_point` según respuesta.
+- Configuración mínima dev:
+  - `.env.local`: `MP_ACCESS_TOKEN=TEST-...`, `NEXT_PUBLIC_URL=http://localhost:3000`.
+  - Reiniciar `npm run dev` tras cambios.
+
 ## Próximas Tareas (actualizado)
 
 - UX móvil del menú y navegación.

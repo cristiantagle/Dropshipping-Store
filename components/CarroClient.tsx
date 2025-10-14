@@ -213,16 +213,22 @@ export default function CarroClient() {
       });
 
       if (!response.ok) {
-        throw new Error('Error en la respuesta del servidor');
+        let serverErr: any = null;
+        try { serverErr = await response.json(); } catch {}
+        console.error('Checkout error details:', serverErr);
+        addToast({ type: 'error', title: 'Pago no disponible', message: serverErr?.error || 'Error en la respuesta del servidor' });
+        throw new Error(serverErr?.details || 'Error en la respuesta del servidor');
       }
 
       const data = await response.json();
-      
-      if (data.init_point) {
-        // Redirigir a Mercado Pago
-        window.location.href = data.init_point;
+      const redirectUrl = data.init_point || data.sandbox_init_point;
+
+      if (redirectUrl) {
+        // Redirigir a Mercado Pago (prod o sandbox)
+        window.location.href = redirectUrl;
       } else {
-        throw new Error('No se recibió el link de pago');
+        console.error('Respuesta checkout inválida:', data);
+        throw new Error('No se recibió el link de pago (init_point)');
       }
     } catch (error) {
       console.error('Error en checkout:', error);

@@ -30,36 +30,29 @@ export async function POST(req: Request) {
 
     const baseUrl = (process.env.NEXT_PUBLIC_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
 
-    const response = await preference.create({
-      body: {
-        items: items.map((item, index) => ({
+    const isHttps = baseUrl.startsWith('https://');
+
+    const body: any = {
+      items: items.map((item, index) => ({
           id: `item-${index}-${Date.now()}`,
           title: item.title,
           quantity: item.quantity,
           currency_id: "CLP",
           unit_price: item.price,
         })),
-        ...(email?.trim()
-          ? { payer: { email: email.trim() } }
-          : {}),
-        back_urls: {
-          success: `${baseUrl}/carro?status=success`,
-          failure: `${baseUrl}/carro?status=failure`,
-          pending: `${baseUrl}/carro?status=pending`,
-        },
-        auto_return: "approved",
-        payment_methods: {
-          excluded_payment_types: [],
-          excluded_payment_methods: [],
-          installments: 12
-        },
-        shipments: {
-          cost: 0,
-          mode: "not_specified"
-        },
-        notification_url: `${baseUrl}/api/webhooks/mercadopago`
+      back_urls: {
+        success: `${baseUrl}/carro?status=success`,
+        failure: `${baseUrl}/carro?status=failure`,
+        pending: `${baseUrl}/carro?status=pending`,
       },
-    });
+    };
+
+    if (email?.trim()) body.payer = { email: email.trim() };
+    if (isHttps) body.auto_return = "approved";
+    // Solo incluir notification_url con https (Mercado Pago puede rechazar localhost/http)
+    if (isHttps) body.notification_url = `${baseUrl}/api/webhooks/mercadopago`;
+
+    const response = await preference.create({ body });
 
     return NextResponse.json({ 
       id: response.id,
@@ -67,9 +60,9 @@ export async function POST(req: Request) {
       sandbox_init_point: response.sandbox_init_point
     });
   } catch (err: any) {
-    console.error("MercadoPago error:", err);
+    console.error("MercadoPago error:", err?.message || err, err);
     return NextResponse.json(
-      { error: "Error creando preferencia de pago", details: err.message },
+      { error: "Error creando preferencia de pago", details: err?.message || String(err) },
       { status: 500 }
     );
   }
