@@ -1,0 +1,16 @@
+# Normalizar fin de línea (LF)
+* text=auto eol=lf
+
+# Archivos binarios (no convertir)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.mp4 binary
+*.mov binary
+*.pdf binary
+*.zip binary
+*.tar.gz binary
+*.exe binary

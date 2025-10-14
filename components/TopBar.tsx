@@ -1,20 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { ShoppingCart, Menu, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
+import { ShoppingCart, Menu, X, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import SearchBar from "./SearchBar";
 import { useOptimizedCart } from '@/contexts/OptimizedCartContext';
 import MiniCart from './MiniCart';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function TopBar() {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showMiniCart, setShowMiniCart] = useState(false);
   const [cartPulse, setCartPulse] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [cartHoverTimeout, setCartHoverTimeout] = useState<NodeJS.Timeout | null>(null);
   const { totals } = useOptimizedCart();
+  const { user, signOut, profile } = useAuth();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
+
+  // Cerrar el menú de usuario al hacer click fuera
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (!userMenuOpen) return;
+      const el = userMenuRef.current;
+      if (el && e.target instanceof Node && !el.contains(e.target)) {
+        setUserMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [userMenuOpen]);
 
   // Fix hydration by ensuring client-side only rendering of cart count
   useEffect(() => {
@@ -72,6 +91,52 @@ export default function TopBar() {
             <span className="relative z-10">Buscar</span>
             <div className="absolute inset-0 bg-gradient-to-r from-lime-500/0 via-lime-500/5 to-lime-500/0 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300" />
           </Link>
+          {user ? (
+            <div className="relative" ref={userMenuRef}>
+              <button
+                onClick={() => setUserMenuOpen((v) => !v)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-lime-50/50 hover:text-lime-700 transition-all"
+                aria-haspopup="menu"
+                aria-expanded={userMenuOpen}
+              >
+                {/* Avatar */}
+                <div className="w-7 h-7 rounded-full bg-lime-600 text-white flex items-center justify-center text-xs overflow-hidden">
+                  {profile?.avatar_url ? (
+                    <Image src={profile.avatar_url} alt="avatar" width={28} height={28} className="w-7 h-7 rounded-full object-cover" unoptimized />
+                  ) : (
+                    <span>{(profile?.display_name || user.email || 'U').charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
+                <span className="hidden lg:inline">Hola, {(profile?.display_name || user.email)}</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {userMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50">
+                  <Link href="/cuenta" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Cuenta</Link>
+                  <button
+                    onClick={async () => { await signOut(); router.replace('/'); }}
+                    className="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50"
+                  >
+                    Cerrar sesión
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link href="/cuenta/login" className="relative px-3 py-2 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 group">
+              <span className="relative z-10">Iniciar sesión</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-lime-500/0 via-lime-500/5 to-lime-500/0 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300" />
+            </Link>
+          )}
+          {user && (
+            <button
+              onClick={async () => { await signOut(); router.replace('/'); }}
+              className="relative px-3 py-2 rounded-lg hover:text-red-700 hover:bg-red-50/50 transition-all duration-300"
+              title="Cerrar sesión"
+            >
+              Cerrar sesión
+            </button>
+          )}
           <div 
             className="relative group"
             onMouseEnter={() => {
@@ -147,6 +212,23 @@ export default function TopBar() {
             <Link href="/buscar" className="py-3 px-4 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 font-medium">
               Buscar
             </Link>
+            {user ? (
+              <Link href="/cuenta" className="py-3 px-4 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 font-medium">
+                Cuenta
+              </Link>
+            ) : (
+              <Link href="/cuenta/login" className="py-3 px-4 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 font-medium">
+                Iniciar sesión
+              </Link>
+            )}
+            {user && (
+              <button
+                onClick={async () => { await signOut(); router.replace('/'); }}
+                className="py-3 px-4 rounded-lg hover:text-red-700 hover:bg-red-50/50 transition-all duration-300 font-medium text-left"
+              >
+                Cerrar sesión
+              </button>
+            )}
             <Link 
               href="/carro"
               className="py-3 px-4 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 flex items-center transition-all duration-300 font-medium group"

@@ -4,6 +4,7 @@ import { useOptimizedCart } from '@/contexts/OptimizedCartContext';
 import { formatPrice } from '@/lib/formatPrice';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface MiniCartProps {
   isVisible: boolean;
@@ -47,9 +48,12 @@ export default function MiniCart({ isVisible, onMouseEnter, onMouseLeave }: Mini
           <div key={item.id} className="flex items-center gap-3 p-4 border-b border-gray-50 hover:bg-gray-25 transition-colors">
             {/* Imagen */}
             <div className="flex-shrink-0">
-              <img
+              <Image
                 src={item.image_url}
                 alt={item.name_es || item.name}
+                width={48}
+                height={48}
+                unoptimized
                 className="w-12 h-12 object-cover rounded-lg"
               />
             </div>

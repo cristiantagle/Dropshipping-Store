@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useProductText } from "@/lib/useProductText";
 import { useRecentlyViewed } from '../contexts/RecentlyViewedContext';
 import { formatPrice } from "@/lib/formatPrice";
@@ -73,9 +74,12 @@ export default function ProductCard({ id, name, name_es, image_url, price_cents,
       </div>
       <div className="w-full h-40 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-t-xl overflow-hidden relative">
         <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
-        <img
+        <Image
           src={image_url}
-          alt={displayName}
+          alt={displayName ?? name}
+          width={320}
+          height={144}
+          unoptimized
           className="max-h-36 object-contain transition-all duration-500 ease-out group-hover:scale-110 group-hover:brightness-105 group-hover:contrast-105 filter drop-shadow-sm"
         />
       </div>

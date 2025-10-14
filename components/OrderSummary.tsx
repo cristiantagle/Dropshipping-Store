@@ -1,6 +1,6 @@
 "use client";
 
-import { useCart } from './useCart';
+import { useOptimizedCart } from '@/contexts/OptimizedCartContext';
 import { Truck, Shield, CreditCard } from 'lucide-react';
 
 interface OrderSummaryProps {
@@ -14,7 +14,7 @@ export default function OrderSummary({
   onCheckout,
   isCheckingOut = false 
 }: OrderSummaryProps) {
-  const { totals, isEmpty } = useCart();
+  const { totals, isEmpty } = useOptimizedCart();
 
   if (isEmpty) {
     return null;
@@ -90,6 +90,28 @@ export default function OrderSummary({
             </>
           )}
         </button>
+      )}
+
+      {/* Botonera adicional (placeholders sin lógica) */}
+      {!isEmpty && (
+        <div className="mt-3 grid gap-2">
+          <button
+            type="button"
+            disabled
+            className="w-full border border-gray-300 text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-70 font-medium py-2.5 px-4 rounded-lg"
+            title="Disponible pronto"
+          >
+            Transferencia bancaria (pronto)
+          </button>
+          <button
+            type="button"
+            disabled
+            className="w-full border border-gray-300 text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-70 font-medium py-2.5 px-4 rounded-lg"
+            title="Disponible pronto"
+          >
+            Pago en cuotas (pronto)
+          </button>
+        </div>
       )}
 
       {/* Garantías */}

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getAllCategories } from "@/lib/categorias";
 import Breadcrumb from "@/components/Breadcrumb";
 import { Home, Heart, Leaf, Users, PawPrint, Monitor, Briefcase, Shirt, User, ShoppingBag, Package } from "lucide-react";
@@ -49,9 +50,12 @@ export default async function Categorias() {
               <div className="aspect-[4/3] flex items-center justify-center bg-gray-50 rounded-t-xl overflow-hidden">
                 <div className="transition-transform duration-300 group-hover:scale-110">
                   {getCategoryIcon(c.slug) || (
-                    <img
+                    <Image
                       src={c.image_url}
                       alt={c.nombre}
+                      width={56}
+                      height={56}
+                      unoptimized
                       className="w-14 h-14 object-contain"
                     />
                   )}

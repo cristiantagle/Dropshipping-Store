@@ -8,6 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import { Minus, Plus, X, ShoppingBag, ArrowLeft, CheckCircle, XCircle, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '../contexts/ToastContext';
+import Image from 'next/image';
 
 // Componente para cada item del carrito
 function CartItemComponent({ item, onIncrement, onDecrement, onRemove, onUpdateQuantity }: { 
@@ -45,9 +46,12 @@ function CartItemComponent({ item, onIncrement, onDecrement, onRemove, onUpdateQ
     <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
       {/* Imagen del producto */}
       <div className="flex-shrink-0">
-        <img
+        <Image
           src={item.image_url}
-          alt={displayName}
+          alt={displayName || 'Producto'}
+          width={96}
+          height={96}
+          unoptimized
           className="w-20 h-20 sm:w-24 sm:h-24 object-contain rounded-md bg-gray-50"
         />
       </div>
@@ -184,6 +188,7 @@ function PaymentStatus() {
 export default function CarroClient() {
   const { items, clear, isEmpty, setIsLoading, increment, decrement, remove, updateQuantity } = useOptimizedCart();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [guestEmail, setGuestEmail] = useState("");
   const { addToast } = useToast();
 
   // Función para proceder al checkout
@@ -204,7 +209,7 @@ export default function CarroClient() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ items: mpItems }),
+        body: JSON.stringify({ items: mpItems, email: guestEmail.trim() || undefined }),
       });
 
       if (!response.ok) {
@@ -272,8 +277,8 @@ export default function CarroClient() {
           /* Carrito con productos */
           <div className="lg:grid lg:grid-cols-3 lg:gap-8">
             {/* Lista de productos */}
-            <div className="lg:col-span-2">
-              <div className="space-y-4 mb-6">
+          <div className="lg:col-span-2">
+            <div className="space-y-4 mb-6">
                 {items.map((item) => (
                   <CartItemComponent 
                     key={item.id} 
@@ -302,6 +307,18 @@ export default function CarroClient() {
 
             {/* Resumen del pedido */}
             <div className="mt-8 lg:mt-0">
+              {/* Compra como invitado (email opcional) */}
+              <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email (opcional)</label>
+                <input
+                  type="email"
+                  placeholder="Para confirmaciones (puedes dejarlo en blanco)"
+                  value={guestEmail}
+                  onChange={(e) => setGuestEmail(e.target.value)}
+                  className="w-full border rounded-lg px-3 py-2 text-sm"
+                />
+                <p className="text-xs text-gray-500 mt-2">Compra como invitado, sin crear cuenta.</p>
+              </div>
               <OrderSummary 
                 onCheckout={handleCheckout}
                 isCheckingOut={isCheckingOut}

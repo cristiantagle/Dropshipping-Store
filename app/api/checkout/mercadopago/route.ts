@@ -7,20 +7,28 @@ interface CheckoutItem {
   price: number;
 }
 
+const accessToken = (process.env.MP_ACCESS_TOKEN || "").trim();
 const client = new MercadoPagoConfig({
-  accessToken: process.env.MP_ACCESS_TOKEN || "",
+  accessToken,
 });
 
 export async function POST(req: Request) {
   try {
-    const { items }: { items: CheckoutItem[] } = await req.json();
+    const { items, email }: { items: CheckoutItem[]; email?: string } = await req.json();
 
     // Validar que hay items
     if (!items || items.length === 0) {
       return NextResponse.json({ error: 'No hay items en el carrito' }, { status: 400 });
     }
 
+    // Validar token de MP
+    if (!accessToken) {
+      return NextResponse.json({ error: 'MP_ACCESS_TOKEN no está configurado' }, { status: 500 });
+    }
+
     const preference = new Preference(client);
+
+    const baseUrl = (process.env.NEXT_PUBLIC_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
 
     const response = await preference.create({
       body: {
@@ -31,10 +39,13 @@ export async function POST(req: Request) {
           currency_id: "CLP",
           unit_price: item.price,
         })),
+        ...(email?.trim()
+          ? { payer: { email: email.trim() } }
+          : {}),
         back_urls: {
-          success: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/carro?status=success`,
-          failure: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/carro?status=failure`,
-          pending: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/carro?status=pending`,
+          success: `${baseUrl}/carro?status=success`,
+          failure: `${baseUrl}/carro?status=failure`,
+          pending: `${baseUrl}/carro?status=pending`,
         },
         auto_return: "approved",
         payment_methods: {
@@ -46,7 +57,7 @@ export async function POST(req: Request) {
           cost: 0,
           mode: "not_specified"
         },
-        notification_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/webhooks/mercadopago`
+        notification_url: `${baseUrl}/api/webhooks/mercadopago`
       },
     });
 

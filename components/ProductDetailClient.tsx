@@ -2,6 +2,7 @@
 
 import { useOptimizedCart } from "@/contexts/OptimizedCartContext";
 import { ShieldCheck, Truck } from "lucide-react";
+import Image from "next/image";
 
 export default function ProductDetailClient({ producto }: { producto: any }) {
   const { add: agregarAlCarro } = useOptimizedCart();
@@ -17,13 +18,14 @@ export default function ProductDetailClient({ producto }: { producto: any }) {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
       {/* Imagen */}
       <div className="aspect-[4/3] w-full bg-gray-50 rounded-2xl overflow-hidden shadow-sm">
-        <img
+        <Image
           src={producto.image_url || "/lunaria-icon.png"}
-          alt={producto.name_es || producto.name}
+          alt={producto.name_es || producto.name || 'Producto'}
+          width={1200}
+          height={900}
+          unoptimized
           className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-          loading="lazy"
-          decoding="async"
-          referrerPolicy="no-referrer"
+          priority={false}
         />
       </div>
 

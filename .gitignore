@@ -1,12 +1,66 @@
+# ==========================================================
+# 🔧 NODE / NEXT.JS / SUPABASE / VERCEL – CONFIG BASE ORETEC
+# ==========================================================
+
+# Dependencias y builds
 node_modules/
 .next/
+dist/
 out/
-.env*
-.vercel/
+coverage/
+build/
+
+# Lockfiles
 pnpm-lock.yaml
 yarn.lock
-dist/
-coverage/
+package-lock.json
+
+# Archivos temporales y backups
 *.bak
-run.sh
+*.tmp
 .backups/
+.backup_global/
+**/.rescate-bak/
+*.tar.gz
+*.zip
+*.rar
+
+# Scripts o runners locales
+run.sh
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de entorno
+.env
+.env.*
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local
+
+# IDE y herramientas
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Linter / formateo
+.eslintcache
+.prettierignore
+.stylelintcache
+
+# Control de versiones
+.DS_Store
+Thumbs.db
+
+# 🔒 Husky & Vercel
+.vercel/
+.husky/_/
+
+# Archivos de sistema (Windows/OneDrive)
+desktop.ini
+~$*
+*.lnk
+OneDrive*
