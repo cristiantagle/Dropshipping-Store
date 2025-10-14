@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
+import AddToCartButton from "@/components/AddToCartButton";
 import ProductCard from "@/components/ProductCard";
 import { useProductText } from "@/lib/useProductText";
 import { formatPrice } from "@/lib/formatPrice";
@@ -14,18 +16,24 @@ export default function ProductDetail({ product, relacionados }: any) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         {/* Galería */}
         <div>
-          <img
+          <Image
             src={product.image_url}
-            alt={name}
+            alt={name ?? product?.name ?? 'Producto'}
+            width={800}
+            height={384}
+            unoptimized
             className="w-full h-96 object-contain rounded-lg shadow-md transform transition duration-300 ease-out hover:scale-105 hover:shadow-xl"
           />
           {product.images?.length > 0 && (
             <div className="flex gap-2 mt-3 overflow-x-auto">
               {product.images.map((img: string, i: number) => (
-                <img
+                <Image
                   key={i}
                   src={img}
-                  alt={`${name} ${i}`}
+                  alt={`${name ?? product?.name ?? 'Producto'} ${i}`}
+                  width={80}
+                  height={80}
+                  unoptimized
                   className="w-20 h-20 object-contain border rounded-md transition-transform duration-200 hover:scale-110 hover:border-lime-600"
                 />
               ))}
@@ -38,9 +46,19 @@ export default function ProductDetail({ product, relacionados }: any) {
           <h1 className="text-3xl font-bold mb-2">{name}</h1>
           <p className="text-lime-700 font-bold text-2xl mb-4">{formatPrice(product.price_cents)}</p>
           {shortDesc && <p className="text-gray-600 mb-4">{shortDesc}</p>}
-          <button className="bg-lime-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-lime-700 transition w-full md:w-auto">
-            Agregar al carrito
-          </button>
+          <div className="w-full md:w-auto">
+            <AddToCartButton
+              product={{
+                id: product.id,
+                name: product.name,
+                name_es: product.name_es,
+                image_url: product.image_url,
+                price_cents: product.price_cents,
+                category_slug: product.category_slug,
+              }}
+              className="w-full"
+            />
+          </div>
 
           {/* Tabs */}
           <div className="mt-8">

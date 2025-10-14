@@ -6,6 +6,7 @@ import { ToastProvider } from "../contexts/ToastContext";
 import { WishlistProvider } from "../contexts/WishlistContext";
 import { RecentlyViewedProvider } from "../contexts/RecentlyViewedContext";
 import FloatingCart from "@/components/FloatingCart";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata = {
   title: "Lunaria",
@@ -28,10 +29,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <RecentlyViewedProvider>
             <WishlistProvider>
               <OptimizedCartProvider>
-                <TopBar />
-                {children}
-                <Footer />
-                <FloatingCart />
+                <AuthProvider>
+                  <TopBar />
+                  {children}
+                  <Footer />
+                  <FloatingCart />
+                </AuthProvider>
               </OptimizedCartProvider>
             </WishlistProvider>
           </RecentlyViewedProvider>

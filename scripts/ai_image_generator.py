@@ -4,21 +4,35 @@
 Genera variaciones de imágenes usando Stable Diffusion local
 """
 
-import requests
+import os
 import json
 import base64
-import os
-import sqlite3
 import time
+import requests
 from pathlib import Path
 from urllib.parse import urlparse
 import argparse
+from dotenv import load_dotenv
+from supabase import create_client, Client
+
+# Cargar variables de entorno
+load_dotenv()
+
+# Inicializar Supabase (mismo método que translate_existing.py)
+supabase_url = os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+
+if not supabase_url or not supabase_key:
+    raise Exception("❌ Error: Variables de entorno de Supabase no encontradas")
+
+supabase = create_client(supabase_url, supabase_key)
 
 class ProductImageAI:
     def __init__(self, webui_url="http://127.0.0.1:7860", output_dir="public/ai-generated"):
         self.webui_url = webui_url
         self.output_dir = output_dir
         os.makedirs(output_dir, exist_ok=True)
+        self.supabase = supabase
         
     def check_webui_status(self):
         """Verificar si Stable Diffusion WebUI está corriendo"""
@@ -117,98 +131,83 @@ class ProductImageAI:
         
         return generated_images
 
+def get_products(limit=5):
+    """Obtiene productos desde Supabase"""
+    try:
+        # Importante: usamos 'products' no 'Product'
+        response = supabase.table('products').select('*').limit(limit).execute()
+        if not response.data:
+            print("❌ No se encontraron productos en Supabase")
+            return []
+        return response.data
+    except Exception as e:
+        print(f"❌ Error obteniendo productos: {str(e)}")
+        return []
+
 def update_product_images(product_id, new_images, original_image=None):
     """Actualizar base de datos con las nuevas imágenes"""
     try:
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
+        # Importante: usamos 'products' no 'Product'
+        response = supabase.table('products').select('images').eq('id', product_id).single().execute()
         
-        # Combinar imagen original con nuevas imágenes AI
         all_images = []
         if original_image:
             all_images.append(original_image)
         all_images.extend(new_images)
         
-        # Actualizar campo images en JSON
-        cursor.execute("""
-            UPDATE Product 
-            SET images = ? 
-            WHERE id = ?
-        """, (json.dumps(all_images), product_id))
-        
-        conn.commit()
-        conn.close()
+        # Importante: usamos 'products' no 'Product'
+        supabase.table('products').update({
+            'images': all_images
+        }).eq('id', product_id).execute()
         
         print(f"    💾 Base de datos actualizada con {len(all_images)} imágenes")
         return True
-        
     except Exception as e:
         print(f"    ❌ Error actualizando BD: {e}")
         return False
 
 def process_products(limit=10, skip_existing=True):
     """Procesar productos para generar imágenes AI"""
-    
-    # Verificar si Stable Diffusion está corriendo
     ai_generator = ProductImageAI()
-    if not ai_generator.check_webui_status():
-        print("❌ Stable Diffusion WebUI no está corriendo en http://127.0.0.1:7860")
-        print("   Por favor, inicia Automatic1111 WebUI antes de continuar")
-        return
     
+    if not ai_generator.check_webui_status():
+        print("❌ Stable Diffusion WebUI no está corriendo")
+        return
+
     print("✅ Stable Diffusion WebUI detectado y funcionando")
     
-    try:
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
+    # Obtener productos usando el nuevo método
+    products = get_products(limit)
+    if not products:
+        return
         
-        # Query para obtener productos
-        if skip_existing:
-            # Solo productos sin imágenes AI generadas
-            query = """
-                SELECT id, name, image_url, images 
-                FROM Product 
-                WHERE name IS NOT NULL 
-                AND (images IS NULL OR json_array_length(images) <= 1)
-                ORDER BY created_at DESC
-                LIMIT ?
-            """
-        else:
-            # Todos los productos
-            query = """
-                SELECT id, name, image_url, images 
-                FROM Product 
-                WHERE name IS NOT NULL 
-                ORDER BY created_at DESC
-                LIMIT ?
-            """
+    print(f"\n🔄 Procesando {len(products)} productos...")
+    
+    for i, product in enumerate(products, 1):
+        print(f"\n[{i}/{len(products)}] Producto: {product['name'][:50]}...")
         
-        cursor.execute(query, (limit,))
-        products = cursor.fetchall()
-        conn.close()
+        # Generar 3 variaciones AI
+        ai_images = ai_generator.generate_product_variations(
+            product['id'], 
+            product['name'],
+            count=3
+        )
         
-        print(f"\n🔄 Procesando {len(products)} productos...")
-        
-        for i, (product_id, name, image_url, current_images) in enumerate(products, 1):
-            print(f"\n[{i}/{len(products)}] Producto: {name[:50]}...")
-            
-            # Generar 3 variaciones AI
-            ai_images = ai_generator.generate_product_variations(product_id, name, count=3)
-            
-            if ai_images:
-                # Actualizar base de datos
-                success = update_product_images(product_id, ai_images, image_url)
-                if success:
-                    print(f"    🎉 {len(ai_images)} imágenes AI generadas exitosamente")
-                else:
-                    print(f"    ⚠️ Imágenes generadas pero error al actualizar BD")
+        if ai_images:
+            # Actualizar base de datos
+            success = update_product_images(
+                product['id'],
+                ai_images,
+                product.get('images', [None])[0]
+            )
+            if success:
+                print(f"    🎉 {len(ai_images)} imágenes AI generadas exitosamente")
             else:
-                print(f"    😞 No se generaron imágenes para este producto")
-        
-        print(f"\n🎊 ¡Proceso completado! Se procesaron {len(products)} productos")
-        
-    except Exception as e:
-        print(f"❌ Error procesando productos: {e}")
+                print(f"    ⚠️ Imágenes generadas pero error al actualizar BD")
+        else:
+            print(f"    😞 No se generaron imágenes para este producto")
+    
+    print(f"\n🎊 ¡Proceso completado! Se procesaron {len(products)} productos")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Generar imágenes AI para productos')

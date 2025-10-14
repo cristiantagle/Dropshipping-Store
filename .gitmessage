@@ -1,0 +1,15 @@
+# Tipo(scope): asunto breve en imperativo
+
+# Cuerpo (opcional)
+# - Qué cambias y por qué
+# - Contexto adicional si aplica
+
+# Footer (opcional)
+# - Closes #123
+# - BREAKING CHANGE: descripción
+
+# Ejemplos:
+# feat(product-card): formatea precios en CLP
+# fix(cart): evita parpadeo en RecentlyViewed
+# docs(readme): añade pasos de desarrollo
+

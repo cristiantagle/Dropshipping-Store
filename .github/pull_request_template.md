@@ -1,37 +1,25 @@
-# Resumen
-<!-- ¿Qué cambia y por qué? -->
+## Summary
 
-## Tipo de cambio
-- [ ] Fix (arreglo sin breaking)
-- [ ] Feature (funcionalidad nueva)
-- [ ] Refactor / DX
-- [ ] Chore (build, deps, scripts)
+- What does this PR change and why?
 
-## URL del Preview
-<!-- Pega la URL del deployment de Vercel -->
+## Related Issues
 
-## Riesgo / Impacto
-<!-- Áreas afectadas y riesgos conocidos -->
+- Closes #
 
-## Plan de Rollback
-<!-- ¿Cómo vuelvo a `stable/lunaria-ok` si algo falla? -->
+## Screenshots / Video
 
----
+- Before / After (for UI changes)
 
-## Checklist de Lunaria (NO merges sin esto)
-**Categorías:** hogar, belleza, tecnologia, eco, mascotas, bienestar
+## Test Plan
 
-- [ ] Se ven **12 tarjetas** por categoría (no 1, no 6).
-- [ ] **Imágenes cargan** en todas las categorías.
-- [ ] **Bienestar** muestra imágenes (sin placeholders amarillos).
-- [ ] `components/ProductListClient.tsx` **no** fue modificado (o se justifica en el PR).
-- [ ] `app/categorias/[slug]/page.tsx` mantiene el **slice/limit a 12**.
-- [ ] `next.config.js` conserva `images.remotePatterns` y `unoptimized: true`.
-- [ ] No se cambiaron nombres de columnas usadas por el front:
-      `id, nombre, precio, imagen_url, envio, destacado, categoria_slug`.
-- [ ] `/api/health` responde “ok” en el Preview.
-- [ ] No hay errores en consola del navegador (Preview).
-- [ ] Probado **deep-links** a cada categoría (sin 404).
+- Commands run (e.g., `npm run build`, `npm run lint`)
+- Manual steps to verify behavior
 
-## Notas de QA
-<!-- Pasos de prueba manuales + capturas si aplica -->
+## Environment / Config Changes
+
+- New/changed env vars (e.g., `MP_ACCESS_TOKEN`, `NEXT_PUBLIC_URL`)
+- Migrations or scripts to run
+
+## Notes
+
+- Risks, rollbacks, and follow-ups

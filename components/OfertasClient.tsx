@@ -21,6 +21,7 @@ import { useProductText } from '@/lib/useProductText';
 import { useOptimizedCart } from '@/contexts/OptimizedCartContext';
 import { useToast } from '@/contexts/ToastContext';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // Hook para generar ofertas dinámicas
 function useOffers() {
@@ -163,11 +164,14 @@ function OfferProductCard({ product, offer, index }: { product: any; offer: any;
       {/* Imagen del producto */}
       <Link href={`/producto/${product.id}`}>
         <div className="aspect-square overflow-hidden bg-gray-50">
-          <img
+          <Image
             src={product.image_url}
-            alt={displayName}
+            alt={displayName || 'Producto'}
+            width={400}
+            height={400}
+            unoptimized
             className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-            loading={index < 6 ? 'eager' : 'lazy'}
+            priority={index < 6}
           />
         </div>
       </Link>
