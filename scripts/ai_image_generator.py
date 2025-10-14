@@ -8,11 +8,26 @@ import requests
 import json
 import base64
 import os
-import sqlite3
+import sys
 import time
 from pathlib import Path
 from urllib.parse import urlparse
 import argparse
+from supabase import create_client, Client
+from dotenv import load_dotenv
+
+# Cargar variables de entorno
+load_dotenv()
+
+# Configuración Supabase
+url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
+key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+if not url or not key:
+    print("❌ Error: Variables NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY no definidas")
+    print("   Asegúrate de tener un archivo .env con las variables necesarias")
+    sys.exit(1)
+
+supabase: Client = create_client(url, key)
 
 class ProductImageAI:
     def __init__(self, webui_url="http://127.0.0.1:7860", output_dir="public/ai-generated"):
@@ -117,33 +132,47 @@ class ProductImageAI:
         
         return generated_images
 
-def update_product_images(product_id, new_images, original_image=None):
-    """Actualizar base de datos con las nuevas imágenes"""
+def get_products(limit=10, skip_existing=True):
+    """Obtener productos desde Supabase (tabla 'products').
+    Devuelve lista de dicts: {id, name, image_url, images}
+    """
     try:
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        
-        # Combinar imagen original con nuevas imágenes AI
+        field_sel = "id,name,image_url,images,created_at"
+        query = supabase.table('products').select(field_sel)
+
+        if skip_existing:
+            # Filtrar productos con images null o longitud <= 1
+            # PostgREST doesn't have json_array_length easily via client, so select wide and filter locally
+            response = query.order('created_at', desc=True).limit(limit).execute()
+            rows = response.data or []
+            pending = []
+            for r in rows:
+                imgs = r.get('images')
+                if imgs is None or (isinstance(imgs, list) and len(imgs) <= 1):
+                    pending.append(r)
+            return pending[:limit]
+        else:
+            response = query.order('created_at', desc=True).limit(limit).execute()
+            return response.data or []
+
+    except Exception as e:
+        print(f"    ❌ Error consultando Supabase: {e}")
+        return None
+
+
+def update_product_images(product_id, new_images, original_image=None):
+    """Actualizar imágenes en Supabase (tabla 'products')."""
+    try:
         all_images = []
         if original_image:
             all_images.append(original_image)
         all_images.extend(new_images)
-        
-        # Actualizar campo images en JSON
-        cursor.execute("""
-            UPDATE Product 
-            SET images = ? 
-            WHERE id = ?
-        """, (json.dumps(all_images), product_id))
-        
-        conn.commit()
-        conn.close()
-        
-        print(f"    💾 Base de datos actualizada con {len(all_images)} imágenes")
+
+        supabase.table('products').update({'images': all_images}).eq('id', product_id).execute()
+        print(f"    💾 Supabase actualizada con {len(all_images)} imágenes")
         return True
-        
     except Exception as e:
-        print(f"    ❌ Error actualizando BD: {e}")
+        print(f"    ❌ Error actualizando Supabase: {e}")
         return False
 
 def process_products(limit=10, skip_existing=True):
@@ -159,45 +188,20 @@ def process_products(limit=10, skip_existing=True):
     print("✅ Stable Diffusion WebUI detectado y funcionando")
     
     try:
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        
-        # Query para obtener productos
-        if skip_existing:
-            # Solo productos sin imágenes AI generadas
-            query = """
-                SELECT id, name, image_url, images 
-                FROM Product 
-                WHERE name IS NOT NULL 
-                AND (images IS NULL OR json_array_length(images) <= 1)
-                ORDER BY created_at DESC
-                LIMIT ?
-            """
-        else:
-            # Todos los productos
-            query = """
-                SELECT id, name, image_url, images 
-                FROM Product 
-                WHERE name IS NOT NULL 
-                ORDER BY created_at DESC
-                LIMIT ?
-            """
-        
-        cursor.execute(query, (limit,))
-        products = cursor.fetchall()
-        conn.close()
+        # Obtener productos desde Supabase
+        products = get_products(limit=limit, skip_existing=skip_existing)
         
         print(f"\n🔄 Procesando {len(products)} productos...")
         
-        for i, (product_id, name, image_url, current_images) in enumerate(products, 1):
-            print(f"\n[{i}/{len(products)}] Producto: {name[:50]}...")
+        for i, product in enumerate(products, 1):
+            print(f"\n[{i}/{len(products)}] Producto: {product['name'][:50]}...")
             
             # Generar 3 variaciones AI
-            ai_images = ai_generator.generate_product_variations(product_id, name, count=3)
+            ai_images = ai_generator.generate_product_variations(product['id'], product['name'], count=3)
             
             if ai_images:
                 # Actualizar base de datos
-                success = update_product_images(product_id, ai_images, image_url)
+                success = update_product_images(product['id'], ai_images, product['image_url'])
                 if success:
                     print(f"    🎉 {len(ai_images)} imágenes AI generadas exitosamente")
                 else:
