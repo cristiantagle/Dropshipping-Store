@@ -45,6 +45,20 @@ export async function POST(req: Request) {
         failure: `${baseUrl}/carro?status=failure`,
         pending: `${baseUrl}/carro?status=pending`,
       },
+      // Rechaza inmediatamente pagos no aprobados (mejora UX)
+      binary_mode: true,
+      // Descriptor en el extracto del cliente (máx 22 chars, sin símbolos)
+      statement_descriptor: "LUNARIA",
+      // Simplificar medios en sandbox: solo tarjeta, 1 cuota
+      payment_methods: {
+        excluded_payment_types: [
+          { id: "ticket" },
+          { id: "atm" },
+          { id: "bank_transfer" },
+        ],
+        installments: 1,
+        default_installments: 1,
+      },
     };
 
     if (email?.trim()) body.payer = { email: email.trim() };
@@ -54,10 +68,24 @@ export async function POST(req: Request) {
 
     const response = await preference.create({ body });
 
+    try {
+      const initHost = response.init_point ? new URL(response.init_point).host : null;
+      const sandboxHost = response.sandbox_init_point ? new URL(response.sandbox_init_point).host : null;
+      // Debug no sensible: ayuda a detectar entorno de preferencia sin exponer secretos
+      console.log("[MP pref debug]", {
+        baseUrl,
+        isHttps,
+        hasSandbox: Boolean(response.sandbox_init_point),
+        initHost,
+        sandboxHost,
+      });
+    } catch {}
+
     return NextResponse.json({ 
       id: response.id,
       init_point: response.init_point,
-      sandbox_init_point: response.sandbox_init_point
+      sandbox_init_point: response.sandbox_init_point,
+      env: response.sandbox_init_point ? 'sandbox' : 'production'
     });
   } catch (err: any) {
     console.error("MercadoPago error:", err?.message || err, err);

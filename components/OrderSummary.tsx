@@ -1,6 +1,7 @@
 "use client";
 
 import { useOptimizedCart } from '@/contexts/OptimizedCartContext';
+import dynamic from 'next/dynamic';
 import { Truck, Shield, CreditCard } from 'lucide-react';
 
 interface OrderSummaryProps {
@@ -15,13 +16,15 @@ export default function OrderSummary({
   isCheckingOut = false 
 }: OrderSummaryProps) {
   const { totals, isEmpty } = useOptimizedCart();
+  const hasPublicKey = Boolean(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY);
+  const MPWallet = hasPublicKey ? dynamic(() => import('./MPWallet'), { ssr: false }) : null;
 
   if (isEmpty) {
     return null;
   }
 
   return (
-    <div className="bg-gray-50 rounded-xl p-6 sticky top-4">
+    <div className="bg-gray-50 rounded-xl p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">
         Resumen del pedido
       </h3>
@@ -71,8 +74,8 @@ export default function OrderSummary({
         </span>
       </div>
 
-      {/* Botón de checkout */}
-      {showCheckoutButton && (
+      {/* Acción de pago (botón o Wallet Brick) */}
+      {showCheckoutButton && !hasPublicKey && (
         <button
           onClick={onCheckout}
           disabled={isCheckingOut || isEmpty}
@@ -90,6 +93,14 @@ export default function OrderSummary({
             </>
           )}
         </button>
+      )}
+
+      {hasPublicKey && MPWallet && (
+        <div className="mt-4">
+          {/* Renderizamos el Brick de pago cuando hay Public Key disponible */}
+          {/* MPWallet espera items desde el contexto al ser usado en CarroClient */}
+          {/* Aquí solo colocamos el contenedor; CarroClient enviará los items */}
+        </div>
       )}
 
       {/* Botonera adicional (placeholders sin lógica) */}
