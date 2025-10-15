@@ -99,6 +99,36 @@
   - `.env.local`: `MP_ACCESS_TOKEN=APP_USR-...` (Access Token del usuario vendedor; para sandbox usa un Usuario de Prueba), `NEXT_PUBLIC_URL=http://localhost:3000`. Opcional: `NEXT_PUBLIC_MP_PUBLIC_KEY=APP_USR-...`.
   - Reiniciar `npm run dev` tras cambios.
 
+## Estado y Registro (2025-10-15)
+
+- Checkout: migrado a Mercado Pago Bricks (Wallet) embebido en el carrito.
+- Sidebar de pago fija (sticky) en desktop; sin superposición con la lista.
+- Preferencia MP endurecida para sandbox: `binary_mode: true`, `statement_descriptor: "LUNARIA"`, `payment_methods` con 1 cuota y exclusión de ticket/atm/transfer.
+- Script `scripts/inject-env.mjs` ahora es merge-safe (no sobreescribe `.env.local`, solo actualiza derivadas).
+- Ruta de debug eliminada: `app/debug/images/page.tsx`.
+
+### Configuración dev (Mercado Pago)
+
+- Variables en `.env.local`:
+  - `MP_ACCESS_TOKEN=APP_USR-...` (Access Token del vendedor. Para sandbox usa un Usuario de Prueba Vendedor).
+  - `NEXT_PUBLIC_MP_PUBLIC_KEY=APP_USR-...` (Public Key para inicializar Bricks en el cliente).
+  - `NEXT_PUBLIC_URL=http://localhost:3000`
+- Notas:
+  - En local (http), antes el cliente forzaba redirección a `sandbox_init_point`; con Bricks ya no se usa redirect.
+  - Para pruebas, usar Comprador de Prueba distinto del Vendedor; habilitar cookies de terceros si el challenge 3DS lo requiere.
+
+### Archivos relevantes
+
+- API: `app/api/checkout/mercadopago/route.ts` (preference con `binary_mode`, `statement_descriptor`, `payment_methods`).
+- Cliente: `components/MPWallet.tsx` (Bricks Wallet), `components/CarroClient.tsx` (columna derecha sticky), `components/OrderSummary.tsx` (sin sticky interno).
+- Entorno: `scripts/inject-env.mjs` (merge-safe para `.env.local`).
+
+### Próximas Tareas (post‑Bricks)
+
+- UX móvil del menú y navegación.
+- Protección de rutas con Supabase Auth.
+- Documentación en `WARP.md` (normalizar codificación) y reflejar Bricks.
+
 ## Próximas Tareas (actualizado)
 
 - UX móvil del menú y navegación.
