@@ -3,6 +3,7 @@
 import { useOptimizedCart, CartItem } from '@/contexts/OptimizedCartContext';
 import { useProductText } from '@/lib/useProductText';
 import OrderSummary from './OrderSummary';
+import MPWallet from './MPWallet';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Minus, Plus, X, ShoppingBag, ArrowLeft, CheckCircle, XCircle, Clock } from 'lucide-react';
@@ -204,12 +205,18 @@ export default function CarroClient() {
         price: parseFloat(((item.price_cents * 1.3) / 100).toFixed(0)) // Con markup
       }));
 
+      const forceSandbox = typeof window !== 'undefined' && (window.location.protocol !== 'https:' || window.location.hostname === 'localhost');
+      const payload: any = { items: mpItems };
+      if (!forceSandbox && guestEmail.trim()) {
+        payload.email = guestEmail.trim();
+      }
+
       const response = await fetch('/api/checkout/mercadopago', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ items: mpItems, email: guestEmail.trim() || undefined }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -221,7 +228,10 @@ export default function CarroClient() {
       }
 
       const data = await response.json();
-      const redirectUrl = data.init_point || data.sandbox_init_point;
+      // En entorno local/no-HTTPS forzamos sandbox para pruebas
+      const redirectUrl = (forceSandbox && data.sandbox_init_point)
+        ? data.sandbox_init_point
+        : (data.init_point || data.sandbox_init_point);
 
       if (redirectUrl) {
         // Redirigir a Mercado Pago (prod o sandbox)
@@ -311,10 +321,10 @@ export default function CarroClient() {
               </div>
             </div>
 
-            {/* Resumen del pedido */}
-            <div className="mt-8 lg:mt-0">
+            {/* Resumen del pedido + Pago (sticky en desktop) */}
+            <div className="mt-8 lg:mt-0 lg:sticky lg:top-4 lg:self-start z-10 space-y-4">
               {/* Compra como invitado (email opcional) */}
-              <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4">
+              <div className="bg-white rounded-xl border border-gray-200 p-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Email (opcional)</label>
                 <input
                   type="email"
@@ -326,9 +336,11 @@ export default function CarroClient() {
                 <p className="text-xs text-gray-500 mt-2">Compra como invitado, sin crear cuenta.</p>
               </div>
               <OrderSummary 
+                showCheckoutButton={false}
                 onCheckout={handleCheckout}
                 isCheckingOut={isCheckingOut}
               />
+              <MPWallet items={items} guestEmail={guestEmail} />
             </div>
           </div>
         )}
