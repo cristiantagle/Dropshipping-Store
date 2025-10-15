@@ -191,6 +191,7 @@ export default function CarroClient() {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [guestEmail, setGuestEmail] = useState("");
   const { addToast } = useToast();
+  const hasPublicKey = Boolean(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY);
 
   // Función para proceder al checkout
   const handleCheckout = async () => {
@@ -336,11 +337,13 @@ export default function CarroClient() {
                 <p className="text-xs text-gray-500 mt-2">Compra como invitado, sin crear cuenta.</p>
               </div>
               <OrderSummary 
-                showCheckoutButton={false}
+                showCheckoutButton={!hasPublicKey}
                 onCheckout={handleCheckout}
                 isCheckingOut={isCheckingOut}
               />
-              <MPWallet items={items} guestEmail={guestEmail} />
+              {hasPublicKey && (
+                <MPWallet items={items} guestEmail={guestEmail} />
+              )}
             </div>
           </div>
         )}
