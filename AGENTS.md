@@ -96,7 +96,7 @@
   - Manejo de errores: muestra toast y log con `details` del servidor.
   - Redirección a `init_point` o `sandbox_init_point` según respuesta.
 - Configuración mínima dev:
-  - `.env.local`: `MP_ACCESS_TOKEN=TEST-...`, `NEXT_PUBLIC_URL=http://localhost:3000`.
+  - `.env.local`: `MP_ACCESS_TOKEN=APP_USR-...` (Access Token del usuario vendedor; para sandbox usa un Usuario de Prueba), `NEXT_PUBLIC_URL=http://localhost:3000`. Opcional: `NEXT_PUBLIC_MP_PUBLIC_KEY=APP_USR-...`.
   - Reiniciar `npm run dev` tras cambios.
 
 ## Próximas Tareas (actualizado)
@@ -111,7 +111,7 @@
 - Código fuente: rama `main` (todo lo de hoy ya está mergeado).
 - Dependencias: `npm ci` (o `npm install`).
 - Entorno (dev): crea/ajusta `.env.local` con
-  - `MP_ACCESS_TOKEN=TEST-...` (token de prueba de Mercado Pago)
+  - `MP_ACCESS_TOKEN=APP_USR-...` (Access Token del vendedor; usa uno de Usuario de Prueba para sandbox)
   - `NEXT_PUBLIC_URL=http://localhost:3000`
   - (Supabase) `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` ya están en `.env`.
 - Perfiles: ejecutar una vez `scripts/add_profiles.sql` en el SQL Editor de Supabase para crear `public.profiles` + RLS.
@@ -123,3 +123,4 @@
 - Checkout Pro (sandbox): si hay error, revisar consola del navegador → "Checkout error details".
 - Backups locales: mantener máx. 2 snapshots; usar scripts de `scripts/` (o snapshot manual). `.backup_global/` está git‑ignored.
 - Flujo de PRs: rama feature (e.g., `feat/<tarea>`), Commits Convencionales, abrir PR a `main`.
+  codex resume 0199e2ce-fd01-71b1-9d40-54027a8d8dc1
