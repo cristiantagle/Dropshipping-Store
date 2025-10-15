@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { ShoppingCart, Menu, X, ChevronDown } from "lucide-react";
 import Image from "next/image";
@@ -21,6 +21,7 @@ export default function TopBar() {
   const { user, signOut, profile } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
 
   // Cerrar el menú de usuario al hacer click fuera
   useEffect(() => {
@@ -57,6 +58,27 @@ export default function TopBar() {
       }
     };
   }, [cartHoverTimeout]);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    if (menuOpen) setMenuOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  // Lock body scroll when menu is open and handle Escape key
+  useEffect(() => {
+    if (!menuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [menuOpen]);
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100/50 transition-all duration-300">
@@ -196,6 +218,9 @@ export default function TopBar() {
         {/* Botón menú móvil */}
         <button
           className="md:hidden p-2.5 rounded-lg hover:bg-lime-50 hover:text-lime-700 transition-all duration-300 transform hover:scale-110 active:scale-95"
+          aria-controls="mobile-menu"
+          aria-expanded={menuOpen}
+          aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -204,7 +229,9 @@ export default function TopBar() {
 
       {/* Menú móvil */}
       {menuOpen && (
-        <div className="md:hidden bg-white/95 backdrop-blur-md border-t border-gray-100/50 shadow-lg animate-slideIn">
+        <>
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-xs z-40 md:hidden" onClick={() => setMenuOpen(false)} />
+          <div className="md:hidden relative z-50 bg-white/95 backdrop-blur-md border-t border-gray-100/50 shadow-lg animate-slideIn">
           <nav className="flex flex-col p-6 gap-4 text-gray-700">
             <Link href="/categorias" className="py-3 px-4 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 font-medium">
               Categorías
@@ -242,7 +269,8 @@ export default function TopBar() {
               )}
             </Link>
           </nav>
-        </div>
+          </div>
+        </>
       )}
     </header>
   );
