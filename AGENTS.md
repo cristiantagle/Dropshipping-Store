@@ -179,6 +179,56 @@
 - Limpieza de ramas remotas tras merge.
 - `feat/a11y-perf-bundle`: cambios integrados en main; PR/branch cerrados.
 
+## AliExpress (Enriquecimiento de Catálogo)
+
+Enlaces
+
+- AliExpress Open Platform (dev console): https://open.aliexpress.com
+- AliExpress Affiliates (Portals): https://portals.aliexpress.com
+
+Objetivo
+
+- Enriquecer ítems pobres de CJ con: título, precio, galería, atributos/SKUs, tienda, rating y órdenes desde AliExpress.
+
+Credenciales necesarias (oficial)
+
+- AE_APP_KEY y AE_APP_SECRET (Open Platform): se obtiene creando una App en la consola.
+- (Opcional afiliados) AE_AFFILIATE_PID: se crea en Portals para tracking/deeplinks.
+
+Pasos (Open Platform)
+
+1. Sign in en https://open.aliexpress.com → “Console”.
+2. App Management → Create App (Web/Server). Completar nombre, descripción, callback URL.
+3. API Permissions: solicitar “Product/Item detail”, “Search/List”. Si aplica: “Portals/Affiliate API” y/o “Dropshipping API”.
+4. Guardar App Key/Secret. Aprobación puede tardar 1–3 días (pueden pedir evidencia del sitio).
+
+Afiliados (PID)
+
+- Únete/login en https://portals.aliexpress.com → Tools → crear Promotion ID (PID) y guardarlo.
+
+Configuración en el proyecto
+
+- Variables (server-only, .env.local):
+  - `AE_APP_KEY=...`
+  - `AE_APP_SECRET=...`
+  - `AE_AFFILIATE_PID=...` (si se usa afiliados)
+- Hosts de imágenes habilitados (AliExpress/CDN): ver `next.config.js` (ae01.alicdn.com, img.alicdn.com, g.alicdn.com, aeproductimages.s3.amazonaws.com).
+
+Script puente (mientras se aprueba la App)
+
+- Archivo: `scripts/aliexpress_enrich.mjs`
+- Uso:
+  - Env: `RAPIDAPI_KEY=...` (RapidAPI)
+  - Comando: `node scripts/aliexpress_enrich.mjs --input scripts/cj_products.sample.json --out scripts/out/aliexpress_enriched.json --lang es`
+- Entrada: array de ítems CJ (id, name/name_es, price_cents, image_url).
+- Salida: `enriched.*` (id/título/precio/imagen/url/tienda/rating/órdenes) + `_enrich.status`.
+
+Plan siguiente (robusto, oficial)
+
+- Implementar cliente firmado (HMAC) en `lib/aliexpress/` con AE_APP_KEY/SECRET.
+- Endpoints: búsqueda y detalle (galería completa, atributos, SKUs, precios/monedas).
+- Script `scripts/merge_enriched.mjs` para fusionar resultados a nuestro schema y (opcional) subir a Supabase.
+
 ## Recuperación de Sesión (Codex)
 
 - Código fuente: rama `main` (todo lo de hoy ya está mergeado).
