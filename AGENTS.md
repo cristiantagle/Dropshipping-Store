@@ -156,6 +156,29 @@
 - Normalizar codificación de `WARP.md` y retomar documentación ahí.
 - Opcional: Magic Link/OAuth, mostrar nombre/avatares en más vistas.
 
+## Estado y Registro (2025-10-16)
+
+- UX móvil (menú y overflow):
+  - Eliminado scroll lateral en móvil (overflow-x hidden global y clamping en TopBar y menú móvil).
+  - ProductCard ajustado para grilla (quitado min-width que cortaba 2ª tarjeta en mobile).
+  - Menú móvil: cierre automático en scroll/resize/orientación y animación simétrica (slide-in/slide-out + overlay fade in/out).
+  - Z-index corregidos (dropdown usuario/MiniCart sobre el contenido en desktop).
+- Hero: padding seguro y min-height en móviles; fondo migrado a next/image con fill + priority (LCP más estable).
+- Accesibilidad:
+  - Focus trap y ARIA básicos en menú móvil; roles/ARIA en dropdown usuario y MiniCart.
+  - aria-label del botón móvil con unicode escapes (men\u00FA) para evitar mojibake.
+- Tipografías: integrado next/font (Inter/Poppins) vía variables CSS en layout (sin cambios visuales).
+- Codificación (mojibake):
+  - Head con meta charset UTF‑8 y Content-Language (es).
+  - Etiquetas acentuadas críticas en TopBar renderizadas con secuencias unicode (e.g., Categor\u00EDas, Cerrar sesi\u00F3n) para máxima robustez.
+- Build: validado `npm run build` tras cada cambio.
+
+### PRs/Branches
+
+- Merge en main: `feat/mobile-menu-ux` y `fix/i18n-encoding` (fast‑forward).
+- Limpieza de ramas remotas tras merge.
+- `feat/a11y-perf-bundle`: cambios integrados en main; PR/branch cerrados.
+
 ## Recuperación de Sesión (Codex)
 
 - Código fuente: rama `main` (todo lo de hoy ya está mergeado).
