@@ -13,6 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 export default function TopBar() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuClosing, setMenuClosing] = useState(false);
   const [showMiniCart, setShowMiniCart] = useState(false);
   const [cartPulse, setCartPulse] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -59,9 +60,18 @@ export default function TopBar() {
     };
   }, [cartHoverTimeout]);
 
+  const closeMenuSmooth = () => {
+    if (!menuOpen) return;
+    setMenuClosing(true);
+    window.setTimeout(() => {
+      setMenuOpen(false);
+      setMenuClosing(false);
+    }, 300); // match .animate-slideOut duration
+  };
+
   // Close mobile menu on route change
   useEffect(() => {
-    if (menuOpen) setMenuOpen(false);
+    if (menuOpen) closeMenuSmooth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
@@ -71,7 +81,7 @@ export default function TopBar() {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMenuOpen(false);
+      if (e.key === 'Escape') closeMenuSmooth();
     };
     document.addEventListener('keydown', onKey);
     return () => {
@@ -91,13 +101,13 @@ export default function TopBar() {
       window.requestAnimationFrame(() => {
         const delta = Math.abs(window.scrollY - lastY);
         if (delta > 10) {
-          setMenuOpen(false);
+          closeMenuSmooth();
         }
         lastY = window.scrollY;
         ticking = false;
       });
     };
-    const onResize = () => setMenuOpen(false);
+    const onResize = () => closeMenuSmooth();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
     window.addEventListener('orientationchange', onResize);
@@ -109,7 +119,7 @@ export default function TopBar() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100/50 transition-all duration-300 overflow-x-hidden">
+    <header className="sticky top-0 z-[80] bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100/50 transition-all duration-300">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
         {/* Logo con ícono */}
         <Link href="/" className="flex items-center gap-3 text-xl font-bold text-lime-700 hover:text-lime-800 transition-all duration-300 transform hover:scale-105 group">
@@ -249,7 +259,7 @@ export default function TopBar() {
           aria-controls="mobile-menu"
           aria-expanded={menuOpen}
           aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
-          onClick={() => setMenuOpen(!menuOpen)}
+          onClick={() => (menuOpen ? closeMenuSmooth() : setMenuOpen(true))}
         >
           {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -258,8 +268,8 @@ export default function TopBar() {
       {/* Menú móvil */}
       {menuOpen && (
         <>
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-xs z-40 md:hidden" onClick={() => setMenuOpen(false)} />
-          <div className="md:hidden relative z-50 bg-white/95 backdrop-blur-md border-t border-gray-100/50 shadow-lg animate-slideIn w-full max-w-full overflow-x-hidden">
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-xs z-40 md:hidden" onClick={closeMenuSmooth} />
+          <div className={`md:hidden relative z-[90] bg-white/95 backdrop-blur-md border-t border-gray-100/50 shadow-lg w-full max-w-full overflow-x-hidden ${menuClosing ? 'animate-slideOut' : 'animate-slideIn'}`}>
           <nav className="flex flex-col p-6 gap-4 text-gray-700">
             <Link href="/categorias" className="py-3 px-4 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 font-medium">
               Categorías
