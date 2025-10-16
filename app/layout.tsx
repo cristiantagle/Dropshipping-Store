@@ -24,7 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta name="description" content="Descubre productos útiles, bonitos y sustentables en Lunaria. Envíos simples, calidad real." />
       </head>
-      <body className="font-sans bg-gray-50 text-gray-900 antialiased">
+      <body className="font-sans bg-gray-50 text-gray-900 antialiased overflow-x-hidden">
         <ToastProvider>
           <RecentlyViewedProvider>
             <WishlistProvider>

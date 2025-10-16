@@ -81,7 +81,7 @@ export default function TopBar() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100/50 transition-all duration-300">
+    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100/50 transition-all duration-300 overflow-x-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
         {/* Logo con ícono */}
         <Link href="/" className="flex items-center gap-3 text-xl font-bold text-lime-700 hover:text-lime-800 transition-all duration-300 transform hover:scale-105 group">
@@ -231,7 +231,7 @@ export default function TopBar() {
       {menuOpen && (
         <>
           <div className="fixed inset-0 bg-black/30 backdrop-blur-xs z-40 md:hidden" onClick={() => setMenuOpen(false)} />
-          <div className="md:hidden relative z-50 bg-white/95 backdrop-blur-md border-t border-gray-100/50 shadow-lg animate-slideIn">
+          <div className="md:hidden relative z-50 bg-white/95 backdrop-blur-md border-t border-gray-100/50 shadow-lg animate-slideIn w-full max-w-full overflow-x-hidden">
           <nav className="flex flex-col p-6 gap-4 text-gray-700">
             <Link href="/categorias" className="py-3 px-4 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 font-medium">
               Categorías
