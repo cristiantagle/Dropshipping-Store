@@ -15,7 +15,6 @@ export default function TopBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuClosing, setMenuClosing] = useState(false);
   const [showMiniCart, setShowMiniCart] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
   const [cartPulse, setCartPulse] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [cartHoverTimeout, setCartHoverTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -25,7 +24,7 @@ export default function TopBar() {
   const userMenuRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
 
-  // Cerrar el menÃº de usuario al hacer click fuera
+  // Cerrar el men├║ de usuario al hacer click fuera
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
       if (!userMenuOpen) return;
@@ -119,34 +118,10 @@ export default function TopBar() {
     };
   }, [menuOpen]);
 
-  // Focus trap for mobile menu
-  useEffect(() => {
-    if (!menuOpen) return;
-    const container = menuRef.current;
-    if (!container) return;
-    const focusable = container.querySelectorAll<HTMLElement>('a, button, [tabindex]:not([tabindex="-1"])');
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    first?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab') return;
-      if (focusable.length === 0) return;
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        (last || first).focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        (first || last).focus();
-      }
-    };
-    container.addEventListener('keydown', onKey as any);
-    return () => container.removeEventListener('keydown', onKey as any);
-  }, [menuOpen]);
-
   return (
     <header className="sticky top-0 z-[80] bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100/50 transition-all duration-300">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
-        {/* Logo con Ã­cono */}
+        {/* Logo con ├¡cono */}
         <Link href="/" className="flex items-center gap-3 text-xl font-bold text-lime-700 hover:text-lime-800 transition-all duration-300 transform hover:scale-105 group">
           <div className="relative">
             <Image
@@ -166,10 +141,10 @@ export default function TopBar() {
           <SearchBar className="w-full max-w-md" />
         </div>
 
-        {/* NavegaciÃ³n desktop */}
+        {/* Navegaci├│n desktop */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-700">
           <Link href="/categorias" className="relative px-3 py-2 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 group">
-            <span className="relative z-10">CategorÃ­as</span>
+            <span className="relative z-10">Categor├¡as</span>
             <div className="absolute inset-0 bg-gradient-to-r from-lime-500/0 via-lime-500/5 to-lime-500/0 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300" />
           </Link>
           <Link href="/buscar" className="relative px-3 py-2 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 group">
@@ -179,12 +154,10 @@ export default function TopBar() {
           {user ? (
             <div className="relative" ref={userMenuRef}>
               <button
-                id="user-menu-button"
                 onClick={() => setUserMenuOpen((v) => !v)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-lime-50/50 hover:text-lime-700 transition-all"
                 aria-haspopup="menu"
                 aria-expanded={userMenuOpen}
-                aria-controls="user-menu-dropdown"
               >
                 {/* Avatar */}
                 <div className="w-7 h-7 rounded-full bg-lime-600 text-white flex items-center justify-center text-xs overflow-hidden">
@@ -198,20 +171,20 @@ export default function TopBar() {
                 <ChevronDown className={`w-4 h-4 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
               </button>
               {userMenuOpen && (
-                <div id="user-menu-dropdown" role="menu" aria-labelledby="user-menu-button" className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50">
                   <Link href="/cuenta" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Cuenta</Link>
                   <button
                     onClick={async () => { await signOut(); router.replace('/'); }}
                     className="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50"
                   >
-                    Cerrar sesiÃ³n
+                    Cerrar sesi├│n
                   </button>
                 </div>
               )}
             </div>
           ) : (
             <Link href="/cuenta/login" className="relative px-3 py-2 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 group">
-              <span className="relative z-10">Iniciar sesiÃ³n</span>
+              <span className="relative z-10">Iniciar sesi├│n</span>
               <div className="absolute inset-0 bg-gradient-to-r from-lime-500/0 via-lime-500/5 to-lime-500/0 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300" />
             </Link>
           )}
@@ -219,9 +192,9 @@ export default function TopBar() {
             <button
               onClick={async () => { await signOut(); router.replace('/'); }}
               className="relative px-3 py-2 rounded-lg hover:text-red-700 hover:bg-red-50/50 transition-all duration-300"
-              title="Cerrar sesiÃ³n"
+              title="Cerrar sesi├│n"
             >
-              Cerrar sesiÃ³n
+              Cerrar sesi├│n
             </button>
           )}
           <div 
@@ -280,34 +253,26 @@ export default function TopBar() {
           </div>
         </nav>
 
-        {/* BotÃ³n menÃº mÃ³vil */}
+        {/* Bot├│n men├║ m├│vil */}
         <button
           className="md:hidden p-2.5 rounded-lg hover:bg-lime-50 hover:text-lime-700 transition-all duration-300 transform hover:scale-110 active:scale-95"
           aria-controls="mobile-menu"
           aria-expanded={menuOpen}
-          aria-label={menuOpen ? 'Cerrar menÃº' : 'Abrir menÃº'}
+          aria-label={menuOpen ? 'Cerrar men├║' : 'Abrir men├║'}
           onClick={() => (menuOpen ? closeMenuSmooth() : setMenuOpen(true))}
         >
           {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
-      {/* MenÃº mÃ³vil */}
+      {/* Men├║ m├│vil */}
       {menuOpen && (
         <>
           <div className={`fixed inset-0 bg-black/30 backdrop-blur-xs z-40 md:hidden ${menuClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`} onClick={closeMenuSmooth} />
-          <div
-            id="mobile-menu"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Menú de navegación"
-            className={`md:hidden relative z-[90] bg-white/95 backdrop-blur-md border-t border-gray-100/50 shadow-lg w-full max-w-full overflow-x-hidden ${menuClosing ? 'animate-slideOut' : 'animate-slideIn'}`}
-            tabIndex={-1}
-            ref={menuRef}
-          >
+          <div className={`md:hidden relative z-[90] bg-white/95 backdrop-blur-md border-t border-gray-100/50 shadow-lg w-full max-w-full overflow-x-hidden ${menuClosing ? 'animate-slideOut' : 'animate-slideIn'}`}>
           <nav className="flex flex-col p-6 gap-4 text-gray-700">
             <Link href="/categorias" className="py-3 px-4 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 font-medium">
-              CategorÃ­as
+              Categor├¡as
             </Link>
             <Link href="/buscar" className="py-3 px-4 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 font-medium">
               Buscar
@@ -318,7 +283,7 @@ export default function TopBar() {
               </Link>
             ) : (
               <Link href="/cuenta/login" className="py-3 px-4 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 font-medium">
-                Iniciar sesiÃ³n
+                Iniciar sesi├│n
               </Link>
             )}
             {user && (
@@ -326,7 +291,7 @@ export default function TopBar() {
                 onClick={async () => { await signOut(); router.replace('/'); }}
                 className="py-3 px-4 rounded-lg hover:text-red-700 hover:bg-red-50/50 transition-all duration-300 font-medium text-left"
               >
-                Cerrar sesiÃ³n
+                Cerrar sesi├│n
               </button>
             )}
             <Link 
