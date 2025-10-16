@@ -35,7 +35,7 @@ export default function ProductCard({ id, name, name_es, image_url, price_cents,
 
   return (
     <div 
-      className="relative min-w-[200px] flex-shrink-0 bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-500 ease-out transform hover:-translate-y-2 hover:scale-[1.02] flex flex-col group overflow-hidden backdrop-blur-sm"
+      className="relative w-full bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-500 ease-out transform hover:-translate-y-2 hover:scale-[1.02] flex flex-col group overflow-hidden backdrop-blur-sm"
     >
       <Link 
         href={`/producto/${id}`} 
