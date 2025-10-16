@@ -107,6 +107,12 @@
 - Script `scripts/inject-env.mjs` ahora es merge-safe (no sobreescribe `.env.local`, solo actualiza derivadas).
 - Ruta de debug eliminada: `app/debug/images/page.tsx`.
 
+### UX Móvil (menú)
+
+- Menú móvil con overlay (click fuera cierra), bloqueo de scroll del body y cierre con Escape.
+- Cierre automático al cambiar de ruta; buscador visible en el panel móvil.
+- Implementación en: `components/TopBar.tsx`.
+
 ### Configuración dev (Mercado Pago)
 
 - Variables en `.env.local`:
@@ -116,6 +122,20 @@
 - Notas:
   - En local (http), antes el cliente forzaba redirección a `sandbox_init_point`; con Bricks ya no se usa redirect.
   - Para pruebas, usar Comprador de Prueba distinto del Vendedor; habilitar cookies de terceros si el challenge 3DS lo requiere.
+
+### Producción/Preview (entorno)
+
+- Requeridas en el proveedor (ej. Vercel):
+  - `NEXT_PUBLIC_URL=https://<tu-dominio>`
+  - `NEXT_PUBLIC_MP_PUBLIC_KEY=APP_USR-...`
+  - `MP_ACCESS_TOKEN=APP_USR-...`
+  - `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- Nunca exponer: `SUPABASE_SERVICE_ROLE_KEY` (server-only).
+
+### Fallback de Checkout
+
+- Si falta `NEXT_PUBLIC_MP_PUBLIC_KEY`, el carrito oculta Bricks y vuelve al flujo por redirección (`init_point`).
+- Implementación en: `components/CarroClient.tsx`.
 
 ### Archivos relevantes
 
