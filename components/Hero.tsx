@@ -11,7 +11,10 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative overflow-hidden mt-16 h-[500px] lg:h-[600px] flex items-center">
+    <section
+      className="relative overflow-hidden mt-16 min-h-[520px] sm:min-h-[540px] lg:h-[600px] flex items-center pt-6 sm:pt-8"
+      style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}
+    >
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <div 
