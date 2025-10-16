@@ -144,7 +144,7 @@ export default function TopBar() {
         {/* Navegaci├│n desktop */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-700">
           <Link href="/categorias" className="relative px-3 py-2 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 group">
-            <span className="relative z-10">Categor├¡as</span>
+            <span className="relative z-10">{'Categor\u00EDas'}</span>
             <div className="absolute inset-0 bg-gradient-to-r from-lime-500/0 via-lime-500/5 to-lime-500/0 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300" />
           </Link>
           <Link href="/buscar" className="relative px-3 py-2 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 group">
@@ -177,14 +177,14 @@ export default function TopBar() {
                     onClick={async () => { await signOut(); router.replace('/'); }}
                     className="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50"
                   >
-                    Cerrar sesi├│n
+                    {'Cerrar sesi\u00F3n'}
                   </button>
                 </div>
               )}
             </div>
           ) : (
             <Link href="/cuenta/login" className="relative px-3 py-2 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 group">
-              <span className="relative z-10">Iniciar sesi├│n</span>
+              <span className="relative z-10">{'Iniciar sesi\u00F3n'}</span>
               <div className="absolute inset-0 bg-gradient-to-r from-lime-500/0 via-lime-500/5 to-lime-500/0 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300" />
             </Link>
           )}
@@ -192,9 +192,9 @@ export default function TopBar() {
             <button
               onClick={async () => { await signOut(); router.replace('/'); }}
               className="relative px-3 py-2 rounded-lg hover:text-red-700 hover:bg-red-50/50 transition-all duration-300"
-              title="Cerrar sesi├│n"
+              title={'Cerrar sesi\u00F3n'}
             >
-              Cerrar sesi├│n
+              {'Cerrar sesi\u00F3n'}
             </button>
           )}
           <div 
@@ -272,7 +272,7 @@ export default function TopBar() {
           <div className={`md:hidden relative z-[90] bg-white/95 backdrop-blur-md border-t border-gray-100/50 shadow-lg w-full max-w-full overflow-x-hidden ${menuClosing ? 'animate-slideOut' : 'animate-slideIn'}`}>
           <nav className="flex flex-col p-6 gap-4 text-gray-700">
             <Link href="/categorias" className="py-3 px-4 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 font-medium">
-              Categor├¡as
+              {'Categor\u00EDas'}
             </Link>
             <Link href="/buscar" className="py-3 px-4 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 font-medium">
               Buscar
@@ -283,7 +283,7 @@ export default function TopBar() {
               </Link>
             ) : (
               <Link href="/cuenta/login" className="py-3 px-4 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 font-medium">
-                Iniciar sesi├│n
+                {'Iniciar sesi\u00F3n'}
               </Link>
             )}
             {user && (
@@ -291,7 +291,7 @@ export default function TopBar() {
                 onClick={async () => { await signOut(); router.replace('/'); }}
                 className="py-3 px-4 rounded-lg hover:text-red-700 hover:bg-red-50/50 transition-all duration-300 font-medium text-left"
               >
-                Cerrar sesi├│n
+                {'Cerrar sesi\u00F3n'}
               </button>
             )}
             <Link 
@@ -313,3 +313,4 @@ export default function TopBar() {
     </header>
   );
 }
+
