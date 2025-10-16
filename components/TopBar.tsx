@@ -268,7 +268,7 @@ export default function TopBar() {
       {/* Menú móvil */}
       {menuOpen && (
         <>
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-xs z-40 md:hidden" onClick={closeMenuSmooth} />
+          <div className={`fixed inset-0 bg-black/30 backdrop-blur-xs z-40 md:hidden ${menuClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`} onClick={closeMenuSmooth} />
           <div className={`md:hidden relative z-[90] bg-white/95 backdrop-blur-md border-t border-gray-100/50 shadow-lg w-full max-w-full overflow-x-hidden ${menuClosing ? 'animate-slideOut' : 'animate-slideIn'}`}>
           <nav className="flex flex-col p-6 gap-4 text-gray-700">
             <Link href="/categorias" className="py-3 px-4 rounded-lg hover:text-lime-700 hover:bg-lime-50/50 transition-all duration-300 font-medium">
