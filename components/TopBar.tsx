@@ -80,6 +80,34 @@ export default function TopBar() {
     };
   }, [menuOpen]);
 
+  // Close mobile menu on scroll/resize/orientation change for better UX
+  useEffect(() => {
+    if (!menuOpen) return;
+    let lastY = window.scrollY;
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        const delta = Math.abs(window.scrollY - lastY);
+        if (delta > 10) {
+          setMenuOpen(false);
+        }
+        lastY = window.scrollY;
+        ticking = false;
+      });
+    };
+    const onResize = () => setMenuOpen(false);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
+    return () => {
+      window.removeEventListener('scroll', onScroll as EventListener);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
+    };
+  }, [menuOpen]);
+
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100/50 transition-all duration-300 overflow-x-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
