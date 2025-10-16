@@ -23,6 +23,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className={`${inter.variable} ${poppins.variable}`}>
       <head>
+        <meta charSet="utf-8" />
+        <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta httpEquiv="Content-Language" content="es" />
         <meta name="description" content="Descubre productos Ãºtiles, bonitos y sustentables en Lunaria. EnvÃ­os simples, calidad real." />
       </head>
       <body className={`font-sans bg-gray-50 text-gray-900 antialiased overflow-x-hidden ${inter.variable} ${poppins.variable}`}>
@@ -44,3 +47,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
