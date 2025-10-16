@@ -1,0 +1,16 @@
+﻿[
+  {
+    "id": "cj_123",
+    "name": "Portable Mini Blender",
+    "name_es": "Licuadora portátil mini",
+    "image_url": "https://example.com/cj/mini-blender.jpg",
+    "price_cents": 159900
+  },
+  {
+    "id": "cj_456",
+    "name": "Wireless Earbuds",
+    "name_es": "Auriculares inalámbricos",
+    "image_url": "https://example.com/cj/earbuds.jpg",
+    "price_cents": 349900
+  }
+]
