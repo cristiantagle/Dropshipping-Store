@@ -23,6 +23,7 @@ export default function MiniCart({ isVisible, onMouseEnter, onMouseLeave }: Mini
 
   return (
     <div 
+      role="dialog" aria-label="Mini carrito" aria-live="polite"
       className="absolute top-full right-0 mt-0 w-80 z-50 transition-all duration-200 ease-out"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
