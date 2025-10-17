@@ -7,35 +7,62 @@ function page(body: string, status = 200) {
   );
 }
 
-async function exchangeToken(params: {
-  code: string;
-  redirectUri: string;
-}) {
+async function exchangeToken(params: { code: string; redirectUri: string }) {
   const clientId = process.env.AE_APP_KEY!;
   const clientSecret = process.env.AE_APP_SECRET!;
   const tokenUrl = process.env.AE_OAUTH_TOKEN_URL || "https://oauth.aliexpress.com/token";
 
-  const form = new URLSearchParams();
-  form.set("grant_type", "authorization_code");
-  form.set("client_id", clientId);
-  form.set("client_secret", clientSecret);
-  form.set("code", params.code);
-  form.set("redirect_uri", params.redirectUri);
+  // Strategy 1: POST x-www-form-urlencoded (OAuth2 standard)
+  const common = new URLSearchParams();
+  common.set("grant_type", "authorization_code");
+  common.set("client_id", clientId);
+  common.set("client_secret", clientSecret);
+  common.set("code", params.code);
+  common.set("redirect_uri", params.redirectUri);
+  common.set("need_refresh_token", "true");
 
-  const res = await fetch(tokenUrl, {
-    method: "POST",
-    headers: { "content-type": "application/x-www-form-urlencoded" },
-    body: form.toString(),
-    // Node runtime only
-    cache: "no-store",
-  });
-  const text = await res.text();
-  let json: any;
-  try { json = JSON.parse(text); } catch { json = { raw: text }; }
-  if (!res.ok) {
-    throw new Error(`Token HTTP ${res.status}: ${text}`);
+  const tryRequests: Array<{ method: "POST" | "GET"; body?: string; url?: string; note: string }> = [];
+  tryRequests.push({ method: "POST", body: common.toString(), note: "POST standard" });
+
+  // Strategy 2: GET with query params
+  const getUrl = new URL(tokenUrl);
+  for (const [k, v] of common) getUrl.searchParams.set(k, v);
+  tryRequests.push({ method: "GET", url: getUrl.toString(), note: "GET with query" });
+
+  // Strategy 3: Some environments expect app_key instead of client_id
+  const alt = new URLSearchParams(common);
+  alt.delete("client_id");
+  alt.set("app_key", clientId);
+  tryRequests.push({ method: "POST", body: alt.toString(), note: "POST with app_key" });
+  const getAlt = new URL(tokenUrl);
+  for (const [k, v] of alt) getAlt.searchParams.set(k, v);
+  tryRequests.push({ method: "GET", url: getAlt.toString(), note: "GET with app_key" });
+
+  let lastError: any = null;
+  for (const attempt of tryRequests) {
+    try {
+      const res = await fetch(attempt.url || tokenUrl, {
+        method: attempt.method,
+        headers: attempt.method === "POST" ? { "content-type": "application/x-www-form-urlencoded" } : undefined,
+        body: attempt.method === "POST" ? attempt.body : undefined,
+        cache: "no-store",
+      });
+      const text = await res.text();
+      let json: any;
+      try { json = JSON.parse(text); } catch { json = { raw: text }; }
+      if (!res.ok) {
+        lastError = new Error(`Token HTTP ${res.status} (${attempt.note}): ${text}`);
+        // Continue to next attempt on 404/405/400
+        if (res.status === 404 || res.status === 405 || res.status === 400) continue;
+        throw lastError;
+      }
+      // Some gateways wrap token in data or result
+      return json;
+    } catch (e) {
+      lastError = e;
+    }
   }
-  return json;
+  throw lastError || new Error("Token exchange failed");
 }
 
 export async function GET(req: Request) {
@@ -94,8 +121,9 @@ export async function GET(req: Request) {
       }</div><p>Importante: persiste estos tokens de forma segura en el servidor (DB/KV). Actualmente solo se muestran con máscara para verificación.</p></div></div>`
     );
   } catch (e: any) {
+    const tip = `Tried POST/GET with client_id and app_key at ${process.env.AE_OAUTH_TOKEN_URL}.`;
     return page(
-      `<div class="box"><h1 class="err">AliExpress – Error al canjear token</h1><div class="content"><p>No se pudo completar el intercambio code → access_token.</p><div class="meta">${e?.message || e}</div><p>Verifica que el <code>redirect_uri</code> coincida exactamente en la consola y que la app esté Online.</p></div></div>`,
+      `<div class="box"><h1 class="err">AliExpress – Error al canjear token</h1><div class="content"><p>No se pudo completar el intercambio code → access_token.</p><div class="meta">${e?.message || e}</div><p>${tip}</p><p>Confirma que el <code>redirect_uri</code> registrado en la consola coincide exactamente y que el dominio de token es <code>api-sg.aliexpress.com/oauth/token</code>.</p></div></div>`,
       500
     );
   }
