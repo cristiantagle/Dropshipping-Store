@@ -78,13 +78,28 @@ async function exchangeToken(params: { code: string; redirectUri: string }) {
         // continue trying all endpoints/styles on 4xx/5xx
         continue;
       }
-      // Normalize common fields
+      // Normalize common fields (deep/loose scan)
+      const deepFind = (obj: any, matcher: (k: string) => boolean): any => {
+        if (!obj || typeof obj !== "object") return undefined;
+        for (const [k, v] of Object.entries(obj)) {
+          if (matcher(k)) return v as any;
+          if (v && typeof v === "object") {
+            const r = deepFind(v, matcher);
+            if (r !== undefined) return r;
+          }
+        }
+        return undefined;
+      };
+      const toNumber = (v: any) => (v == null ? undefined : Number(v) || undefined);
       const norm = {
-        access_token: json.access_token || json.accessToken || json.data?.access_token || json.result?.access_token,
-        refresh_token: json.refresh_token || json.refreshToken || json.data?.refresh_token || json.result?.refresh_token,
-        expires_in: Number(json.expires_in || json.expiresIn || json.data?.expires_in || json.result?.expires_in || 0) || undefined,
-        scope: json.scope || json.data?.scope || json.result?.scope,
-        user_id: json.user_id || json.uid || json.data?.user_id || json.result?.user_id,
+        access_token:
+          (json as any).access_token || (json as any).accessToken || deepFind(json, (k) => /access[_-]?token/i.test(k)),
+        refresh_token:
+          (json as any).refresh_token || (json as any).refreshToken || deepFind(json, (k) => /refresh[_-]?token/i.test(k)),
+        expires_in:
+          toNumber((json as any).expires_in || (json as any).expiresIn || deepFind(json, (k) => /expires[_-]?in/i.test(k))),
+        scope: (json as any).scope || deepFind(json, (k) => /^scope$/i.test(k)),
+        user_id: (json as any).user_id || (json as any).uid || deepFind(json, (k) => /user[_-]?id/i.test(k)),
         raw: json,
       } as any;
       return norm;
