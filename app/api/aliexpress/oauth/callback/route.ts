@@ -1,28 +1,24 @@
-import { cookies } from "next/headers";
+﻿import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 function page(body: string, status = 200) {
-  return new Response(
-    `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AliExpress OAuth</title><style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#f8fafc;color:#0f172a;padding:24px}.box{max-width:720px;margin:40px auto;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 8px 24px rgba(15,23,42,.06)}.box h1{font-size:20px;margin:0;padding:20px 24px;border-bottom:1px solid #f1f5f9}.box .content{padding:20px 24px}.ok{color:#16a34a}.warn{color:#b45309}.err{color:#dc2626}.meta{font-size:12px;color:#475569;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;overflow:auto;white-space:pre-wrap}</style></head><body>${body}</body></html>`,
-    { status, headers: { "content-type": "text/html; charset=utf-8" } }
-  );
+  const html = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AliExpress OAuth</title><style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#f8fafc;color:#0f172a;padding:24px}.box{max-width:720px;margin:40px auto;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 8px 24px rgba(15,23,42,.06)}.box h1{font-size:20px;margin:0;padding:20px 24px;border-bottom:1px solid #f1f5f9}.box .content{padding:20px 24px}.ok{color:#16a34a}.warn{color:#b45309}.err{color:#dc2626}.meta{font-size:12px;color:#475569;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;overflow:auto;white-space:pre-wrap}</style></head><body>${body}</body></html>`;
+  return new Response(html, { status, headers: { "content-type": "text/html; charset=utf-8" } });
 }
 
 async function exchangeToken(params: { code: string; redirectUri: string }) {
   const clientId = process.env.AE_APP_KEY!;
   const clientSecret = process.env.AE_APP_SECRET!;
-  const primary = process.env.AE_OAUTH_TOKEN_URL || "https://oauth.aliexpress.com/token";
+  const primary = process.env.AE_OAUTH_TOKEN_URL || "https://api-sg.aliexpress.com/oauth/token";
 
-  // Candidate token endpoints (ordered)
   const tokenUrls = Array.from(new Set([
     primary,
-    "https://api-sg.aliexpress.com/oauth/token",
     "https://api-sg.aliexpress.com/oauth/access_token",
+    "https://api-sg.aliexpress.com/oauth/token",
     "https://oauth.aliexpress.com/token",
     "https://oauth.alibaba.com/token",
-  ].filter(Boolean)));
+  ]));
 
-  // Common payload
   const common = new URLSearchParams();
   common.set("grant_type", "authorization_code");
   common.set("client_id", clientId);
@@ -31,21 +27,17 @@ async function exchangeToken(params: { code: string; redirectUri: string }) {
   common.set("redirect_uri", params.redirectUri);
   common.set("need_refresh_token", "true");
 
-  // Alternate payload using app_key instead of client_id
   const alt = new URLSearchParams(common);
   alt.delete("client_id");
   alt.set("app_key", clientId);
 
-  const attempts: Array<{ url: string; method: "POST" | "GET"; body?: string; note: string }> = [];
+  const attempts: Array<{ url: string; method: "POST"|"GET"; body?: string; note: string }>=[];
   for (const url of tokenUrls) {
-    // Prefer POST (standard), also try GET as some gateways expect query
     attempts.push({ url, method: "POST", body: common.toString(), note: `POST client_id @ ${url}` });
-    const get1 = new URL(url); for (const [k, v] of common) get1.searchParams.set(k, v);
+    const get1 = new URL(url); for (const [k,v] of common) get1.searchParams.set(k,v);
     attempts.push({ url: get1.toString(), method: "GET", note: `GET client_id @ ${url}` });
-
-    // app_key variant
     attempts.push({ url, method: "POST", body: alt.toString(), note: `POST app_key @ ${url}` });
-    const get2 = new URL(url); for (const [k, v] of alt) get2.searchParams.set(k, v);
+    const get2 = new URL(url); for (const [k,v] of alt) get2.searchParams.set(k,v);
     attempts.push({ url: get2.toString(), method: "GET", note: `GET app_key @ ${url}` });
   }
 
@@ -60,61 +52,31 @@ async function exchangeToken(params: { code: string; redirectUri: string }) {
       });
       const text = await res.text();
       let json: any;
-      try {
-        json = JSON.parse(text);
-      } catch {
-        // Some gateways return url-encoded body
-        try {
-          const sp = new URLSearchParams(text);
-          const obj: any = {};
-          for (const [k, v] of sp) obj[k] = v;
-          json = obj;
-        } catch {
-          json = { raw: text };
-        }
+      try { json = JSON.parse(text); } catch {
+        try { const sp = new URLSearchParams(text); const obj: any = {}; for (const [k,v] of sp) obj[k]=v; json = obj; } catch { json = { raw: text }; }
       }
-      if (!res.ok) {
-        errors.push(`HTTP ${res.status} ${a.note}`);
-        // continue trying all endpoints/styles on 4xx/5xx
-        continue;
-      }
-      // Normalize common fields (deep/loose scan)
-      const deepFind = (obj: any, matcher: (k: string) => boolean): any => {
+      if (!res.ok) { errors.push(`HTTP ${res.status} ${a.note}`); continue; }
+      const deepFind = (obj: any, matcher: (k:string)=>boolean): any => {
         if (!obj || typeof obj !== "object") return undefined;
-        for (const [k, v] of Object.entries(obj)) {
-          if (matcher(k)) return v as any;
-          if (v && typeof v === "object") {
-            const r = deepFind(v, matcher);
-            if (r !== undefined) return r;
-          }
-        }
+        for (const [k,v] of Object.entries(obj)) { if (matcher(k)) return v as any; if (v && typeof v === "object") { const r = deepFind(v, matcher); if (r !== undefined) return r; } }
         return undefined;
       };
-      const listKeys = (obj: any, acc: string[] = [], prefix = "", depth = 0): string[] => {
-        if (!obj || typeof obj !== "object" || depth > 2) return acc;
-        for (const [k, v] of Object.entries(obj)) {
-          const key = prefix ? `${prefix}.${k}` : k;
-          acc.push(key);
-          if (v && typeof v === "object") listKeys(v, acc, key, depth + 1);
-        }
+      const listKeys = (obj:any, acc:string[] = [], depth=0): string[] => {
+        if (!obj || typeof obj !== "object" || depth>2) return acc;
+        for (const [k,v] of Object.entries(obj)) { acc.push(k); if (v && typeof v === "object") listKeys(v, acc, depth+1); }
         return acc;
       };
-      const toNumber = (v: any) => (v == null ? undefined : Number(v) || undefined);
+      const toNumber = (v:any)=> (v==null? undefined : Number(v)||undefined);
       const norm = {
-        access_token:
-          (json as any).access_token || (json as any).accessToken || deepFind(json, (k) => /access[_-]?token/i.test(k)),
-        refresh_token:
-          (json as any).refresh_token || (json as any).refreshToken || deepFind(json, (k) => /refresh[_-]?token/i.test(k)),
-        expires_in:
-          toNumber((json as any).expires_in || (json as any).expiresIn || deepFind(json, (k) => /expires[_-]?in/i.test(k))),
-        scope: (json as any).scope || deepFind(json, (k) => /^scope$/i.test(k)),
-        user_id: (json as any).user_id || (json as any).uid || deepFind(json, (k) => /user[_-]?id/i.test(k)),
-        raw: { keys: listKeys(json).slice(0, 50) },
+        access_token: (json as any).access_token || (json as any).accessToken || deepFind(json, k=>/access[_-]?token/i.test(k)),
+        refresh_token: (json as any).refresh_token || (json as any).refreshToken || deepFind(json, k=>/refresh[_-]?token/i.test(k)),
+        expires_in: toNumber((json as any).expires_in || (json as any).expiresIn || deepFind(json, k=>/expires[_-]?in/i.test(k))),
+        scope: (json as any).scope || deepFind(json, k=>/^scope$/i.test(k)),
+        user_id: (json as any).user_id || (json as any).uid || deepFind(json, k=>/user[_-]?id/i.test(k)),
+        raw: { keys: listKeys(json).slice(0,50) },
       } as any;
       return norm;
-    } catch (e: any) {
-      errors.push(`${a.note}: ${e?.message || e}`);
-    }
+    } catch (e:any) { errors.push(`${a.note}: ${e?.message||e}`); }
   }
   throw new Error(errors.join(" | "));
 }
@@ -129,74 +91,42 @@ export async function GET(req: Request) {
   const expectedState = cookieStore.get("ae_oauth_state")?.value;
 
   if (err) {
-    return page(
-      `<div class="box"><h1 class="err">AliExpress – Authorization Error</h1><div class="content"><p>La autorización fue rechazada por AliExpress.</p><p class="meta"><strong>error</strong>: ${err}</p><p>Intenta nuevamente desde el inicio del flujo.</p></div></div>`,
-      400
-    );
+    return page(`<div class="box"><h1 class="err">AliExpress \u2013 Authorization Error</h1><div class="content"><p>La autorizaci\u00F3n fue rechazada por AliExpress.</p><p class=\"meta\"><strong>error</strong>: ${err}</p><p>Intenta nuevamente desde el inicio del flujo.</p></div></div>`, 400);
   }
   if (!code) {
-    return page(
-      `<div class="box"><h1 class="warn">AliExpress – Falta código</h1><div class="content"><p>No se recibió el parámetro <code>code</code>.</p><p>Vuelve a iniciar el flujo de autorización desde tu panel.</p></div></div>`,
-      400
-    );
+    return page(`<div class=\"box\"><h1 class=\"warn\">AliExpress \u2013 Falta c\u00F3digo</h1><div class=\"content\"><p>No se recibi\u00F3 el par\u00E1metro <code>code</code>.</p><p>Vuelve a iniciar el flujo de autorizaci\u00F3n desde tu panel.</p></div></div>`, 400);
   }
   if (expectedState && state && expectedState !== state) {
-    return page(
-      `<div class="box"><h1 class="err">AliExpress – State inválido</h1><div class="content"><p>El parámetro <code>state</code> no coincide. Por seguridad, se detuvo el proceso.</p><div class="meta"><div><strong>state recibido</strong>: ${state}</div><div><strong>state esperado</strong>: ${expectedState}</div></div><p>Refresca la página donde iniciaste el flujo e inténtalo de nuevo.</p></div></div>`,
-      400
-    );
+    return page(`<div class=\"box\"><h1 class=\"err\">AliExpress \u2013 State inv\u00E1lido</h1><div class=\"content\"><p>El par\u00E1metro <code>state</code> no coincide. Por seguridad, se detuvo el proceso.</p><div class=\"meta\"><div><strong>state recibido</strong>: ${state}</div><div><strong>state esperado</strong>: ${expectedState}</div></div><p>Refresca la p\u00E1gina donde iniciaste el flujo e int\u00E9ntalo de nuevo.</p></div></div>`, 400);
   }
 
-  // Build redirect_uri consistently with start handler
   const explicit = process.env.AE_REDIRECT_URI;
   let base = process.env.NEXT_PUBLIC_URL;
   if (!base) base = `${url.protocol}//${url.host}`;
   const redirectUri = explicit || `${base}/api/aliexpress/oauth/callback`;
 
-  // If no secret configured, show the code only (to avoid leaking)
   if (!process.env.AE_APP_SECRET) {
-    return page(
-      `<div class="box"><h1 class="ok">AliExpress – Código recibido</h1><div class="content"><p>La app está en línea. Ahora completa el intercambio de tokens en el servidor.</p><div class="meta"><div><strong>code</strong>: ${code}</div>${state ? `<div><strong>state</strong>: ${state}</div>` : ""}<div><strong>redirect_uri</strong>: ${redirectUri}</div></div></div></div>`
-    );
+    return page(`<div class=\"box\"><h1 class=\"ok\">AliExpress \u2013 C\u00F3digo recibido</h1><div class=\"content\"><p>La app est\u00E1 en l\u00EDnea. Completa el intercambio de tokens en el servidor.</p><div class=\"meta\"><div><strong>code</strong>: ${code}</div>${state?`<div><strong>state</strong>: ${state}</div>`:""}<div><strong>redirect_uri</strong>: ${redirectUri}</div></div></div></div>`);
   }
 
   try {
     const token = await exchangeToken({ code, redirectUri });
-    const mask = (v: string) => (typeof v === "string" && v.length > 10 ? v.slice(0, 4) + "…" + v.slice(-4) : String(v));
+    const mask = (v: string) => (typeof v === "string" && v.length > 10 ? v.slice(0, 4) + "\u2026" + v.slice(-4) : String(v));
 
-    // Persist tokens (best-effort) if service role is configured and tokens present
     if (token?.access_token && token?.refresh_token && process.env.SUPABASE_SERVICE_ROLE_KEY) {
       try {
         const supa = supabaseAdmin();
         const expiresAt = token.expires_in ? new Date(Date.now() + Number(token.expires_in) * 1000).toISOString() : null;
-        await supa.from("aliexpress_tokens").upsert({
-          id: 1,
-          access_token: token.access_token,
-          refresh_token: token.refresh_token,
-          expires_at: expiresAt,
-          scope: token.scope || null,
-          user_id: token.user_id || null,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: "id" });
+        await supa.from("aliexpress_tokens").upsert({ id: 1, access_token: token.access_token, refresh_token: token.refresh_token, expires_at: expiresAt, scope: token.scope || null, user_id: token.user_id || null, updated_at: new Date().toISOString() }, { onConflict: "id" });
       } catch {}
     }
-    return page(
-      `<div class="box"><h1 class="ok">AliExpress – Autorización completada</h1><div class="content"><p>Se canje� el c�digo por tokens correctamente.</p><div class="meta">${
-        token ? JSON.stringify({
-          access_token: mask(token.access_token),
-          refresh_token: mask(token.refresh_token),
-          expires_in: token.expires_in,
-          scope: token.scope,
-          user_id: token.user_id,
-        }, null, 2) : "Sin datos"
-      }</div><p>Importante: los tokens se guardan en el servidor si est� configurada la Service Role Key. Si no, habil�tala y repite el flujo.</p></div></div>`
-    );
-  } catch (e: any) {
-    const tip = `Tried multiple endpoints: api-sg/oauth/token, api-sg/oauth/access_token, oauth.aliexpress.com/token, oauth.alibaba.com/token with POST/GET and client_id/app_key.`;
-    return page(
-      `<div class="box"><h1 class="err">AliExpress – Error al canjear token</h1><div class="content"><p>No se pudo completar el intercambio code → access_token.</p><div class="meta">${e?.message || e}</div><p>${tip}</p><p>Confirma que el <code>redirect_uri</code> registrado en la consola coincide exactamente y que el dominio de token es <code>api-sg.aliexpress.com/oauth/token</code>.</p></div></div>`,
-      500
-    );
+
+    const attemptedPersist = Boolean(token?.access_token && token?.refresh_token && process.env.SUPABASE_SERVICE_ROLE_KEY);
+    const debugNote = !token?.access_token || !token?.refresh_token ? { attemptedPersist, response_keys: token?.raw?.keys || [] } : { attemptedPersist };
+
+    return page(`<div class=\"box\"><h1 class=\"ok\">AliExpress \u2013 Autorizaci\u00F3n completada</h1><div class=\"content\"><p>Se canje\u00F3 el c\u00F3digo por tokens correctamente.</p><div class=\"meta\">${token ? JSON.stringify({ access_token: mask(token.access_token), refresh_token: mask(token.refresh_token), expires_in: token.expires_in, scope: token.scope, user_id: token.user_id }, null, 2) : "Sin datos"}</div><p>Importante: los tokens se guardan en el servidor si est\u00E1 configurada la Service Role Key. Si no, habil\u00EDtala y repite el flujo.</p><div class=\"meta\">${JSON.stringify(debugNote, null, 2)}</div></div></div>`);
+  } catch (e:any) {
+    const tip = "Tried multiple endpoints and methods (POST/GET, client_id/app_key) across api-sg token URLs.";
+    return page(`<div class=\"box\"><h1 class=\"err\">AliExpress \u2013 Error al canjear token</h1><div class=\"content\"><p>No se pudo completar el intercambio code \u2192 access_token.</p><div class=\"meta\">${e?.message || e}</div><p>${tip}</p><p>Confirma que el <code>redirect_uri</code> registrado en la consola coincide exactamente y que el dominio de token es <code>api-sg.aliexpress.com</code>.</p></div></div>`, 500);
   }
 }
-
