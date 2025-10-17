@@ -10,9 +10,18 @@ function page(body: string, status = 200) {
 async function exchangeToken(params: { code: string; redirectUri: string }) {
   const clientId = process.env.AE_APP_KEY!;
   const clientSecret = process.env.AE_APP_SECRET!;
-  const tokenUrl = process.env.AE_OAUTH_TOKEN_URL || "https://oauth.aliexpress.com/token";
+  const primary = process.env.AE_OAUTH_TOKEN_URL || "https://oauth.aliexpress.com/token";
 
-  // Strategy 1: POST x-www-form-urlencoded (OAuth2 standard)
+  // Candidate token endpoints (ordered)
+  const tokenUrls = Array.from(new Set([
+    primary,
+    "https://api-sg.aliexpress.com/oauth/token",
+    "https://api-sg.aliexpress.com/oauth/access_token",
+    "https://oauth.aliexpress.com/token",
+    "https://oauth.alibaba.com/token",
+  ].filter(Boolean)));
+
+  // Common payload
   const common = new URLSearchParams();
   common.set("grant_type", "authorization_code");
   common.set("client_id", clientId);
@@ -21,48 +30,47 @@ async function exchangeToken(params: { code: string; redirectUri: string }) {
   common.set("redirect_uri", params.redirectUri);
   common.set("need_refresh_token", "true");
 
-  const tryRequests: Array<{ method: "POST" | "GET"; body?: string; url?: string; note: string }> = [];
-  tryRequests.push({ method: "POST", body: common.toString(), note: "POST standard" });
-
-  // Strategy 2: GET with query params
-  const getUrl = new URL(tokenUrl);
-  for (const [k, v] of common) getUrl.searchParams.set(k, v);
-  tryRequests.push({ method: "GET", url: getUrl.toString(), note: "GET with query" });
-
-  // Strategy 3: Some environments expect app_key instead of client_id
+  // Alternate payload using app_key instead of client_id
   const alt = new URLSearchParams(common);
   alt.delete("client_id");
   alt.set("app_key", clientId);
-  tryRequests.push({ method: "POST", body: alt.toString(), note: "POST with app_key" });
-  const getAlt = new URL(tokenUrl);
-  for (const [k, v] of alt) getAlt.searchParams.set(k, v);
-  tryRequests.push({ method: "GET", url: getAlt.toString(), note: "GET with app_key" });
 
-  let lastError: any = null;
-  for (const attempt of tryRequests) {
+  const attempts: Array<{ url: string; method: "POST" | "GET"; body?: string; note: string }> = [];
+  for (const url of tokenUrls) {
+    // Prefer POST (standard), also try GET as some gateways expect query
+    attempts.push({ url, method: "POST", body: common.toString(), note: `POST client_id @ ${url}` });
+    const get1 = new URL(url); for (const [k, v] of common) get1.searchParams.set(k, v);
+    attempts.push({ url: get1.toString(), method: "GET", note: `GET client_id @ ${url}` });
+
+    // app_key variant
+    attempts.push({ url, method: "POST", body: alt.toString(), note: `POST app_key @ ${url}` });
+    const get2 = new URL(url); for (const [k, v] of alt) get2.searchParams.set(k, v);
+    attempts.push({ url: get2.toString(), method: "GET", note: `GET app_key @ ${url}` });
+  }
+
+  const errors: string[] = [];
+  for (const a of attempts) {
     try {
-      const res = await fetch(attempt.url || tokenUrl, {
-        method: attempt.method,
-        headers: attempt.method === "POST" ? { "content-type": "application/x-www-form-urlencoded" } : undefined,
-        body: attempt.method === "POST" ? attempt.body : undefined,
+      const res = await fetch(a.url, {
+        method: a.method,
+        headers: a.method === "POST" ? { "content-type": "application/x-www-form-urlencoded" } : undefined,
+        body: a.method === "POST" ? a.body : undefined,
         cache: "no-store",
       });
       const text = await res.text();
       let json: any;
       try { json = JSON.parse(text); } catch { json = { raw: text }; }
       if (!res.ok) {
-        lastError = new Error(`Token HTTP ${res.status} (${attempt.note}): ${text}`);
-        // Continue to next attempt on 404/405/400
-        if (res.status === 404 || res.status === 405 || res.status === 400) continue;
-        throw lastError;
+        errors.push(`HTTP ${res.status} ${a.note}`);
+        // continue trying all endpoints/styles on 4xx/5xx
+        continue;
       }
-      // Some gateways wrap token in data or result
       return json;
-    } catch (e) {
-      lastError = e;
+    } catch (e: any) {
+      errors.push(`${a.note}: ${e?.message || e}`);
     }
   }
-  throw lastError || new Error("Token exchange failed");
+  throw new Error(errors.join(" | "));
 }
 
 export async function GET(req: Request) {
@@ -121,7 +129,7 @@ export async function GET(req: Request) {
       }</div><p>Importante: persiste estos tokens de forma segura en el servidor (DB/KV). Actualmente solo se muestran con máscara para verificación.</p></div></div>`
     );
   } catch (e: any) {
-    const tip = `Tried POST/GET with client_id and app_key at ${process.env.AE_OAUTH_TOKEN_URL}.`;
+    const tip = `Tried multiple endpoints: api-sg/oauth/token, api-sg/oauth/access_token, oauth.aliexpress.com/token, oauth.alibaba.com/token with POST/GET and client_id/app_key.`;
     return page(
       `<div class="box"><h1 class="err">AliExpress – Error al canjear token</h1><div class="content"><p>No se pudo completar el intercambio code → access_token.</p><div class="meta">${e?.message || e}</div><p>${tip}</p><p>Confirma que el <code>redirect_uri</code> registrado en la consola coincide exactamente y que el dominio de token es <code>api-sg.aliexpress.com/oauth/token</code>.</p></div></div>`,
       500
