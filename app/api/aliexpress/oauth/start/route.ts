@@ -30,10 +30,26 @@ export async function GET(req: Request) {
 
   const authUrl = new URL(authBase);
   authUrl.searchParams.set("client_id", appKey);
+  // Some AliExpress OAuth deployments expect `app_key`; include both.
+  authUrl.searchParams.set("app_key", appKey);
   authUrl.searchParams.set("redirect_uri", redirectUri);
   authUrl.searchParams.set("response_type", "code");
   authUrl.searchParams.set("state", state);
   if (scope) authUrl.searchParams.set("scope", scope);
+
+  // Optional debug: return assembled URL instead of redirect
+  if (url.searchParams.get("debug") === "1") {
+    return new Response(
+      JSON.stringify({
+        authorize_url: authUrl.toString(),
+        client_id: appKey,
+        redirect_uri: redirectUri,
+        scope: scope || undefined,
+        state,
+      }),
+      { status: 200, headers: { "content-type": "application/json; charset=utf-8" } }
+    );
+  }
 
   return new Response(null, { status: 302, headers: { Location: authUrl.toString() } });
 }
