@@ -90,6 +90,15 @@ async function exchangeToken(params: { code: string; redirectUri: string }) {
         }
         return undefined;
       };
+      const listKeys = (obj: any, acc: string[] = [], prefix = "", depth = 0): string[] => {
+        if (!obj || typeof obj !== "object" || depth > 2) return acc;
+        for (const [k, v] of Object.entries(obj)) {
+          const key = prefix ? `${prefix}.${k}` : k;
+          acc.push(key);
+          if (v && typeof v === "object") listKeys(v, acc, key, depth + 1);
+        }
+        return acc;
+      };
       const toNumber = (v: any) => (v == null ? undefined : Number(v) || undefined);
       const norm = {
         access_token:
@@ -100,7 +109,7 @@ async function exchangeToken(params: { code: string; redirectUri: string }) {
           toNumber((json as any).expires_in || (json as any).expiresIn || deepFind(json, (k) => /expires[_-]?in/i.test(k))),
         scope: (json as any).scope || deepFind(json, (k) => /^scope$/i.test(k)),
         user_id: (json as any).user_id || (json as any).uid || deepFind(json, (k) => /user[_-]?id/i.test(k)),
-        raw: json,
+        raw: { keys: listKeys(json).slice(0, 50) },
       } as any;
       return norm;
     } catch (e: any) {
@@ -172,7 +181,7 @@ export async function GET(req: Request) {
       } catch {}
     }
     return page(
-      `<div class="box"><h1 class="ok">AliExpress – Autorización completada</h1><div class="content"><p>Se canjeó el código por tokens correctamente.</p><div class="meta">${
+      `<div class="box"><h1 class="ok">AliExpress – Autorización completada</h1><div class="content"><p>Se canje� el c�digo por tokens correctamente.</p><div class="meta">${
         token ? JSON.stringify({
           access_token: mask(token.access_token),
           refresh_token: mask(token.refresh_token),
@@ -180,7 +189,7 @@ export async function GET(req: Request) {
           scope: token.scope,
           user_id: token.user_id,
         }, null, 2) : "Sin datos"
-      }</div><p>Importante: los tokens se guardan en el servidor si está configurada la Service Role Key. Si no, habilítala y repite el flujo.</p></div></div>`
+      }</div><p>Importante: los tokens se guardan en el servidor si est� configurada la Service Role Key. Si no, habil�tala y repite el flujo.</p></div></div>`
     );
   } catch (e: any) {
     const tip = `Tried multiple endpoints: api-sg/oauth/token, api-sg/oauth/access_token, oauth.aliexpress.com/token, oauth.alibaba.com/token with POST/GET and client_id/app_key.`;
@@ -190,3 +199,4 @@ export async function GET(req: Request) {
     );
   }
 }
+
