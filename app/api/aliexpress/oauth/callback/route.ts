@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 
 function page(body: string, status = 200) {
   return new Response(
@@ -59,13 +60,34 @@ async function exchangeToken(params: { code: string; redirectUri: string }) {
       });
       const text = await res.text();
       let json: any;
-      try { json = JSON.parse(text); } catch { json = { raw: text }; }
+      try {
+        json = JSON.parse(text);
+      } catch {
+        // Some gateways return url-encoded body
+        try {
+          const sp = new URLSearchParams(text);
+          const obj: any = {};
+          for (const [k, v] of sp) obj[k] = v;
+          json = obj;
+        } catch {
+          json = { raw: text };
+        }
+      }
       if (!res.ok) {
         errors.push(`HTTP ${res.status} ${a.note}`);
         // continue trying all endpoints/styles on 4xx/5xx
         continue;
       }
-      return json;
+      // Normalize common fields
+      const norm = {
+        access_token: json.access_token || json.accessToken || json.data?.access_token || json.result?.access_token,
+        refresh_token: json.refresh_token || json.refreshToken || json.data?.refresh_token || json.result?.refresh_token,
+        expires_in: Number(json.expires_in || json.expiresIn || json.data?.expires_in || json.result?.expires_in || 0) || undefined,
+        scope: json.scope || json.data?.scope || json.result?.scope,
+        user_id: json.user_id || json.uid || json.data?.user_id || json.result?.user_id,
+        raw: json,
+      } as any;
+      return norm;
     } catch (e: any) {
       errors.push(`${a.note}: ${e?.message || e}`);
     }
@@ -117,6 +139,23 @@ export async function GET(req: Request) {
   try {
     const token = await exchangeToken({ code, redirectUri });
     const mask = (v: string) => (typeof v === "string" && v.length > 10 ? v.slice(0, 4) + "…" + v.slice(-4) : String(v));
+
+    // Persist tokens (best-effort) if service role is configured and tokens present
+    if (token?.access_token && token?.refresh_token && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      try {
+        const supa = supabaseAdmin();
+        const expiresAt = token.expires_in ? new Date(Date.now() + Number(token.expires_in) * 1000).toISOString() : null;
+        await supa.from("aliexpress_tokens").upsert({
+          id: 1,
+          access_token: token.access_token,
+          refresh_token: token.refresh_token,
+          expires_at: expiresAt,
+          scope: token.scope || null,
+          user_id: token.user_id || null,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "id" });
+      } catch {}
+    }
     return page(
       `<div class="box"><h1 class="ok">AliExpress – Autorización completada</h1><div class="content"><p>Se canjeó el código por tokens correctamente.</p><div class="meta">${
         token ? JSON.stringify({
@@ -124,9 +163,9 @@ export async function GET(req: Request) {
           refresh_token: mask(token.refresh_token),
           expires_in: token.expires_in,
           scope: token.scope,
-          user_id: token.user_id || token.uid,
+          user_id: token.user_id,
         }, null, 2) : "Sin datos"
-      }</div><p>Importante: persiste estos tokens de forma segura en el servidor (DB/KV). Actualmente solo se muestran con máscara para verificación.</p></div></div>`
+      }</div><p>Importante: los tokens se guardan en el servidor si está configurada la Service Role Key. Si no, habilítala y repite el flujo.</p></div></div>`
     );
   } catch (e: any) {
     const tip = `Tried multiple endpoints: api-sg/oauth/token, api-sg/oauth/access_token, oauth.aliexpress.com/token, oauth.alibaba.com/token with POST/GET and client_id/app_key.`;
