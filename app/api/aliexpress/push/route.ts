@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -25,12 +26,23 @@ export async function POST(req: NextRequest) {
     // ignore parse errors
   }
 
-  // Very simple echo + 200 so their test marks succeeded=true
-  // In the future we can add signature verification if AE sends one.
-  return json(200, {
-    ok: true,
-    received_at: new Date().toISOString(),
-    body,
-  });
-}
+  // Persist event with service role if available
+  const adminKeyPresent = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (adminKeyPresent) {
+    try {
+      const supa = supabaseAdmin();
+      const payload = typeof body === "string" ? { raw } : body;
+      const insert = {
+        event: payload,
+        received_at: new Date().toISOString(),
+        received_path: "/api/aliexpress/push",
+      };
+      await supa.from("ae_push_events").insert(insert);
+    } catch (e) {
+      // swallow errors to not break webhook ack
+    }
+  }
 
+  // Echo back for test tool
+  return json(200, { ok: true, received_at: new Date().toISOString(), body });
+}
