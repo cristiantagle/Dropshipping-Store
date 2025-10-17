@@ -23,7 +23,8 @@ async function handle(req: NextRequest) {
   const url = new URL(req.url);
   const appKey = process.env.AE_APP_KEY;
   const appSecret = process.env.AE_APP_SECRET;
-  const endpoint = process.env.AE_SECURITY_TOKEN_URL ||
+  const endpoint = url.searchParams.get("endpoint") ||
+    process.env.AE_SECURITY_TOKEN_URL ||
     "https://oauth.aliexpress.com/auth/token/security/create";
 
   if (!appKey || !appSecret) {
@@ -35,12 +36,22 @@ async function handle(req: NextRequest) {
   const debug = url.searchParams.get("debug") === "1";
 
   // Basic parameters commonly required
-  const timestamp = Date.now();
+  const unit = url.searchParams.get("unit") || "ms"; // ms | sec
+  const ts = Date.now();
+  const timestamp = unit === "sec" ? Math.floor(ts / 1000) : ts;
+  const signMethod = url.searchParams.get("sign_method") || "HMAC-SHA256"; // allow override casing
   const baseParams: Record<string, string | number> = {
     app_key: appKey,
     timestamp,
-    sign_method: "HMAC-SHA256",
+    sign_method: signMethod,
   };
+
+  // Optional pass-through parameters (nonce, format, v, etc.)
+  const passthrough = ["nonce", "format", "v", "partner_id", "sdk", "sign_method", "app_signature"] as const;
+  for (const key of passthrough) {
+    const v = url.searchParams.get(key);
+    if (v) (baseParams as any)[key] = v;
+  }
 
   // Build signature across known schemes
   const sign = signHmacSHA256(baseParams, appSecret, style);
@@ -52,7 +63,8 @@ async function handle(req: NextRequest) {
       method,
       params: reqParams,
       style,
-      note: "If the endpoint rejects the request, adjust AE_SECURITY_TOKEN_URL and/or signature style (style=taobao).",
+      unit,
+      note: "If the endpoint rejects the request, adjust endpoint (query or AE_SECURITY_TOKEN_URL), timestamp unit (unit=sec), sign method (sign_method), or signature style (style=taobao).",
     });
   }
 
@@ -74,4 +86,3 @@ async function handle(req: NextRequest) {
     return bad(500, { error: "network_error", message: e?.message || String(e) });
   }
 }
-
