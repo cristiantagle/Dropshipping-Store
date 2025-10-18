@@ -1,4 +1,4 @@
-# Repository Guidelines
+﻿# Repository Guidelines
 
 ## Project Structure & Module Organization
 
@@ -48,82 +48,82 @@
 
 ## Acuerdo de Trabajo (Agente)
 
-- Nunca tocar `main` sin tu aprobación explícita.
+- Nunca tocar `main` sin tu aprobaciÃ³n explÃ­cita.
 - Siempre crear snapshot en `.backup_global/<timestamp>` antes de cambiar algo.
-- No pisar código estable: cambios reversibles y legados a `archive/`.
-- Validar con `npm run build` antes de entregarte; luego pido: “prueba en local con `npm run dev`”.
-- Mantener este AGENTS.md como fuente de verdad operativa; WARP.md se actualizará cuando normalicemos su codificación.
+- No pisar cÃ³digo estable: cambios reversibles y legados a `archive/`.
+- Validar con `npm run build` antes de entregarte; luego pido: â€œprueba en local con `npm run dev`â€.
+- Mantener este AGENTS.md como fuente de verdad operativa; WARP.md se actualizarÃ¡ cuando normalicemos su codificaciÃ³n.
 
 ## Estado y Registro (2025-10-14)
 
 - Snapshot: `.backup_global/20251014_103731` (respaldo completo sin `.git`, `.next`, `node_modules`).
 - Carrito legado archivado: `archive/legacy_cart/CartContext.tsx`, `archive/legacy_cart/ShoppingCart.tsx` y excluido en `tsconfig.json`.
-- Imágenes: `next.config.js` optimiza solo en producción; dev queda `unoptimized`.
+- ImÃ¡genes: `next.config.js` optimiza solo en producciÃ³n; dev queda `unoptimized`.
 - ESLint relajado para no bloquear build (warnings por `<img>` y deps de hooks).
 - `components/ProductCard.tsx` migra a `next/image` (con `unoptimized`).
 
-## Próximas Tareas (iterativas y con snapshot)
+## PrÃ³ximas Tareas (iterativas y con snapshot)
 
 - Migrar `next/image` en: `components/ProductDetail.tsx`, `components/MiniCart.tsx`, `components/CarroClient.tsx`, `components/OfertasClient.tsx` (uno por vez, con build y prueba en dev).
-- Mejoras UX móvil del menú tras validar las migraciones.
-- Normalizar codificación de `WARP.md` y reanudar documentación exhaustiva ahí.
+- Mejoras UX mÃ³vil del menÃº tras validar las migraciones.
+- Normalizar codificaciÃ³n de `WARP.md` y reanudar documentaciÃ³n exhaustiva ahÃ­.
 
 ## Registro adicional (2025-10-14)
 
 - Snapshots creados: `.backup_global/20251014_110431`, `20251014_111454`, `20251014_111635`, `20251014_112125`, `20251014_112457`, `20251014_115053`, `20251014_115413`, `20251014_120057`.
-- Breadcrumb restaurado en `app/producto/[id]/page.tsx` (Inicio → Categorías → {Categoría} → {Producto}).
-- Detalle de producto: botón de agregar al carrito reemplazado por `AddToCartButton` (funcional y consistente).
-- Checkout MP: uso de `NEXT_PUBLIC_URL` (fallback `NEXT_PUBLIC_BASE_URL`) y validación de `MP_ACCESS_TOKEN`.
-- OrderSummary usa `useOptimizedCart` (evita ocultar el botón de pago por estados desincronizados).
+- Breadcrumb restaurado en `app/producto/[id]/page.tsx` (Inicio â†’ CategorÃ­as â†’ {CategorÃ­a} â†’ {Producto}).
+- Detalle de producto: botÃ³n de agregar al carrito reemplazado por `AddToCartButton` (funcional y consistente).
+- Checkout MP: uso de `NEXT_PUBLIC_URL` (fallback `NEXT_PUBLIC_BASE_URL`) y validaciÃ³n de `MP_ACCESS_TOKEN`.
+- OrderSummary usa `useOptimizedCart` (evita ocultar el botÃ³n de pago por estados desincronizados).
 - Migraciones a `next/image` con `unoptimized`: `ProductCard`, `ProductDetail`, `ProductDetailClient`, `MiniCart`, `CarroClient`, `OfertasClient`, `app/categorias/page.tsx`.
 
-### Registro (Auth + TopBar + Invitado) — 2025-10-14 tarde
+### Registro (Auth + TopBar + Invitado) â€” 2025-10-14 tarde
 
-- Usuarios: páginas `app/cuenta/login`, `app/cuenta/registro`, `app/cuenta` con `AuthProvider` (`contexts/AuthContext.tsx`) y cliente `lib/supabase/authClient.ts`.
+- Usuarios: pÃ¡ginas `app/cuenta/login`, `app/cuenta/registro`, `app/cuenta` con `AuthProvider` (`contexts/AuthContext.tsx`) y cliente `lib/supabase/authClient.ts`.
 - Perfiles: script `scripts/add_profiles.sql` (tabla `public.profiles` + RLS). Correr en SQL Editor de Supabase.
 - Perfil editable: en `/cuenta` se editan `display_name` y `avatar_url` (persisten en `profiles`).
-- TopBar mejorado: saludo “Hola, {nombre|email}”, avatar (o inicial), chevron con dropdown (Cuenta / Cerrar sesión) y cierre por click‑fuera.
-- Invitado: checkout con email opcional en `components/CarroClient.tsx` (se envía a MP como `payer.email`).
-- Política snapshots: mantenemos solo 2 últimos (limpieza aplicada); últimos: ver `.backup_global`.
+- TopBar mejorado: saludo â€œHola, {nombre|email}â€, avatar (o inicial), chevron con dropdown (Cuenta / Cerrar sesiÃ³n) y cierre por clickâ€‘fuera.
+- Invitado: checkout con email opcional en `components/CarroClient.tsx` (se envÃ­a a MP como `payer.email`).
+- PolÃ­tica snapshots: mantenemos solo 2 Ãºltimos (limpieza aplicada); Ãºltimos: ver `.backup_global`.
 
-### Checkout Pro (Mercado Pago) — 2025-10-14 noche
+### Checkout Pro (Mercado Pago) â€” 2025-10-14 noche
 
 - Endpoint `app/api/checkout/mercadopago/route.ts` ajustado:
-  - `sandbox_init_point` como fallback si estás en modo test.
+  - `sandbox_init_point` como fallback si estÃ¡s en modo test.
   - `auto_return` y `notification_url` solo cuando `NEXT_PUBLIC_URL` sea `https`.
   - `back_urls` siempre definidas (dev: `http://localhost:3000/carro?...`).
 - Cliente `components/CarroClient.tsx`:
   - Manejo de errores: muestra toast y log con `details` del servidor.
-  - Redirección a `init_point` o `sandbox_init_point` según respuesta.
-- Configuración mínima dev:
+  - RedirecciÃ³n a `init_point` o `sandbox_init_point` segÃºn respuesta.
+- ConfiguraciÃ³n mÃ­nima dev:
   - `.env.local`: `MP_ACCESS_TOKEN=APP_USR-...` (Access Token del usuario vendedor; para sandbox usa un Usuario de Prueba), `NEXT_PUBLIC_URL=http://localhost:3000`. Opcional: `NEXT_PUBLIC_MP_PUBLIC_KEY=APP_USR-...`.
   - Reiniciar `npm run dev` tras cambios.
 
 ## Estado y Registro (2025-10-15)
 
 - Checkout: migrado a Mercado Pago Bricks (Wallet) embebido en el carrito.
-- Sidebar de pago fija (sticky) en desktop; sin superposición con la lista.
-- Preferencia MP endurecida para sandbox: `binary_mode: true`, `statement_descriptor: "LUNARIA"`, `payment_methods` con 1 cuota y exclusión de ticket/atm/transfer.
+- Sidebar de pago fija (sticky) en desktop; sin superposiciÃ³n con la lista.
+- Preferencia MP endurecida para sandbox: `binary_mode: true`, `statement_descriptor: "LUNARIA"`, `payment_methods` con 1 cuota y exclusiÃ³n de ticket/atm/transfer.
 - Script `scripts/inject-env.mjs` ahora es merge-safe (no sobreescribe `.env.local`, solo actualiza derivadas).
 - Ruta de debug eliminada: `app/debug/images/page.tsx`.
 
-### UX Móvil (menú)
+### UX MÃ³vil (menÃº)
 
-- Menú móvil con overlay (click fuera cierra), bloqueo de scroll del body y cierre con Escape.
-- Cierre automático al cambiar de ruta; buscador visible en el panel móvil.
-- Implementación en: `components/TopBar.tsx`.
+- MenÃº mÃ³vil con overlay (click fuera cierra), bloqueo de scroll del body y cierre con Escape.
+- Cierre automÃ¡tico al cambiar de ruta; buscador visible en el panel mÃ³vil.
+- ImplementaciÃ³n en: `components/TopBar.tsx`.
 
-### Configuración dev (Mercado Pago)
+### ConfiguraciÃ³n dev (Mercado Pago)
 
 - Variables en `.env.local`:
   - `MP_ACCESS_TOKEN=APP_USR-...` (Access Token del vendedor. Para sandbox usa un Usuario de Prueba Vendedor).
   - `NEXT_PUBLIC_MP_PUBLIC_KEY=APP_USR-...` (Public Key para inicializar Bricks en el cliente).
   - `NEXT_PUBLIC_URL=http://localhost:3000`
 - Notas:
-  - En local (http), antes el cliente forzaba redirección a `sandbox_init_point`; con Bricks ya no se usa redirect.
+  - En local (http), antes el cliente forzaba redirecciÃ³n a `sandbox_init_point`; con Bricks ya no se usa redirect.
   - Para pruebas, usar Comprador de Prueba distinto del Vendedor; habilitar cookies de terceros si el challenge 3DS lo requiere.
 
-### Producción/Preview (entorno)
+### ProducciÃ³n/Preview (entorno)
 
 - Requeridas en el proveedor (ej. Vercel):
   - `NEXT_PUBLIC_URL=https://<tu-dominio>`
@@ -134,8 +134,8 @@
 
 ### Fallback de Checkout
 
-- Si falta `NEXT_PUBLIC_MP_PUBLIC_KEY`, el carrito oculta Bricks y vuelve al flujo por redirección (`init_point`).
-- Implementación en: `components/CarroClient.tsx`.
+- Si falta `NEXT_PUBLIC_MP_PUBLIC_KEY`, el carrito oculta Bricks y vuelve al flujo por redirecciÃ³n (`init_point`).
+- ImplementaciÃ³n en: `components/CarroClient.tsx`.
 
 ### Archivos relevantes
 
@@ -143,43 +143,43 @@
 - Cliente: `components/MPWallet.tsx` (Bricks Wallet), `components/CarroClient.tsx` (columna derecha sticky), `components/OrderSummary.tsx` (sin sticky interno).
 - Entorno: `scripts/inject-env.mjs` (merge-safe para `.env.local`).
 
-### Próximas Tareas (post‑Bricks)
+### PrÃ³ximas Tareas (postâ€‘Bricks)
 
-- UX móvil del menú y navegación.
-- Protección de rutas con Supabase Auth.
-- Documentación en `WARP.md` (normalizar codificación) y reflejar Bricks.
+- UX mÃ³vil del menÃº y navegaciÃ³n.
+- ProtecciÃ³n de rutas con Supabase Auth.
+- DocumentaciÃ³n en `WARP.md` (normalizar codificaciÃ³n) y reflejar Bricks.
 
-## Próximas Tareas (actualizado)
+## PrÃ³ximas Tareas (actualizado)
 
-- UX móvil del menú y navegación.
-- Sistema de usuarios (Supabase Auth): login/registro/cerrar sesión, página de cuenta, protección de rutas.
-- Normalizar codificación de `WARP.md` y retomar documentación ahí.
-- Opcional: Magic Link/OAuth, mostrar nombre/avatares en más vistas.
+- UX mÃ³vil del menÃº y navegaciÃ³n.
+- Sistema de usuarios (Supabase Auth): login/registro/cerrar sesiÃ³n, pÃ¡gina de cuenta, protecciÃ³n de rutas.
+- Normalizar codificaciÃ³n de `WARP.md` y retomar documentaciÃ³n ahÃ­.
+- Opcional: Magic Link/OAuth, mostrar nombre/avatares en mÃ¡s vistas.
 
 ## Estado y Registro (2025-10-16)
 
-- UX móvil (menú y overflow):
-  - Eliminado scroll lateral en móvil (overflow-x hidden global y clamping en TopBar y menú móvil).
-  - ProductCard ajustado para grilla (quitado min-width que cortaba 2ª tarjeta en mobile).
-  - Menú móvil: cierre automático en scroll/resize/orientación y animación simétrica (slide-in/slide-out + overlay fade in/out).
+- UX mÃ³vil (menÃº y overflow):
+  - Eliminado scroll lateral en mÃ³vil (overflow-x hidden global y clamping en TopBar y menÃº mÃ³vil).
+  - ProductCard ajustado para grilla (quitado min-width que cortaba 2Âª tarjeta en mobile).
+  - MenÃº mÃ³vil: cierre automÃ¡tico en scroll/resize/orientaciÃ³n y animaciÃ³n simÃ©trica (slide-in/slide-out + overlay fade in/out).
   - Z-index corregidos (dropdown usuario/MiniCart sobre el contenido en desktop).
-- Hero: padding seguro y min-height en móviles; fondo migrado a next/image con fill + priority (LCP más estable).
+- Hero: padding seguro y min-height en mÃ³viles; fondo migrado a next/image con fill + priority (LCP mÃ¡s estable).
 - Accesibilidad:
-  - Focus trap y ARIA básicos en menú móvil; roles/ARIA en dropdown usuario y MiniCart.
-  - aria-label del botón móvil con unicode escapes (men\u00FA) para evitar mojibake.
-- Tipografías: integrado next/font (Inter/Poppins) vía variables CSS en layout (sin cambios visuales).
-- Codificación (mojibake):
-  - Head con meta charset UTF‑8 y Content-Language (es).
-  - Etiquetas acentuadas críticas en TopBar renderizadas con secuencias unicode (e.g., Categor\u00EDas, Cerrar sesi\u00F3n) para máxima robustez.
+  - Focus trap y ARIA bÃ¡sicos en menÃº mÃ³vil; roles/ARIA en dropdown usuario y MiniCart.
+  - aria-label del botÃ³n mÃ³vil con unicode escapes (men\u00FA) para evitar mojibake.
+- TipografÃ­as: integrado next/font (Inter/Poppins) vÃ­a variables CSS en layout (sin cambios visuales).
+- CodificaciÃ³n (mojibake):
+  - Head con meta charset UTFâ€‘8 y Content-Language (es).
+  - Etiquetas acentuadas crÃ­ticas en TopBar renderizadas con secuencias unicode (e.g., Categor\u00EDas, Cerrar sesi\u00F3n) para mÃ¡xima robustez.
 - Build: validado `npm run build` tras cada cambio.
 
 ### PRs/Branches
 
-- Merge en main: `feat/mobile-menu-ux` y `fix/i18n-encoding` (fast‑forward).
+- Merge en main: `feat/mobile-menu-ux` y `fix/i18n-encoding` (fastâ€‘forward).
 - Limpieza de ramas remotas tras merge.
 - `feat/a11y-perf-bundle`: cambios integrados en main; PR/branch cerrados.
 
-## AliExpress (Enriquecimiento de Catálogo)
+## AliExpress (Enriquecimiento de CatÃ¡logo)
 
 Enlaces
 
@@ -188,7 +188,7 @@ Enlaces
 
 Objetivo
 
-- Enriquecer ítems pobres de CJ con: título, precio, galería, atributos/SKUs, tienda, rating y órdenes desde AliExpress.
+- Enriquecer Ã­tems pobres de CJ con: tÃ­tulo, precio, galerÃ­a, atributos/SKUs, tienda, rating y Ã³rdenes desde AliExpress.
 
 Credenciales necesarias (oficial)
 
@@ -197,22 +197,22 @@ Credenciales necesarias (oficial)
 
 Pasos (Open Platform)
 
-1. Sign in en https://open.aliexpress.com → “Console”.
-2. App Management → Create App (Web/Server). Completar nombre, descripción, callback URL.
-3. API Permissions: solicitar “Product/Item detail”, “Search/List”. Si aplica: “Portals/Affiliate API” y/o “Dropshipping API”.
-4. Guardar App Key/Secret. Aprobación puede tardar 1–3 días (pueden pedir evidencia del sitio).
+1. Sign in en https://open.aliexpress.com â†’ â€œConsoleâ€.
+2. App Management â†’ Create App (Web/Server). Completar nombre, descripciÃ³n, callback URL.
+3. API Permissions: solicitar â€œProduct/Item detailâ€, â€œSearch/Listâ€. Si aplica: â€œPortals/Affiliate APIâ€ y/o â€œDropshipping APIâ€.
+4. Guardar App Key/Secret. AprobaciÃ³n puede tardar 1â€“3 dÃ­as (pueden pedir evidencia del sitio).
 
 Afiliados (PID)
 
-- Únete/login en https://portals.aliexpress.com → Tools → crear Promotion ID (PID) y guardarlo.
+- Ãšnete/login en https://portals.aliexpress.com â†’ Tools â†’ crear Promotion ID (PID) y guardarlo.
 
-Configuración en el proyecto
+ConfiguraciÃ³n en el proyecto
 
 - Variables (server-only, .env.local):
   - `AE_APP_KEY=...`
   - `AE_APP_SECRET=...`
   - `AE_AFFILIATE_PID=...` (si se usa afiliados)
-- Hosts de imágenes habilitados (AliExpress/CDN): ver `next.config.js` (ae01.alicdn.com, img.alicdn.com, g.alicdn.com, aeproductimages.s3.amazonaws.com).
+- Hosts de imÃ¡genes habilitados (AliExpress/CDN): ver `next.config.js` (ae01.alicdn.com, img.alicdn.com, g.alicdn.com, aeproductimages.s3.amazonaws.com).
 
 Script puente (mientras se aprueba la App)
 
@@ -220,30 +220,52 @@ Script puente (mientras se aprueba la App)
 - Uso:
   - Env: `RAPIDAPI_KEY=...` (RapidAPI)
   - Comando: `node scripts/aliexpress_enrich.mjs --input scripts/cj_products.sample.json --out scripts/out/aliexpress_enriched.json --lang es`
-- Entrada: array de ítems CJ (id, name/name_es, price_cents, image_url).
-- Salida: `enriched.*` (id/título/precio/imagen/url/tienda/rating/órdenes) + `_enrich.status`.
+- Entrada: array de Ã­tems CJ (id, name/name_es, price_cents, image_url).
+- Salida: `enriched.*` (id/tÃ­tulo/precio/imagen/url/tienda/rating/Ã³rdenes) + `_enrich.status`.
 
 Plan siguiente (robusto, oficial)
 
 - Implementar cliente firmado (HMAC) en `lib/aliexpress/` con AE_APP_KEY/SECRET.
-- Endpoints: búsqueda y detalle (galería completa, atributos, SKUs, precios/monedas).
+- Endpoints: bÃºsqueda y detalle (galerÃ­a completa, atributos, SKUs, precios/monedas).
 - Script `scripts/merge_enriched.mjs` para fusionar resultados a nuestro schema y (opcional) subir a Supabase.
 
-## Recuperación de Sesión (Codex)
+## RecuperaciÃ³n de SesiÃ³n (Codex)
 
-- Código fuente: rama `main` (todo lo de hoy ya está mergeado).
+- CÃ³digo fuente: rama `main` (todo lo de hoy ya estÃ¡ mergeado).
 - Dependencias: `npm ci` (o `npm install`).
 - Entorno (dev): crea/ajusta `.env.local` con
   - `MP_ACCESS_TOKEN=APP_USR-...` (Access Token del vendedor; usa uno de Usuario de Prueba para sandbox)
   - `NEXT_PUBLIC_URL=http://localhost:3000`
-  - (Supabase) `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` ya están en `.env`.
+  - (Supabase) `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` ya estÃ¡n en `.env`.
 - Perfiles: ejecutar una vez `scripts/add_profiles.sql` en el SQL Editor de Supabase para crear `public.profiles` + RLS.
-- Ejecución: `npm run dev` (local) y `npm run build` (validación previa a PR/merge).
-- Verificaciones rápidas:
+- EjecuciÃ³n: `npm run dev` (local) y `npm run build` (validaciÃ³n previa a PR/merge).
+- Verificaciones rÃ¡pidas:
   - Usuarios: `/cuenta/registro`, `/cuenta/login`, `/cuenta` (editar perfil).
-  - TopBar: “Hola, {nombre|email}”, avatar y menú (Cuenta/Cerrar sesión).
-  - Carrito: agregar ítems, contador y mini‑cart; checkout sandbox funciona en `/carro` (redirige a Mercado Pago).
-- Checkout Pro (sandbox): si hay error, revisar consola del navegador → "Checkout error details".
-- Backups locales: mantener máx. 2 snapshots; usar scripts de `scripts/` (o snapshot manual). `.backup_global/` está git‑ignored.
+  - TopBar: â€œHola, {nombre|email}â€, avatar y menÃº (Cuenta/Cerrar sesiÃ³n).
+  - Carrito: agregar Ã­tems, contador y miniâ€‘cart; checkout sandbox funciona en `/carro` (redirige a Mercado Pago).
+- Checkout Pro (sandbox): si hay error, revisar consola del navegador â†’ "Checkout error details".
+- Backups locales: mantener mÃ¡x. 2 snapshots; usar scripts de `scripts/` (o snapshot manual). `.backup_global/` estÃ¡ gitâ€‘ignored.
 - Flujo de PRs: rama feature (e.g., `feat/<tarea>`), Commits Convencionales, abrir PR a `main`.
   codex resume 0199e2ce-fd01-71b1-9d40-54027a8d8dc1
+  odex resume 0199edf2-86df-7351-89ab-6ffcf5df3618
+
+## Estado y Registro (2025-10-17 noche)
+
+- AliExpress OAuth (api‑sg):
+  - Authorize OK en https://api-sg.aliexpress.com/oauth/authorize.
+  - Token bloqueado por gateway con param-appkey.not.exists. Próximo paso: soporte debe habilitar AppKey 520546 para el servicio de token o confirmar Client ID/gateway.
+  - Rutas: /api/aliexpress/oauth/start, /api/aliexpress/oauth/callback, /api/aliexpress/token/status, /diag/tokens.
+- Webhook: /api/aliexpress/push (200 + persistencia si hay Service Role). SQL: scripts/add_ae_push_events.sql.
+- Persistencia de tokens: SQL scripts/add_aliexpress_tokens.sql. Requiere SUPABASE_SERVICE_ROLE_KEY.
+- Enriquecimiento (fallback): scripts/aliexpress_enrich.mjs + scripts/merge_enriched.mjs.
+- UI: Galería + lightbox en ProductDetail (CJ + IA).
+
+### Vercel envs
+
+- AE_OAUTH_AUTH_URL=https://api-sg.aliexpress.com/oauth/authorize
+- AE_OAUTH_TOKEN_URL=https://api-sg.aliexpress.com/oauth/token
+- AE_APP_KEY=520546, AE_APP_SECRET=whMsXQexvvj6xdBXbVPagocz9MUveZFD
+- NEXT_PUBLIC_URL=https://<tu-dominio>, SUPABASE_SERVICE_ROLE_KEY=<service_role>
+- Público: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+Notas: no abrir el token endpoint en el navegador (usar callback). Si el callback muestra error_code/error_msg, abrir ticket a soporte para vincular AppKey al gateway de token o confirmar Client ID.
