@@ -73,6 +73,8 @@ async function exchangeToken(params: { code: string; redirectUri: string }) {
         expires_in: toNumber((json as any).expires_in || (json as any).expiresIn || deepFind(json, k=>/expires[_-]?in/i.test(k))),
         scope: (json as any).scope || deepFind(json, k=>/^scope$/i.test(k)),
         user_id: (json as any).user_id || (json as any).uid || deepFind(json, k=>/user[_-]?id/i.test(k)),
+        error_code: (json as any).error_code || deepFind(json, k=>/error[_-]?code/i.test(k)),
+        error_msg: (json as any).error_msg || (json as any).error_message || deepFind(json, k=>/error[_-]?(msg|message)/i.test(k)),
         raw: { keys: listKeys(json).slice(0,50) },
       } as any;
       return norm;
@@ -122,7 +124,9 @@ export async function GET(req: Request) {
     }
 
     const attemptedPersist = Boolean(token?.access_token && token?.refresh_token && process.env.SUPABASE_SERVICE_ROLE_KEY);
-    const debugNote = !token?.access_token || !token?.refresh_token ? { attemptedPersist, response_keys: token?.raw?.keys || [] } : { attemptedPersist };
+    const debugNote = !token?.access_token || !token?.refresh_token
+      ? { attemptedPersist, error_code: token?.error_code ?? null, error_msg: token?.error_msg ?? null, response_keys: token?.raw?.keys || [] }
+      : { attemptedPersist };
 
     return page(`<div class=\"box\"><h1 class=\"ok\">AliExpress \u2013 Autorizaci\u00F3n completada</h1><div class=\"content\"><p>Se canje\u00F3 el c\u00F3digo por tokens correctamente.</p><div class=\"meta\">${token ? JSON.stringify({ access_token: mask(token.access_token), refresh_token: mask(token.refresh_token), expires_in: token.expires_in, scope: token.scope, user_id: token.user_id }, null, 2) : "Sin datos"}</div><p>Importante: los tokens se guardan en el servidor si est\u00E1 configurada la Service Role Key. Si no, habil\u00EDtala y repite el flujo.</p><div class=\"meta\">${JSON.stringify(debugNote, null, 2)}</div></div></div>`);
   } catch (e:any) {
