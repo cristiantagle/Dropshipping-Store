@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useState, useMemo } from "react";
 import { useProductText } from "@/lib/useProductText";
 import { useRecentlyViewed } from '../contexts/RecentlyViewedContext';
 import { formatPrice } from "@/lib/formatPrice";
@@ -21,6 +22,18 @@ interface Product {
 export default function ProductCard({ id, name, name_es, image_url, price_cents, badge, category_slug }: Product) {
   const { name: displayName } = useProductText({ name, name_es });
   const { addProduct } = useRecentlyViewed();
+
+  // Derive a non-AVIF fallback by stripping trailing "_.avif" patterns
+  const fallbackSrc = useMemo(() => {
+    if (!image_url) return image_url;
+    // common AE patterns: ...jpg_480x480q75.jpg_.avif or ...png_480x480.png_.avif
+    if (image_url.endsWith("_.avif")) {
+      return image_url.slice(0, -"_.avif".length);
+    }
+    return image_url;
+  }, [image_url]);
+  // Prefer fallback immediately when original is AVIF to avoid decode issues
+  const [imgSrc, setImgSrc] = useState(fallbackSrc);
 
   const handleCartClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -75,12 +88,17 @@ export default function ProductCard({ id, name, name_es, image_url, price_cents,
       <div className="w-full h-40 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-t-xl overflow-hidden relative">
         <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
         <Image
-          src={image_url}
+          src={imgSrc || "/placeholder.svg"}
           alt={displayName ?? name}
           width={320}
           height={144}
           unoptimized
           className="max-h-36 object-contain transition-all duration-500 ease-out group-hover:scale-110 group-hover:brightness-105 group-hover:contrast-105 filter drop-shadow-sm"
+          onError={() => {
+            if (imgSrc !== fallbackSrc) {
+              setImgSrc(fallbackSrc);
+            }
+          }}
         />
       </div>
         <div className="p-5 flex flex-col flex-1 justify-between space-y-3">

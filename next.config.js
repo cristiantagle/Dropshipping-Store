@@ -5,12 +5,15 @@ const nextConfig = {
     unoptimized: process.env.NODE_ENV !== 'production',
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
-      { protocol: 'https', hostname: '*.supabase.co' },
+      { protocol: 'https', hostname: '**.supabase.co' },
       // AliExpress/CDN (para enriquecer datos e imágenes)
       { protocol: 'https', hostname: 'ae01.alicdn.com' },
+      { protocol: 'https', hostname: '**.alicdn.com' },
       { protocol: 'https', hostname: 'img.alicdn.com' },
       { protocol: 'https', hostname: 'g.alicdn.com' },
       { protocol: 'https', hostname: 'aeproductimages.s3.amazonaws.com' },
+      // AliExpress media CDN adicional (host detectado en TunderBit)
+      { protocol: 'https', hostname: '**.aliexpress-media.com' },
     ],
   },
   
