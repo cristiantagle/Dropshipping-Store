@@ -1,34 +1,28 @@
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
-// ⚠️ Usamos ANON_KEY para lectura segura en frontend/SSR.
-// La SERVICE_ROLE_KEY queda comentada por si se necesita en el futuro
-// para operaciones administrativas en el servidor.
-export const supabaseServer = () =>
-  createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { 
-      auth: { persistSession: false },
-      // ✅ Deshabilitar cache en desarrollo para datos siempre frescos
-      ...(process.env.NODE_ENV === 'development' && {
-        db: {
-          schema: 'public'
-        },
-        global: {
-          fetch: (url, options = {}) => {
-            return fetch(url, {
-              ...options,
-              cache: 'no-store', // 🚀 Sin cache en desarrollo
-            });
-          },
-        },
-      })
-    }
-  );
+// Server-side Supabase client using @supabase/ssr con cookies de Next.js.
+// - Usa ANON_KEY y enlaza la sesión vía cookies para SSR/acciones.
+export const supabaseServer = () => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const cookieStore = cookies();
 
-// export const supabaseServer = () =>
-//   createClient(
-//     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-//     process.env.SUPABASE_SERVICE_ROLE_KEY!,
-//     { auth: { persistSession: false } }
-//   );
+  return createServerClient(url, anon, {
+    cookies: {
+      get(name: string) {
+        return cookieStore.get(name)?.value;
+      },
+      set(name: string, value: string, options: CookieOptions) {
+        try {
+          cookieStore.set({ name, value, ...options });
+        } catch {}
+      },
+      remove(name: string, options: CookieOptions) {
+        try {
+          cookieStore.set({ name, value: '', ...options, maxAge: 0 });
+        } catch {}
+      },
+    },
+  });
+};
