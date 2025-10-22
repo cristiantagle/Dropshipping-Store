@@ -1,44 +1,43 @@
-﻿@tailwind base;
-@tailwind components;
-@tailwind utilities;
+﻿@import 'tailwindcss';
 
-body {
-  @apply bg-gray-50 text-gray-900 antialiased;
-  font-family:
-    var(--font-inter),
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    Segoe UI,
-    Roboto,
-    Helvetica,
-    Arial,
-    'Apple Color Emoji',
-    'Segoe UI Emoji',
-    'Segoe UI Symbol';
-}
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+    font-family:
+      var(--font-inter),
+      Inter,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      Segoe UI,
+      Roboto,
+      Helvetica,
+      Arial,
+      'Apple Color Emoji',
+      'Segoe UI Emoji',
+      'Segoe UI Symbol';
+  }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  @apply font-bold text-gray-900;
-}
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold text-gray-900;
+  }
 
-a {
-  @apply text-emerald-700 transition hover:text-emerald-800;
+  a {
+    @apply text-emerald-700 transition hover:text-emerald-800;
+  }
 }
 
 /* === LUNARIA: nivel1-estetica === */
-/* TipografÃ­as modernas sin tocar componentes: Inter (texto) + Poppins (titulares) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap');
+/* TipografÃƒÂ­as modernas sin tocar componentes: Inter (texto) + Poppins (titulares) */
 
 :root {
   /* Paleta discreta y consistente (ajustable si ya usas Tailwind theming) */
-  --brand: #16a34a; /* verde acciÃ³n */
+  --brand: #16a34a; /* verde acciÃƒÂ³n */
   --brand-600: #16a34a;
   --brand-700: #15803d;
   --ink: #0f172a; /* slate-900 */
@@ -93,7 +92,7 @@ h2,
   letter-spacing: -0.01em;
 }
 
-/* Header pegado con fondo traslÃºcido y blur */
+/* Header pegado con fondo traslÃƒÂºcido y blur */
 header,
 .site-header {
   position: sticky;
@@ -104,7 +103,7 @@ header,
   border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 
-/* Tarjetas (ProductListClient/ProductCard) â€” sombras y micro-animaciÃ³n */
+/* Tarjetas (ProductListClient/ProductCard) Ã¢â‚¬â€ sombras y micro-animaciÃƒÂ³n */
 .border.rounded-2xl,
 .border.rounded-xl,
 .card,
@@ -168,7 +167,7 @@ a.button:active,
   transform: translateY(1px);
 }
 
-/* Links de categorÃ­as (tiles) â€” resalte al hover */
+/* Links de categorÃƒÂ­as (tiles) Ã¢â‚¬â€ resalte al hover */
 a[data-cat],
 .cat-tile {
   transition:
@@ -285,14 +284,16 @@ a[data-cat]:hover,
   font-size: 0.8rem;
 }
 
-/* BotÃ³n verde consistente con â€œExplorar categorÃ­asâ€ */
-.btn-brand {
-  @apply inline-flex items-center gap-2 rounded-xl bg-lime-600 px-3 py-2 text-white transition hover:bg-lime-700;
-}
+/* BotÃƒÂ³n verde consistente con Ã¢â‚¬Å“Explorar categorÃƒÂ­asÃ¢â‚¬Â */
+@layer components {
+  .btn-brand {
+    @apply inline-flex items-center gap-2 rounded-xl bg-lime-600 px-3 py-2 text-white transition hover:bg-lime-700;
+  }
 
-/* Etiqueta en tiles de categorÃ­as */
-.cat-chip {
-  @apply inline-flex items-center gap-2 rounded-xl bg-lime-600/95 px-3 py-1.5 text-white shadow-md;
+  /* Etiqueta en tiles de categorÃƒÂ­as */
+  .cat-chip {
+    @apply inline-flex items-center gap-2 rounded-xl bg-lime-600/95 px-3 py-1.5 text-white shadow-md;
+  }
 }
 
 /* === SKELETON ANIMATIONS === */
@@ -353,7 +354,7 @@ a[data-cat]:hover,
   animation: shimmer 3s ease-in-out infinite;
 }
 
-.bg-300% {
+.bg-300pct {
   background-size: 300% 100%;
 }
 
@@ -381,7 +382,7 @@ a[data-cat]:hover,
   }
 }
 
-/* BotÃ³n/etiqueta de marca (para sobre-imagen o badges) */
+/* BotÃƒÂ³n/etiqueta de marca (para sobre-imagen o badges) */
 .lunaria-btn,
 .badge-brand {
   display: inline-flex;
@@ -405,7 +406,7 @@ a[data-cat]:hover,
   box-shadow: 0 8px 24px rgba(101, 163, 13, 0.35);
 }
 
-/* Cards genÃ©ricas (product tiles, etc.) */
+/* Cards genÃƒÂ©ricas (product tiles, etc.) */
 :where(.grid) :where(.border.rounded-2xl) {
   border-color: rgba(2, 6, 23, 0.06); /* slate-950/6 */
   transition:
@@ -422,7 +423,7 @@ a[data-cat]:hover,
   border-color: rgba(2, 6, 23, 0.1);
 }
 
-/* ImÃ¡genes en grillas 4:3 con zoom suave al hover */
+/* ImÃƒÂ¡genes en grillas 4:3 con zoom suave al hover */
 :where(.aspect-\[4\/3\]) img,
 :where(.aspect-\[4\/3\]) .object-cover {
   transition:
@@ -435,14 +436,14 @@ a[data-cat]:hover,
   transform: scale(1.03);
 }
 
-/* Precio destacado y tipografÃ­a suave */
+/* Precio destacado y tipografÃƒÂ­a suave */
 .lunaria-price {
   color: var(--brand-green-700);
   font-weight: 800;
   letter-spacing: 0.1px;
 }
 
-/* TÃ­tulos compactos y legibles */
+/* TÃƒÂ­tulos compactos y legibles */
 .lunaria-title {
   font-weight: 700;
   letter-spacing: 0.2px;
@@ -472,7 +473,7 @@ a[data-cat]:hover,
   box-shadow: 0 10px 24px rgba(17, 24, 39, 0.22);
 }
 
-/* Etiquetas sobre tiles de categorÃ­as: centradas y legibles */
+/* Etiquetas sobre tiles de categorÃƒÂ­as: centradas y legibles */
 .lunaria-cat-chip {
   position: absolute;
   left: 50%;
@@ -487,12 +488,12 @@ a[data-cat]:hover,
   height: 1rem;
 }
 
-/* PequeÃ±o efecto parallax Ã³ptico al pasar el mouse */
+/* PequeÃƒÂ±o efecto parallax ÃƒÂ³ptico al pasar el mouse */
 .lunaria-tilt:hover {
   transform: perspective(900px) translateZ(0) rotateX(0.6deg) rotateY(0.6deg);
 }
 
-/* AnimaciÃ³n de apariciÃ³n para grids */
+/* AnimaciÃƒÂ³n de apariciÃƒÂ³n para grids */
 .lunaria-grid-in > * {
   animation: lunaria-fade-in-up 0.35s ease both;
 }
@@ -520,7 +521,7 @@ a[data-cat]:hover,
   background-color: var(--brand-green-700) !important;
 }
 
-/* ProtecciÃ³n por si el texto de categorÃ­as queda oscuro sobre imÃ¡genes */
+/* ProtecciÃƒÂ³n por si el texto de categorÃƒÂ­as queda oscuro sobre imÃƒÂ¡genes */
 .lunaria-text-shadow {
   text-shadow:
     0 1px 8px rgba(0, 0, 0, 0.35),
@@ -541,7 +542,7 @@ a[data-cat]:hover,
   content: none !important;
 }
 
-/* ========== Visual Pack Nivel 7â€“9 (no logic) ========== */
+/* ========== Visual Pack Nivel 7Ã¢â‚¬â€œ9 (no logic) ========== */
 :root {
   --lunaria-radius-xl: 1.25rem;
   --lunaria-shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.06);
@@ -551,14 +552,14 @@ a[data-cat]:hover,
   --lunaria-anim-med: 280ms;
 }
 
-/* TipografÃ­a un poco mÃ¡s â€œretailâ€ */
+/* TipografÃƒÂ­a un poco mÃƒÂ¡s Ã¢â‚¬Å“retailÃ¢â‚¬Â */
 html {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Tarjetas (categorÃ­as y productos) â€” hover sutil + elevaciÃ³n */
+/* Tarjetas (categorÃƒÂ­as y productos) Ã¢â‚¬â€ hover sutil + elevaciÃƒÂ³n */
 .grid .border.rounded-2xl,
 .grid .rounded-2xl.border {
   border-radius: var(--lunaria-radius-xl) !important;
@@ -577,7 +578,7 @@ html {
   box-shadow: var(--lunaria-shadow-md);
 }
 
-/* ImÃ¡genes dentro de tarjetas: zoom y â€œshineâ€ suave */
+/* ImÃƒÂ¡genes dentro de tarjetas: zoom y Ã¢â‚¬Å“shineÃ¢â‚¬Â suave */
 .grid .border.rounded-2xl .bg-gray-100,
 .grid .rounded-2xl.border .bg-gray-100 {
   overflow: hidden;
@@ -598,7 +599,7 @@ html {
   filter: saturate(1.05) contrast(1.03);
 }
 
-/* Efecto â€œshineâ€ diagonal opcional */
+/* Efecto Ã¢â‚¬Å“shineÃ¢â‚¬Â diagonal opcional */
 .grid .border.rounded-2xl .bg-gray-100::after,
 .grid .rounded-2xl.border .bg-gray-100::after {
   content: '';
@@ -624,7 +625,7 @@ html {
 
 /* Botones primarios coherentes (verde oficial del Hero) */
 :root {
-  --lunaria-green: #16a34a; /* Tailwind green-600 del botÃ³n "Explorar categorÃ­as" */
+  --lunaria-green: #16a34a; /* Tailwind green-600 del botÃƒÂ³n "Explorar categorÃƒÂ­as" */
   --lunaria-green-hover: #15803d; /* green-700 */
 }
 
@@ -649,7 +650,7 @@ a.bg-lime-600:hover {
   box-shadow: 0 10px 22px rgba(21, 128, 61, 0.28);
 }
 
-/* Badges / chips (envÃ­o, destacado) */
+/* Badges / chips (envÃƒÂ­o, destacado) */
 .badge,
 p.text-sm.text-gray-600 {
   display: inline-flex;
@@ -669,7 +670,7 @@ p.text-sm.text-gray-600 {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* Micro animaciÃ³n para iconos (categorÃ­as) */
+/* Micro animaciÃƒÂ³n para iconos (categorÃƒÂ­as) */
 .category-icon {
   transition: transform var(--lunaria-anim-fast) ease;
 }
@@ -677,7 +678,7 @@ p.text-sm.text-gray-600 {
   transform: scale(1.08) rotate(-1deg);
 }
 
-/* CTA en hero: ligero â€œbreathingâ€ */
+/* CTA en hero: ligero Ã¢â‚¬Å“breathingÃ¢â‚¬Â */
 @media (prefers-reduced-motion: no-preference) {
   .hero-cta-breathe {
     animation: breathe 3.2s ease-in-out infinite;
@@ -710,7 +711,7 @@ p.text-sm.text-gray-600 {
   border-radius: 8px;
 }
 
-/* ========== /Visual Pack Nivel 7â€“9 ========== */
+/* ========== /Visual Pack Nivel 7Ã¢â‚¬â€œ9 ========== */
 
 /* === NIVEL100:BEGIN === */
 /* Paleta y motion helpers (no invasivo) */
@@ -727,7 +728,7 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Cards genÃ©ricas: .border.rounded-2xl */
+/* Cards genÃƒÂ©ricas: .border.rounded-2xl */
 .border.rounded-2xl {
   transition:
     transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
@@ -746,7 +747,7 @@ html {
     0 18px 48px rgba(var(--lnr-shadow) / 0.08);
 }
 
-/* ImÃ¡genes dentro de cards: zoom sutil al hover del contenedor */
+/* ImÃƒÂ¡genes dentro de cards: zoom sutil al hover del contenedor */
 .border.rounded-2xl img,
 .border.rounded-2xl picture img {
   transition:
@@ -760,7 +761,7 @@ html {
   filter: saturate(1.05);
 }
 
-/* Botones â€œprimariosâ€ por patrÃ³n de color verde hero */
+/* Botones Ã¢â‚¬Å“primariosÃ¢â‚¬Â por patrÃƒÂ³n de color verde hero */
 button.bg-lime-600,
 a.bg-lime-600,
 [class*='bg-lime-600'] {
@@ -786,7 +787,7 @@ a.bg-lime-600:active,
   box-shadow: 0 3px 10px rgba(62, 142, 65, 0.18);
 }
 
-/* Etiquetas de categorÃ­a â€œpillâ€ si van dentro de tiles */
+/* Etiquetas de categorÃƒÂ­a Ã¢â‚¬Å“pillÃ¢â‚¬Â si van dentro de tiles */
 .badge-pill,
 [class*='badge'][class*='pill'] {
   background: linear-gradient(180deg, var(--lnr-green), var(--lnr-green-ink));
@@ -795,7 +796,7 @@ a.bg-lime-600:active,
   box-shadow: 0 6px 20px rgba(62, 142, 65, 0.25);
 }
 
-/* Skeleton shimmer reutilizable (aÃ±ade class="skeleton" a placeholders si lo necesitas) */
+/* Skeleton shimmer reutilizable (aÃƒÂ±ade class="skeleton" a placeholders si lo necesitas) */
 @keyframes lnr-shimmer {
   0% {
     background-position: -200% 0;
@@ -818,7 +819,7 @@ a.bg-lime-600:active,
   animation: lnr-shimmer 1.2s infinite linear;
 }
 
-/* Micro bounce al agregar al carro (aplica a .added-bounce si la pones en el botÃ³n tras click) */
+/* Micro bounce al agregar al carro (aplica a .added-bounce si la pones en el botÃƒÂ³n tras click) */
 @keyframes lnr-bounce {
   0% {
     transform: scale(1);
@@ -854,7 +855,7 @@ a.bg-lime-600:active,
   z-index: 2;
 }
 
-/* Hero: sutil parallax sobre imÃ¡genes directas */
+/* Hero: sutil parallax sobre imÃƒÂ¡genes directas */
 .hero img {
   transition: transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
   will-change: transform;
@@ -879,7 +880,7 @@ a.bg-lime-600:active,
 
 /* Respeto accesibilidad (reduce motion) */
 
-/* BotÃ³n â€œExplorar categorÃ­asâ€ â€“ reforzamos feeling premium sin cambiar tu verde */
+/* BotÃƒÂ³n Ã¢â‚¬Å“Explorar categorÃƒÂ­asÃ¢â‚¬Â Ã¢â‚¬â€œ reforzamos feeling premium sin cambiar tu verde */
 .lunaria-cta {
   transition:
     transform 0.2s ease,
@@ -912,7 +913,7 @@ html {
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
 }
 
-/* Skeleton util (por si queremos placeholder mÃ¡s tarde) */
+/* Skeleton util (por si queremos placeholder mÃƒÂ¡s tarde) */
 .skeleton {
   position: relative;
   overflow: hidden;
@@ -967,12 +968,14 @@ html {
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
-/* tÃ­tulos de secciÃ³n home pro */
-.section-title {
-  @apply text-xl font-semibold tracking-tight sm:text-2xl;
-}
-.section-sub {
-  @apply text-sm text-gray-600;
+/* tÃƒÂ­tulos de secciÃƒÂ³n home pro */
+@layer components {
+  .section-title {
+    @apply text-xl font-semibold tracking-tight sm:text-2xl;
+  }
+  .section-sub {
+    @apply text-sm text-gray-600;
+  }
 }
 
 /* PARALLAX UTILITIES */
@@ -1030,7 +1033,7 @@ html {
   border-radius: 1rem;
   overflow: hidden;
 }
-/* Degradado mÃ¡s sutil (menos â€œlecheâ€ sobre la foto) */
+/* Degradado mÃƒÂ¡s sutil (menos Ã¢â‚¬Å“lecheÃ¢â‚¬Â sobre la foto) */
 .hero-fade::after {
   content: '';
   position: absolute;
@@ -1043,7 +1046,7 @@ html {
   );
   pointer-events: none;
 }
-/* En mÃ³viles desactivamos 3D: se ve mÃ¡s limpio */
+/* En mÃƒÂ³viles desactivamos 3D: se ve mÃƒÂ¡s limpio */
 @media (max-width: 767px) {
   .parallax-root {
     perspective: none;
@@ -1080,7 +1083,7 @@ html {
 
 /* Respeto accesibilidad (reduce motion) */
 
-/* === Hero parallax con imagen Supabase (limpio y Ãºnico) === */
+/* === Hero parallax con imagen Supabase (limpio y ÃƒÂºnico) === */
 /* Contenedor: el ::before pinta el fondo. La altura/offset se definen en TSX. */
 .lunaria-parallax {
   position: relative;
@@ -1108,7 +1111,7 @@ html {
     filter 0.5s ease;
 }
 
-/* Hover sutil (parallax Ã³ptico) */
+/* Hover sutil (parallax ÃƒÂ³ptico) */
 .lunaria-parallax:hover::before {
   transform: scale(1.05) translateY(-5px);
   filter: saturate(1.2) contrast(1.15);
@@ -1256,7 +1259,7 @@ html {
 }
 
 /* === MEJORAS UI/UX - NIVEL PREMIUM === */
-/* Transiciones globales mÃ¡s fluidas */
+/* Transiciones globales mÃƒÂ¡s fluidas */
 * {
   /* transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); */
 }
@@ -1289,7 +1292,7 @@ html {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Sombras mÃ¡s sofisticadas */
+/* Sombras mÃƒÂ¡s sofisticadas */
 .shadow-premium {
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.08),
@@ -1362,13 +1365,13 @@ html {
   transition: outline 0.2s ease;
 }
 
-/* SelecciÃ³n de texto mejorada */
+/* SelecciÃƒÂ³n de texto mejorada */
 ::selection {
   background-color: rgba(34, 197, 94, 0.2);
   color: #0f172a;
 }
 
-/* AnimaciÃ³n de entrada suave para elementos */
+/* AnimaciÃƒÂ³n de entrada suave para elementos */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -1399,7 +1402,7 @@ html {
   opacity: 0;
 }
 
-/* ðŸ”§ OPTIMIZACIONES RECENTLY VIEWED - Fix Flickering */
+/* Ã°Å¸â€Â§ OPTIMIZACIONES RECENTLY VIEWED - Fix Flickering */
 @keyframes fadeInScale {
   0% {
     opacity: 0;
