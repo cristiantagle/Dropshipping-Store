@@ -269,3 +269,23 @@ Plan siguiente (robusto, oficial)
 - Público: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 Notas: no abrir el token endpoint en el navegador (usar callback). Si el callback muestra error_code/error_msg, abrir ticket a soporte para vincular AppKey al gateway de token o confirmar Client ID.
+
+## Estado y Registro (2025-10-22 — Upgrades Core)
+
+- Core (local): Next 16, React 19, Tailwind 4, ESLint 9 (Flat Config).
+- Ajustes App Router: params (Promise) y cookies async migrados.
+- Textos: normalizados en UTF‑8 (sin mojibake, sin `\uXXXX` visibles en JSX).
+- Editor: `.editorconfig` agregado (UTF‑8, LF, newline final, trim whitespace, indent 2).
+- Pre-commit (temporal): lint-staged usa Prettier únicamente; reintroducimos ESLint cuando cerremos la migración de parser/overrides TS/JSX.
+- Build: `npm run build` OK tras cada fase.
+- Backups: solo 2 más recientes en `.backup_global/`.
+
+### Guía de encoding y textos
+
+- Escribir acentos reales en JSX (UTF‑8). Evitar escapes `\uXXXX` en texto visible.
+- Si ves “Ã¡/Ã­/Ã³/Ãº/Ã±”, guardar el archivo en UTF‑8 y reemplazar por el carácter real.
+- Convenciones de UI: “Categorías”, “Envío gratuito”, “Garantía de calidad”, “Explorar categorías”.
+
+### Próxima fase
+
+- Migrar `@supabase/auth-helpers-nextjs` → `@supabase/ssr` (eliminar deprecaciones y mejorar SSR).
