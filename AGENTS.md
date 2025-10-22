@@ -289,3 +289,31 @@ Notas: no abrir el token endpoint en el navegador (usar callback). Si el callbac
 ### Próxima fase
 
 - Migrar `@supabase/auth-helpers-nextjs` → `@supabase/ssr` (eliminar deprecaciones y mejorar SSR).
+
+## Estado y Registro (2025-10-22 — Core Upgrades Final)
+
+- Core (local): Next 16, React 19, Tailwind 4, ESLint 9 (Flat Config).
+- App Router (Next 16): params es Promise. Páginas migradas:
+  - app/categorias/[slug]/page.tsx (await params; query de categoría con .limit(1) y primera fila)
+  - app/producto/[id]/page.tsx (await params; .eq('id', id))
+- Tailwind/PostCSS (v4):
+  - postcss.config.js usa {'@tailwindcss/postcss': {}} (no usar 'tailwindcss' directo)
+  - tailwindcss actualizado a ^4.1.x
+- Lint/pre-commit:
+  - ESLint 9 con eslint.config.mjs (flat) y reglas @next/core-web-vitals + react-hooks (exhaustive-deps en warn)
+  - Temporalmente lint-staged usa Prettier únicamente; reintroduciremos 'eslint --fix' luego
+- Editor/encoding:
+  - .editorconfig agregado (UTF‑8, lf, newline final, trim trailing whitespace, indent 2)
+  - Política de textos: usar acentos reales (UTF‑8) en JSX; evitar \uXXXX visibles
+  - Casos corregidos: Hero/Home/Categorías ("más", "envío", "Explorar categorías", "Descubre más")
+- TopBar (menú usuario):
+  - Desktop: Cuenta / Pedidos / Direcciones / Cerrar sesión
+  - Móvil: mismas opciones si el usuario está autenticado
+- Backups: solo 2 snapshots recientes en .backup_global/
+- Build: npm run build OK; warnings conocidos de hooks en diag
+
+### Próximas fases
+
+- Migrar @supabase/auth-helpers-nextjs → @supabase/ssr (eliminar deprecaciones y mejorar SSR)
+- Reintroducir ESLint en lint-staged (flat config) con parser/overrides TS/JSX
+- Mantener textos en UTF‑8 y evitar escapes visibles en JSX
