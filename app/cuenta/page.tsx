@@ -1,70 +1,12 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
+import { redirect } from 'next/navigation';
+import { supabaseServer } from '@/lib/supabase/server';
+import AccountClient from './pageClient';
 
-export default function AccountPage() {
-  const router = useRouter();
-  const { user, loading, signOut, profile, updateProfile } = useAuth();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace("/cuenta/login");
-    }
-  }, [user, loading, router]);
-
-  if (loading) {
-    return (
-      <main className="max-w-3xl mx-auto px-6 py-12">
-        <p className="text-gray-600">Cargando...</p>
-      </main>
-    );
-  }
-
-  if (!user) return null;
-
-  const [displayName, setDisplayName] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    setDisplayName((profile?.display_name || '') as string);
-    setAvatarUrl((profile?.avatar_url || '') as string);
-  }, [profile?.display_name, profile?.avatar_url]);
-
-  return (
-    <main className="max-w-3xl mx-auto px-6 py-12">
-      <h1 className="text-2xl font-bold mb-4">Tu cuenta</h1>
-      <div className="bg-white rounded-xl border p-6 space-y-2">
-        <div><span className="text-gray-600">Email:</span> {user.email}</div>
-        <div><span className="text-gray-600">ID:</span> {user.id}</div>
-      </div>
-      <div className="bg-white rounded-xl border p-6 space-y-4 mt-6">
-        <h2 className="font-semibold">Perfil</h2>
-        <div className="grid gap-3 max-w-md">
-          <label className="block">
-            <span className="text-sm text-gray-600">Nombre para mostrar</span>
-            <input className="mt-1 w-full border rounded-lg px-3 py-2" value={displayName} onChange={(e)=>setDisplayName(e.target.value)} />
-          </label>
-          <label className="block">
-            <span className="text-sm text-gray-600">Avatar URL</span>
-            <input className="mt-1 w-full border rounded-lg px-3 py-2" value={avatarUrl} onChange={(e)=>setAvatarUrl(e.target.value)} />
-          </label>
-          <button
-            onClick={async () => { setSaving(true); const { error } = await updateProfile({ display_name: displayName, avatar_url: avatarUrl }); setSaving(false); }}
-            className="bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700 w-fit"
-            disabled={saving}
-          >
-            {saving ? 'Guardando...' : 'Guardar cambios'}
-          </button>
-        </div>
-      </div>
-      <button
-        onClick={async () => { await signOut(); router.replace("/"); }}
-        className="mt-6 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800"
-      >
-        Cerrar sesión
-      </button>
-    </main>
-  );
+export default async function AccountPage() {
+  const supabase = supabaseServer();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/cuenta/login');
+  return <AccountClient />;
 }
