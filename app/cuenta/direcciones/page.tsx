@@ -33,6 +33,6 @@ export default async function AddressesPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect('/cuenta/login');
+  if (!user) redirect('/cuenta/login?return=%2Fcuenta%2Fdirecciones');
   return <DireccionesClient />;
 }

@@ -1,20 +1,31 @@
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { supabaseAuth } from "@/lib/supabase/authClient";
-import { useAuth } from "@/contexts/AuthContext";
+'use client';
+export const dynamic = 'force-dynamic';
+import { Suspense, useState, useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { supabaseAuth } from '@/lib/supabase/authClient';
+import { useAuth } from '@/contexts/AuthContext';
 
-export default function LoginPage() {
+function LoginInner() {
   const router = useRouter();
+  const search = useSearchParams();
   const { user } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const returnUrl = useMemo(() => {
+    const raw = search?.get('return') || '/cuenta';
+    // simple guard: internal paths only
+    if (typeof raw !== 'string') return '/cuenta';
+    if (!raw.startsWith('/')) return '/cuenta';
+    // avoid protocol-relative
+    if (raw.startsWith('//')) return '/cuenta';
+    return raw;
+  }, [search]);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (user) {
-    router.replace("/cuenta");
+    router.replace(returnUrl);
   }
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -27,12 +38,12 @@ export default function LoginPage() {
       setError(error.message);
       return;
     }
-    router.replace("/cuenta");
+    router.replace(returnUrl);
   };
 
   return (
-    <main className="max-w-md mx-auto px-6 py-12">
-      <h1 className="text-2xl font-bold mb-6">Iniciar sesión</h1>
+    <main className="mx-auto max-w-md px-6 py-12">
+      <h1 className="mb-6 text-2xl font-bold">Iniciar sesión</h1>
       <form onSubmit={onSubmit} className="space-y-4">
         <input
           type="email"
@@ -40,7 +51,7 @@ export default function LoginPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full border rounded-lg px-3 py-2"
+          className="w-full rounded-lg border px-3 py-2"
         />
         <input
           type="password"
@@ -48,21 +59,40 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="w-full border rounded-lg px-3 py-2"
+          className="w-full rounded-lg border px-3 py-2"
         />
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        {error && <p className="text-sm text-red-600">{error}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-lime-600 hover:bg-lime-700 text-white font-semibold py-2 rounded-lg"
+          className="w-full rounded-lg bg-lime-600 py-2 font-semibold text-white hover:bg-lime-700"
         >
-          {loading ? "Ingresando..." : "Ingresar"}
+          {loading ? 'Ingresando...' : 'Ingresar'}
         </button>
       </form>
-      <p className="text-sm text-gray-600 mt-4">
-        ¿No tienes cuenta? <Link href="/cuenta/registro" className="text-lime-700 hover:underline">Regístrate</Link>
+      <p className="mt-4 text-sm text-gray-600">
+        ¿No tienes cuenta?{' '}
+        <Link
+          href={{ pathname: '/cuenta/registro', query: { return: returnUrl } }}
+          className="text-lime-700 hover:underline"
+        >
+          Regístrate
+        </Link>
       </p>
     </main>
   );
 }
 
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="mx-auto max-w-md px-6 py-12">
+          <p>Cargando...</p>
+        </main>
+      }
+    >
+      <LoginInner />
+    </Suspense>
+  );
+}
