@@ -13,6 +13,7 @@ function RegisterInner() {
     if (typeof raw !== 'string') return '/cuenta';
     if (!raw.startsWith('/')) return '/cuenta';
     if (raw.startsWith('//')) return '/cuenta';
+    if (raw.startsWith('/cuenta/login') || raw.startsWith('/cuenta/registro')) return '/cuenta';
     return raw;
   }, [search]);
 

@@ -12,11 +12,11 @@ function LoginInner() {
   const { user } = useAuth();
   const returnUrl = useMemo(() => {
     const raw = search?.get('return') || '/cuenta';
-    // simple guard: internal paths only
     if (typeof raw !== 'string') return '/cuenta';
     if (!raw.startsWith('/')) return '/cuenta';
-    // avoid protocol-relative
     if (raw.startsWith('//')) return '/cuenta';
+    // Avoid loops: do not return to login/registro
+    if (raw.startsWith('/cuenta/login') || raw.startsWith('/cuenta/registro')) return '/cuenta';
     return raw;
   }, [search]);
   const [email, setEmail] = useState('');
