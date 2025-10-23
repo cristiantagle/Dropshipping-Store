@@ -1,15 +1,17 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function AccountClient() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, loading, signOut, profile, updateProfile } = useAuth();
 
   useEffect(() => {
     if (!loading && !user) {
-      router.replace('/cuenta/login');
+      const ret = encodeURIComponent(pathname || '/cuenta');
+      router.replace('/cuenta/login?return=' + ret);
     }
   }, [user, loading, router]);
 

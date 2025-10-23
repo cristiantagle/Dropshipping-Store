@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabaseAuth } from '@/lib/supabase/authClient';
 
@@ -14,12 +14,16 @@ type Order = {
 
 export default function PedidosClient() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, loading } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [busy, setBusy] = useState(true);
 
   useEffect(() => {
-    if (!loading && !user) router.replace('/cuenta/login');
+    if (!loading && !user) {
+      const ret = encodeURIComponent(pathname || '/cuenta/pedidos');
+      router.replace('/cuenta/login?return=' + ret);
+    }
   }, [user, loading, router]);
 
   useEffect(() => {

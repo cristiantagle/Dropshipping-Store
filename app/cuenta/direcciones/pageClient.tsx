@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabaseAuth } from '@/lib/supabase/authClient';
 
@@ -32,13 +32,17 @@ const empty: Address = {
 
 export default function DireccionesClient() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, loading } = useAuth();
   const [items, setItems] = useState<Address[]>([]);
   const [form, setForm] = useState<Address>(empty);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) router.replace('/cuenta/login');
+    if (!loading && !user) {
+      const ret = encodeURIComponent(pathname || '/cuenta/direcciones');
+      router.replace('/cuenta/login?return=' + ret);
+    }
   }, [user, loading, router]);
 
   async function load() {

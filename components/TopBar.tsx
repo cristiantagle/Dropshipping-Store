@@ -226,7 +226,7 @@ export default function TopBar() {
             </div>
           ) : (
             <Link
-              href="/cuenta/login"
+              href={{ pathname: '/cuenta/login', query: { return: pathname || '/' } }}
               className="group relative rounded-lg px-3 py-2 transition-all duration-300 hover:bg-lime-50/50 hover:text-lime-700"
             >
               <span className="relative z-10">{'Iniciar sesi\u00F3n'}</span>
@@ -358,7 +358,7 @@ export default function TopBar() {
                 </>
               ) : (
                 <Link
-                  href="/cuenta/login"
+                  href={{ pathname: '/cuenta/login', query: { return: pathname || '/' } }}
                   className="rounded-lg px-4 py-3 font-medium transition-all duration-300 hover:bg-lime-50/50 hover:text-lime-700"
                 >
                   {'Iniciar sesi\u00F3n'}
