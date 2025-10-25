@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Thunderbit</title>
+    <style>
+      body { font: 13px/1.4 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; padding: 12px; width: 320px; }
+      h1 { font-size: 14px; margin: 0 0 8px; }
+      .row { display: flex; gap: 8px; margin-bottom: 8px; }
+      button { border: 1px solid #ddd; background: #f9f9f9; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+      button:hover { background: #f3f3f3; }
+      textarea { width: 100%; min-height: 120px; font-family: ui-monospace, SFMono, Menlo, monospace; }
+      .small { color: #666; font-size: 12px; }
+      ul { margin: 6px 0; padding-left: 16px; }
+      .list { display: grid; grid-template-columns: 1fr; gap: 8px; margin: 8px 0; }
+      .item { display: grid; grid-template-columns: 56px 1fr auto; gap: 8px; align-items: center; border:1px solid #eee; border-radius:8px; padding:6px; }
+      .item img { width:56px; height:56px; object-fit: cover; border-radius:6px; background:#fafafa; border:1px solid #eee; }
+      .item h3 { margin:0; font-size:13px; line-height:1.3; }
+      .item .meta { font-size:12px; color:#666; display:flex; gap:6px; flex-wrap:wrap; }
+      .item .price { font-weight:600; }
+    </style>
+  </head>
+  <body>
+    <h1>Thunderbit (Clone)</h1>
+    <div class="row">
+      <button id="openPanel" class="primary">Abrir Panel Lateral</button>
+      <button id="capture">Capturar</button>
+      <button id="scrapePro">Analizar producto</button>
+      <button id="catScrape">Descubrir productos (AE)</button>
+    </div>
+    <div class="row">
+      <label class="small">Límite <input id="limit" type="number" min="1" max="200" value="30" style="width:80px" /></label>
+      <button id="cancel" class="small">Detener</button>
+      <button id="exportAll">Exportar JSON</button>
+      <span id="status" class="small" style="margin-left:auto;color:#666">Listo</span>
+    </div>
+    <div class="row">
+      <input id="apiUrl" placeholder="https://tu-dominio/api/import/products" style="flex:1;padding:6px" />
+      <button id="testApi">Probar conexión</button>
+      <span id="apiStatus" class="small" style="min-width:120px;color:#666">Sin probar</span>
+    </div>
+    <div class="row">
+      <input id="apiToken" placeholder="X-Import-Token (opcional)" style="flex:1;padding:6px" />
+    </div>
+    <div class="row">
+      <select id="categorySelect" style="flex:1;padding:6px"></select>
+      <label class="small"><input id="useMap" type="checkbox" /> Mapear por categoryId (AE)</label>
+    </div>
+    <p class="small">Resultados recientes</p>
+    <div id="list" class="list"></div>
+    <p class="small">Detalle JSON</p>
+    <textarea id="out" placeholder="[]"></textarea>
+    <p class="small">Registros guardados: <span id="count">0</span></p>
+    <div class="row">
+      <label class="small"><input id="autoRemove" type="checkbox" /> Auto eliminar importados</label>
+      <button id="clearAll" class="small">Limpiar lista</button>
+    </div>
+    <div class="row">
+      <button id="save">Guardar</button>
+      <button id="sendJson" title="Enviar el JSON de arriba">Enviar JSON</button>
+      <button id="sendRecords" title="Enviar registros almacenados">Enviar registros</button>
+    </div>
+    <script src="popup.js" type="module"></script>
+  </body>
+  </html>

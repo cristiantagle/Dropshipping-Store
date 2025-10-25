@@ -1,26 +1,26 @@
-import { NextRequest } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { NextRequest } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-function json(status: number, data: any) {
+function json(status: number, data: unknown) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "content-type": "application/json; charset=utf-8" },
+    headers: { 'content-type': 'application/json; charset=utf-8' },
   });
 }
 
 export async function GET(_req: NextRequest) {
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return json(200, { present: false, reason: "missing_service_role" });
+    return json(200, { present: false, reason: 'missing_service_role' });
   }
   try {
     const supa = supabaseAdmin();
     const { data, error } = await supa
-      .from("aliexpress_tokens")
-      .select("id, access_token, refresh_token, expires_at, scope, user_id, updated_at, created_at")
-      .eq("id", 1)
+      .from('aliexpress_tokens')
+      .select('id, access_token, refresh_token, expires_at, scope, user_id, updated_at, created_at')
+      .eq('id', 1)
       .maybeSingle();
     if (error) return json(500, { present: false, error: error.message });
     if (!data) return json(200, { present: false });
@@ -35,8 +35,8 @@ export async function GET(_req: NextRequest) {
       user_id: data.user_id,
       updated_at: data.updated_at,
     });
-  } catch (e: any) {
-    return json(500, { present: false, error: e?.message || String(e) });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    return json(500, { present: false, error: message });
   }
 }
-

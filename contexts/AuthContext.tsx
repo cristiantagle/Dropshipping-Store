@@ -1,7 +1,7 @@
-"use client";
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { Session, User } from "@supabase/supabase-js";
-import { supabaseAuth } from "@/lib/supabase/authClient";
+'use client';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { Session, User } from '@supabase/supabase-js';
+import { supabaseAuth } from '@/lib/supabase/authClient';
 
 type Profile = {
   user_id: string;
@@ -16,7 +16,10 @@ type AuthContextType = {
   signOut: () => Promise<void>;
   profile: Profile;
   refreshProfile: () => Promise<void>;
-  updateProfile: (data: { display_name?: string; avatar_url?: string }) => Promise<{ error?: string }>;
+  updateProfile: (data: {
+    display_name?: string;
+    avatar_url?: string;
+  }) => Promise<{ error?: string }>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -57,13 +60,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const refreshProfile = async () => {
-    if (!user) { setProfile(null); return; }
+    if (!user) {
+      setProfile(null);
+      return;
+    }
     const { data, error } = await supabaseAuth
       .from('profiles')
       .select('user_id, display_name, avatar_url')
       .eq('user_id', user.id)
-      .maybeSingle();
-    if (!error) setProfile(data as any);
+      .maybeSingle<{ user_id: string; display_name: string | null; avatar_url: string | null }>();
+    if (!error) setProfile(data ?? null);
   };
 
   useEffect(() => {
@@ -73,17 +79,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateProfile: AuthContextType['updateProfile'] = async ({ display_name, avatar_url }) => {
     if (!user) return { error: 'No hay usuario' };
-    const payload: any = { user_id: user.id };
+    type UpdateProfileRow = { user_id: string; display_name?: string; avatar_url?: string };
+    const payload: UpdateProfileRow = { user_id: user.id };
     if (typeof display_name !== 'undefined') payload.display_name = display_name;
     if (typeof avatar_url !== 'undefined') payload.avatar_url = avatar_url;
-    const { error } = await supabaseAuth.from('profiles').upsert(payload, { onConflict: 'user_id' });
+    const { error } = await supabaseAuth
+      .from('profiles')
+      .upsert(payload, { onConflict: 'user_id' });
     if (error) return { error: error.message };
     await refreshProfile();
     return {};
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signOut, profile, refreshProfile, updateProfile }}>
+    <AuthContext.Provider
+      value={{ user, session, loading, signOut, profile, refreshProfile, updateProfile }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -91,6 +102,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth debe usarse dentro de <AuthProvider>");
+  if (!ctx) throw new Error('useAuth debe usarse dentro de <AuthProvider>');
   return ctx;
 }

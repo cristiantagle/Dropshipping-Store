@@ -15,6 +15,7 @@
 - `npm start` Serve the production build.
 - `npm run lint` Lint with Next/ESLint.
 - Post-install: `node scripts/inject-env.mjs` writes derived env vars when available.
+- Backups cleanup: `npm run clean:backups` keeps only 2 latest snapshots in `.backup_global/`.
 - Ad hoc checks in `scripts/`:
   - TypeScript: `npx ts-node scripts/test_prices.ts`
   - ESM: `node scripts/review_categories.mjs`
@@ -45,6 +46,18 @@
 - Use `.env.local` for secrets. Keys under `NEXT_PUBLIC_*` are exposed to clients. Keep `SUPABASE_SERVICE_ROLE_KEY` server-only.
 - Payments: `MP_ACCESS_TOKEN` and `NEXT_PUBLIC_URL` are required by `app/api/checkout/mercadopago/route.ts`.
 - Remote images must be allowed in `next.config.js` (`images.remotePatterns`). Add new hosts there.
+
+### Import API (Lunaria Scraper)
+
+- Endpoint: `POST /api/import/products` (server-only; uses `SUPABASE_SERVICE_ROLE_KEY`).
+- Optional protection: set `IMPORT_API_TOKEN` and send header `X-Import-Token` from the extension.
+- Optional origin restriction: `IMPORT_ALLOWED_ORIGINS` as a comma-separated list; requests from other origins get 403.
+- CORS enabled with preflight (OPTIONS) for the extension.
+
+### Pricing Policy
+
+- Scraper sends prices in CLP. Backend applies a global markup of 40%: `final = round(price * 1.4)`.
+- You can override with body `markup_percent` (e.g., `0.35` for +35%).
 
 ## Acuerdo de Trabajo (Agente)
 
@@ -317,3 +330,101 @@ Notas: no abrir el token endpoint en el navegador (usar callback). Si el callbac
 - Migrar @supabase/auth-helpers-nextjs → @supabase/ssr (eliminar deprecaciones y mejorar SSR)
 - Reintroducir ESLint en lint-staged (flat config) con parser/overrides TS/JSX
 - Mantener textos en UTF‑8 y evitar escapes visibles en JSX
+
+## Estado y Registro (2025-10-23 — Supabase SSR)
+
+- Migración completada: `@supabase/auth-helpers-nextjs` → `@supabase/ssr` (server y browser clients en `lib/supabase/`).
+- Build validado: `npm run build` OK; quedan solo warnings de `react-hooks/exhaustive-deps` en archivos diagnosticados.
+- Documentación: WARP.md deprecado; se mantiene solo como referencia histórica. La verdad operativa es este `AGENTS.md`.
+
+### Próxima fase (actualizado)
+
+- Reintroducir ESLint en lint-staged (flat config) con parser/overrides TS/JSX.
+- Mantener textos en UTF‑8; sin `\uXXXX` visibles en JSX.
+
+## Estado y Registro (2025-10-23 — AliExpress Scraper + Discover)
+
+- Scraper HTML (`scripts/aliexpress_scraper.py`):
+  - Normalización de URLs: `es.` y `/i/<id>.html` → `https://www.aliexpress.com/item/<id>.html`.
+  - Extracción robusta de `window.runParams` con balanceo de llaves.
+  - Fallback móvil: consulta `https://m.aliexpress.com/item/<id>.html` si faltan título/galería/precio.
+  - Extracción de galería desde `window._d_c_.DCData.imagePathList/summImagePathList`.
+  - Limpieza de sufijo “- AliExpress” en `<title>`/`og:title` y reparación básica de mojibake (acentos comunes en ES).
+  - Forzado `utf-8` como encoding por defecto de respuesta.
+
+- Descubridor headless (sin RapidAPI): `scripts/aliexpress_discover.mjs`
+  - Usa Playwright (Chromium) para renderizar listados de categoría/keyword y extraer hasta N enlaces.
+  - Soporta `--category-url` o `--keyword`, `--limit`, `--max-pages`, `--mobile`, `--cookie` y `--out`.
+  - Normaliza enlaces a `https://www.aliexpress.com/item/<id>.html`.
+
+- Cookies (combinación segura): `scripts/_build_cookie.py`
+  - Fusiona cookies útiles desde `.env.local` (clave `AE_SCRAPER_COOKIE`) y el archivo actual `scripts/out/ae_cookie.txt`.
+  - Ordena preferentemente: `aep_usuc_f`, `xman_us_f`, `xman_t`, `xman_f`, `acs_rt`, `isg`, `cbc`.
+
+- Utilidades de diagnóstico (opcionales):
+  - `scripts/_fetch_page.py` (httpx, guarda HTML con headers UA/cookie),
+  - `scripts/_debug_runparams.py`, `scripts/_debug_dcdata.py` (inspección de blobs en HTML guardado).
+
+- Dependencias nuevas (dev):
+  - `playwright` (Chromium). Instalación: `npm i -D playwright && npx playwright install chromium`.
+
+- Ejecución típica (mascotas, límite 30):
+  1. Construir cookie combinada: `python scripts/_build_cookie.py` (escribe `scripts/out/ae_cookie.txt`).
+  2. Descubrir enlaces: `node scripts/aliexpress_discover.mjs --keyword "mascotas" --limit 30 --max-pages 6 --mobile --cookie scripts/out/ae_cookie.txt --out scripts/out/ae_discovered.json`.
+  3. Scrappear en lote: `python scripts/aliexpress_scraper.py --input scripts/out/ae_discovered.json --out scripts/out/ae_cat_30.json --lang es --cookie scripts/out/ae_cookie.txt --delay-ms 1200 --retries 3 --limit 30`.
+
+- Notas:
+  - Listados de AliExpress se renderizan por JS y tienen protecciones; por eso se usa Playwright para discovery.
+  - El HTML estático puede no incluir `price/currency`; el scraper prioriza galería y título (con fallback móvil y limpieza).
+  - Sin RapidAPI ni APIs de terceros.
+
+- Snapshots: creado `.backup_global/20251023_144720` antes de modificar el scraper.
+  codex resume 019a1222-c6b5-7480-80da-6494b0b73612
+
+## Estado y Registro (2025-10-24 — AE Orchestrator + Import)
+
+- Orchestrator and legacy scraping scripts have been retired in favor of the Chrome extension and server import API.
+
+## Estado y Registro (2025-10-25 — Lunaria Scraper Extension)
+
+- Extensión MV3 en `extensions/thunderbit-clone/` (renombrada funcionalmente como “Lunaria Scraper”).
+  - Popup: Abrir Panel Lateral, Analizar producto, Descubrir productos (AE), Probar conexión, Exportar JSON.
+  - Panel lateral (in-page): Analizar este producto, Descubrir (Límite), Detener, Enviar este producto, Enviar lista completa, Enviar seleccionados, Reintentar fallidos, Exportar, Guardar en la lista.
+  - Config (popup/panel): API URL, X-Import-Token (opcional), Selector de categoría (desde `/api/categories` con fallback local), Mapear por categoryId (AE), Auto eliminar importados, Limpiar lista.
+  - Scraping AE compatible CSP (sin scripts inline); usa `runParams/DCData` desde MAIN world cuando están disponibles.
+  - Lote concurrente (3 por defecto), cancelable, con reporte y persistencia de fallidos.
+
+- Backend actualizado:
+  - `/api/import/products`: CORS + OPTIONS, `X-Import-Token` opcional, `IMPORT_ALLOWED_ORIGINS` opcional, markup de precios CLP +40% (config. por `markup_percent`).
+  - `/api/categories`: CORS + OPTIONS para alimentar el selector de categorías en la extensión.
+
+- Limpieza aplicada:
+  - Eliminados scripts legacy de scraping (`scripts/aliexpress_*`, `scripts/ae_orchestrator.mjs`, helpers de cookies/debug) y `cj_import/`.
+  - `pages_backup` renombrado a `pages_backup_archived` para evitar conflictos con Next.
+  - Script `scripts/clean_backups.mjs` + `npm run clean:backups` para snapshots.
+
+## Estado y Registro (2025-10-24 — ESLint lint-staged parcial)
+
+- Backups: snapshot creado antes de cambios en `.backup_global/20251024_081001` (limpieza aplicada; quedan 2 más recientes).
+- ESLint (flat config): agregado ignore de `.backup_global/**` y `archive/**` en `eslint.config.mjs` para evitar EMFILE/recursión.
+- Pre-commit: reintroducido `eslint --fix` en `lint-staged` para `*.{js,jsx}`; `*.{ts,tsx}` sigue con Prettier mientras integramos parser/overrides TS.
+- Próximo paso: agregar `@typescript-eslint` (parser/plugin) y configurar overrides TS/TSX en flat config; luego ampliar `lint-staged` a TS.
+
+## Estado y Registro (2025-10-24 — ESLint TS integrado)
+
+- Paquetes: `@typescript-eslint/parser@7.2.0` y `@typescript-eslint/eslint-plugin@7.2.0` (compatibles con `eslint-config-next@14.2.5`).
+- Config Flat: `eslint.config.mjs` ahora importa `@typescript-eslint/*`, añade override para `*.{ts,tsx}` con parser TS y `configs.recommended`.
+- Reglas relajadas: `no-explicit-any` y `no-unused-vars` en warn (no bloquea CI/commits); `scripts/**` y `pages_backup/**` ignorados.
+- Pre-commit: `lint-staged` corre `eslint --fix` + Prettier en `*.{js,jsx,ts,tsx}`.
+- Build verificado previamente OK; “next lint” pasa con warnings controlados.
+
+### 2025-10-24 — Reducción de `any` ruidosos
+
+- MP Checkout: tipado de `body` y manejo de errores sin `any` en `app/api/checkout/mercadopago/route.ts`.
+- Auth: tipado de `profiles.maybeSingle` y `upsert` en `contexts/AuthContext.tsx` (sin `any`).
+- Supabase wrapper: `supabaseFetch` usa tipos concretos y `unknown` en errores (`lib/supabase-wrapper.ts`).
+- Preview env: respuesta tipada (`hooks/usePreviewEnv.ts`).
+- AliExpress OAuth callback: `unknown` + normalización con tipos parciales y fix de `mask` (`app/api/aliexpress/oauth/callback/route.ts`).
+- UI producto: props tipadas en `components/ProductDetail.tsx` y `components/ProductDetailClient.tsx` (ajuste de `category_slug`/`image_url` para `add`).
+- Resultado: ESLint warnings bajan (~100 → ~78) sin romper build.
+  codex resume 019a15e5-dbdf-7672-a6d4-90afa56fe445

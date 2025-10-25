@@ -1,14 +1,17 @@
-import { cookies } from "next/headers";
+import { cookies } from 'next/headers';
 
 function badRequest(msg: string) {
-  return new Response(msg, { status: 400, headers: { "content-type": "text/plain; charset=utf-8" } });
+  return new Response(msg, {
+    status: 400,
+    headers: { 'content-type': 'text/plain; charset=utf-8' },
+  });
 }
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const appKey = process.env.AE_APP_KEY;
-  const authBase = process.env.AE_OAUTH_AUTH_URL || "https://oauth.aliexpress.com/authorize";
-  if (!appKey) return badRequest("AE_APP_KEY is not set on the server");
+  const authBase = process.env.AE_OAUTH_AUTH_URL || 'https://oauth.aliexpress.com/authorize';
+  if (!appKey) return badRequest('AE_APP_KEY is not set on the server');
 
   // Build redirect_uri
   const explicit = process.env.AE_REDIRECT_URI; // optional explicit override
@@ -23,22 +26,28 @@ export async function GET(req: Request) {
   // State
   const state = Math.random().toString(36).slice(2) + Date.now().toString(36);
   const cookieStore = cookies();
-  cookieStore.set("ae_oauth_state", state, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 10 * 60 });
+  cookieStore.set('ae_oauth_state', state, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 10 * 60,
+  });
 
   // Optional scope; leave blank unless you know required scopes
-  const scope = process.env.AE_OAUTH_SCOPE || "";
+  const scope = process.env.AE_OAUTH_SCOPE || '';
 
   const authUrl = new URL(authBase);
-  authUrl.searchParams.set("client_id", appKey);
+  authUrl.searchParams.set('client_id', appKey);
   // Some AliExpress OAuth deployments expect `app_key`; include both.
-  authUrl.searchParams.set("app_key", appKey);
-  authUrl.searchParams.set("redirect_uri", redirectUri);
-  authUrl.searchParams.set("response_type", "code");
-  authUrl.searchParams.set("state", state);
-  if (scope) authUrl.searchParams.set("scope", scope);
+  authUrl.searchParams.set('app_key', appKey);
+  authUrl.searchParams.set('redirect_uri', redirectUri);
+  authUrl.searchParams.set('response_type', 'code');
+  authUrl.searchParams.set('state', state);
+  if (scope) authUrl.searchParams.set('scope', scope);
 
   // Optional debug: return assembled URL instead of redirect
-  if (url.searchParams.get("debug") === "1") {
+  if (url.searchParams.get('debug') === '1') {
     return new Response(
       JSON.stringify({
         authorize_url: authUrl.toString(),
@@ -47,7 +56,7 @@ export async function GET(req: Request) {
         scope: scope || undefined,
         state,
       }),
-      { status: 200, headers: { "content-type": "application/json; charset=utf-8" } }
+      { status: 200, headers: { 'content-type': 'application/json; charset=utf-8' } },
     );
   }
 
