@@ -1,5 +1,4 @@
-import { redirect } from 'next/navigation';
-import { supabaseServer } from '@/lib/supabase/server';
+import { requireUser } from '@/lib/auth/guards';
 import DireccionesClient from './pageClient';
 
 type Address = {
@@ -29,10 +28,6 @@ const empty: Address = {
 };
 
 export default async function AddressesPage() {
-  const supabase = supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect('/cuenta/login?return=%2Fcuenta%2Fdirecciones');
+  await requireUser('/cuenta/direcciones');
   return <DireccionesClient />;
 }

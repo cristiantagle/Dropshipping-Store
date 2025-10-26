@@ -1,12 +1,7 @@
-import { redirect } from 'next/navigation';
-import { supabaseServer } from '@/lib/supabase/server';
+import { requireUser } from '@/lib/auth/guards';
 import AccountClient from './pageClient';
 
 export default async function AccountPage() {
-  const supabase = supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect('/cuenta/login?return=%2Fcuenta');
+  await requireUser('/cuenta');
   return <AccountClient />;
 }

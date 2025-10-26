@@ -1,12 +1,7 @@
-import { redirect } from 'next/navigation';
-import { supabaseServer } from '@/lib/supabase/server';
+import { requireUser } from '@/lib/auth/guards';
 import PedidosClient from './pageClient';
 
 export default async function OrdersPage() {
-  const supabase = supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect('/cuenta/login?return=%2Fcuenta%2Fpedidos');
+  await requireUser('/cuenta/pedidos');
   return <PedidosClient />;
 }
