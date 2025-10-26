@@ -36,7 +36,8 @@ export default function PedidosClient() {
       setBusy(true);
       const { data, error } = await supabaseAuth
         .from('orders')
-        .select('id, status, currency, total_cents, created_at')
+        .select('id, status, currency, total_cents, created_at, user_id')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       if (!error) setOrders(data as any);
       setBusy(false);
@@ -67,7 +68,11 @@ export default function PedidosClient() {
             <tbody>
               {orders.map((o) => (
                 <tr key={o.id} className="border-t">
-                  <td className="p-3 font-mono text-xs">{o.id}</td>
+                  <td className="p-3 font-mono text-xs">
+                    <a href={`/cuenta/pedidos/${o.id}`} className="text-lime-700 hover:underline">
+                      {o.id}
+                    </a>
+                  </td>
                   <td className="p-3">{new Date(o.created_at).toLocaleString()}</td>
                   <td className="p-3 capitalize">{o.status}</td>
                   <td className="p-3">
