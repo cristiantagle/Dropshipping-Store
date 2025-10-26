@@ -121,17 +121,17 @@ function CartItemComponent({
 // Componente de estado de pago
 function PaymentStatus() {
   const searchParams = useSearchParams();
-  const status = searchParams?.get('status');
+  const status = searchParams?.get('status') || searchParams?.get('collection_status');
   const { addToast } = useToast();
   const { clear } = useOptimizedCart();
 
   useEffect(() => {
-    if (status === 'success') {
+    if (status === 'success' || status === 'approved') {
       clear();
       addToast({
         type: 'success',
-        title: '¡Pago exitoso!',
-        message: 'Recibirás un email con los detalles de tu pedido.',
+        title: 'Pago exitoso',
+        message: 'Gracias por tu compra. Hemos limpiado tu carrito.',
       });
     } else if (status === 'failure') {
       addToast({

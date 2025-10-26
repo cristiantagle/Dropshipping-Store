@@ -1,33 +1,43 @@
-import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { NextRequest, NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
+import { MercadoPagoConfig, Payment } from 'mercadopago';
 
 // Minimal MP webhook handler: stores event and updates order by payment/preference if provided
 export async function POST(req: NextRequest) {
   try {
     const sb = supabaseAdmin();
     const body = await req.json().catch(() => ({}));
-    const topic = (body?.topic || body?.type || req.nextUrl.searchParams.get("topic") || "").toString();
-    const type = (body?.type || req.nextUrl.searchParams.get("type") || "").toString();
-    await sb.from("mp_events").insert({ topic, type, data: body });
+    const topic = (
+      body?.topic ||
+      body?.type ||
+      req.nextUrl.searchParams.get('topic') ||
+      ''
+    ).toString();
+    const type = (body?.type || req.nextUrl.searchParams.get('type') || '').toString();
+    await sb.from('mp_events').insert({ topic, type, data: body });
 
-    // Try naive updates when identifiers are present
-    const paymentId = body?.data?.id || body?.id || req.nextUrl.searchParams.get("id");
-    const prefId = body?.data?.preference_id || body?.preference_id || req.nextUrl.searchParams.get("preference_id");
-    const status = body?.data?.status || body?.status || null;
-
-    if (paymentId || prefId) {
-      const patch: any = {};
-      if (paymentId) patch.mp_payment_id = String(paymentId);
-      if (prefId) patch.mp_preference_id = String(prefId);
-      if (status) patch.status = String(status);
-      if (Object.keys(patch).length > 0) {
-        // Update by payment id first, fallback to preference id
-        if (paymentId) {
-          await sb.from("orders").update(patch).eq("mp_payment_id", String(paymentId));
-        }
+    // Fetch payment detail from Mercado Pago when possible and update order status
+    const paymentId = body?.data?.id || body?.id || req.nextUrl.searchParams.get('id');
+    const accessToken = (process.env.MP_ACCESS_TOKEN || '').trim();
+    if (paymentId && accessToken) {
+      try {
+        const client = new MercadoPagoConfig({ accessToken });
+        const mpPayment = await new Payment(client).get({ id: String(paymentId) });
+        const prefId =
+          (mpPayment as any)?.additional_info?.metadata?.preference_id ||
+          (mpPayment as any)?.metadata?.preference_id ||
+          (mpPayment as any)?.order?.id ||
+          null;
+        const payStatus = (mpPayment as any)?.status || null; // approved | pending | rejected
+        const patch: any = { mp_payment_id: String(paymentId) };
+        if (prefId) patch.mp_preference_id = String(prefId);
+        if (payStatus) patch.status = String(payStatus);
         if (prefId) {
-          await sb.from("orders").update(patch).eq("mp_preference_id", String(prefId));
+          await sb.from('orders').update(patch).eq('mp_preference_id', String(prefId));
         }
+        await sb.from('orders').update(patch).eq('mp_payment_id', String(paymentId));
+      } catch (e) {
+        console.error('MP webhook: error fetching payment detail', e);
       }
     }
 
@@ -41,11 +51,10 @@ export async function GET(req: NextRequest) {
   // Some MP notifications ping GET first; record as event
   try {
     const sb = supabaseAdmin();
-    const topic = req.nextUrl.searchParams.get("topic");
-    const type = req.nextUrl.searchParams.get("type");
-    const id = req.nextUrl.searchParams.get("id");
-    await sb.from("mp_events").insert({ topic, type, data: { id } });
+    const topic = req.nextUrl.searchParams.get('topic');
+    const type = req.nextUrl.searchParams.get('type');
+    const id = req.nextUrl.searchParams.get('id');
+    await sb.from('mp_events').insert({ topic, type, data: { id } });
   } catch {}
   return NextResponse.json({ ok: true });
 }
-

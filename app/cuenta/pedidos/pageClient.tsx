@@ -24,7 +24,7 @@ export default function PedidosClient() {
       const ret = encodeURIComponent(pathname || '/cuenta/pedidos');
       router.replace('/cuenta/login?return=' + ret);
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, pathname]);
 
   useEffect(() => {
     (async () => {
@@ -61,6 +61,7 @@ export default function PedidosClient() {
                 <th className="p-3 text-left">Fecha</th>
                 <th className="p-3 text-left">Estado</th>
                 <th className="p-3 text-left">Total</th>
+                <th className="p-3 text-left">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -74,6 +75,26 @@ export default function PedidosClient() {
                       style: 'currency',
                       currency: o.currency || 'CLP',
                     })}
+                  </td>
+                  <td className="p-3">
+                    {o.status === 'pending' ? (
+                      <button
+                        className="rounded border px-3 py-1 text-xs hover:bg-gray-50"
+                        onClick={async () => {
+                          await supabaseAuth
+                            .from('orders')
+                            .update({ status: 'cancelled' })
+                            .eq('id', o.id);
+                          setOrders((prev) =>
+                            prev.map((x) => (x.id === o.id ? { ...x, status: 'cancelled' } : x)),
+                          );
+                        }}
+                      >
+                        Cancelar
+                      </button>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
                   </td>
                 </tr>
               ))}
