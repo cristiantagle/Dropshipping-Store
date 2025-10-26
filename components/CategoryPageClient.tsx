@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useMemo } from 'react';
 import ProductCard from '@/components/ProductCard';
@@ -33,8 +33,8 @@ export default function CategoryPageClient({ productos, nombreCategoria }: Props
 
     // Filtro por precio
     if (minPrice || maxPrice) {
-      filtered = filtered.filter(p => {
-        const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.3;
+      filtered = filtered.filter((p) => {
+        const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.4;
         const price = (p.price_cents / 100) * MARKUP; // ✅ Aplicar markup como en formatPrice
         const min = minPrice ? parseFloat(minPrice) : 0;
         const max = maxPrice ? parseFloat(maxPrice) : Infinity;
@@ -75,11 +75,11 @@ export default function CategoryPageClient({ productos, nombreCategoria }: Props
   // Estadísticas de precios para el filtro
   const priceStats = useMemo(() => {
     if (productos.length === 0) return { min: 0, max: 0 };
-    const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.3;
-    const prices = productos.map(p => (p.price_cents / 100) * MARKUP); // ✅ Aplicar markup
+    const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.4;
+    const prices = productos.map((p) => (p.price_cents / 100) * MARKUP); // ✅ Aplicar markup
     return {
       min: Math.floor(Math.min(...prices)),
-      max: Math.ceil(Math.max(...prices))
+      max: Math.ceil(Math.max(...prices)),
     };
   }, [productos]);
 
@@ -93,9 +93,9 @@ export default function CategoryPageClient({ productos, nombreCategoria }: Props
 
   if (!productos || productos.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-gray-500 bg-gray-50 rounded-xl">
+      <div className="flex flex-col items-center justify-center rounded-xl bg-gray-50 py-16 text-gray-500">
         <p className="text-lg font-medium">No hay productos en esta categoría.</p>
-        <p className="text-sm mt-1">Vuelve pronto — estamos agregando nuevas colecciones.</p>
+        <p className="mt-1 text-sm">Vuelve pronto — estamos agregando nuevas colecciones.</p>
       </div>
     );
   }
@@ -103,10 +103,10 @@ export default function CategoryPageClient({ productos, nombreCategoria }: Props
   return (
     <div>
       {/* Barra de filtros */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8 p-4 bg-gray-50 rounded-lg">
+      <div className="mb-8 flex flex-col justify-between gap-4 rounded-lg bg-gray-50 p-4 lg:flex-row lg:items-center">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-600" />
+            <Filter className="h-4 w-4 text-gray-600" />
             <span className="font-medium text-gray-700">Filtros y orden:</span>
           </div>
 
@@ -114,7 +114,7 @@ export default function CategoryPageClient({ productos, nombreCategoria }: Props
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortOption)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-lime-500 text-sm"
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-lime-500"
           >
             <option value="none">Sin ordenar</option>
             <option value="price_asc">Precio: menor a mayor</option>
@@ -131,7 +131,7 @@ export default function CategoryPageClient({ productos, nombreCategoria }: Props
               placeholder={`${priceStats.min}`}
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
-              className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+              className="w-20 rounded border border-gray-300 px-2 py-1 text-sm"
             />
             <span className="text-gray-400">-</span>
             <input
@@ -139,7 +139,7 @@ export default function CategoryPageClient({ productos, nombreCategoria }: Props
               placeholder={`${priceStats.max}`}
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
-              className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+              className="w-20 rounded border border-gray-300 px-2 py-1 text-sm"
             />
           </div>
 
@@ -147,58 +147,59 @@ export default function CategoryPageClient({ productos, nombreCategoria }: Props
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
-              className="px-3 py-1.5 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+              className="rounded bg-red-100 px-3 py-1.5 text-sm text-red-700 transition-colors hover:bg-red-200"
             >
               Limpiar
             </button>
           )}
         </div>
 
-        <div className="flex items-center justify-between lg:justify-end gap-4">
+        <div className="flex items-center justify-between gap-4 lg:justify-end">
           {/* Contador de productos */}
           <span className="text-sm text-gray-600">
             {filteredAndSortedProducts.length} de {productos.length} productos
           </span>
 
           {/* Vista grid/list */}
-          <div className="flex items-center border border-gray-300 rounded-md">
+          <div className="flex items-center rounded-md border border-gray-300">
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 ${viewMode === 'grid' ? 'bg-lime-600 text-white' : 'text-gray-600 hover:bg-gray-100'} transition-colors`}
             >
-              <Grid className="w-4 h-4" />
+              <Grid className="h-4 w-4" />
             </button>
             <button
               onClick={() => setViewMode('list')}
               className={`p-2 ${viewMode === 'list' ? 'bg-lime-600 text-white' : 'text-gray-600 hover:bg-gray-100'} transition-colors`}
             >
-              <List className="w-4 h-4" />
+              <List className="h-4 w-4" />
             </button>
           </div>
         </div>
       </div>
 
       {/* Grid de productos */}
-      <div className={
-        viewMode === 'grid' 
-          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-          : "grid grid-cols-1 gap-4"
-      }>
+      <div
+        className={
+          viewMode === 'grid'
+            ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+            : 'grid grid-cols-1 gap-4'
+        }
+      >
         {filteredAndSortedProducts.map((producto) => (
-          <ProductCard
-            key={producto.id}
-            {...producto}
-          />
+          <ProductCard key={producto.id} {...producto} />
         ))}
       </div>
 
       {/* Mensaje si no hay resultados con filtros */}
       {filteredAndSortedProducts.length === 0 && hasActiveFilters && (
-        <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">No se encontraron productos con los filtros aplicados.</p>
+        <div className="py-12 text-center">
+          <p className="mb-4 text-gray-500">
+            No se encontraron productos con los filtros aplicados.
+          </p>
           <button
             onClick={clearFilters}
-            className="px-4 py-2 bg-lime-600 text-white rounded-lg hover:bg-lime-700 transition-colors"
+            className="rounded-lg bg-lime-600 px-4 py-2 text-white transition-colors hover:bg-lime-700"
           >
             Limpiar filtros
           </button>

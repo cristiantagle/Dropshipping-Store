@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CartItem } from '@/contexts/OptimizedCartContext';
@@ -25,15 +25,19 @@ export default function MPWallet({ items, guestEmail }: MPWalletProps) {
   const { user } = useAuth();
   const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.4;
 
-  const mpItems = useMemo(
-    () =>
-      items.map((item) => ({
-        title: item.name_es || item.name,
-        quantity: item.qty,
-        price: Math.round((item.price_cents / 100) * MARKUP),
-      })),
-    [items, MARKUP],
-  );
+  const mpItems = useMemo(() => {
+    const productItems = items.map((item) => ({
+      title: item.name_es || item.name,
+      quantity: item.qty,
+      price: Math.round((item.price_cents * MARKUP) / 100),
+    }));
+    const subtotalCents = items.reduce((sum, it) => sum + it.price_cents * it.qty, 0);
+    const shippingCents = subtotalCents >= 5000000 ? 0 : 299000;
+    if (shippingCents > 0) {
+      productItems.push({ title: 'Envio', quantity: 1, price: Math.round(shippingCents / 100) });
+    }
+    return productItems;
+  }, [items, MARKUP]);
 
   // Cargar SDK si es necesario
   const loadSdk = () =>

@@ -7,15 +7,15 @@
  * @returns Precio formateado como string con formato de moneda chilena
  */
 export function formatPrice(cents: number): string {
-  const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.3;
-  
+  const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.4;
+
   // Convertir de centavos CLP a pesos CLP y aplicar markup
   const clp = cents / 100;
   const finalPrice = clp * MARKUP;
-  
-  return new Intl.NumberFormat("es-CL", {
-    style: "currency",
-    currency: "CLP",
+
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(finalPrice);
@@ -28,10 +28,10 @@ export function formatPrice(cents: number): string {
  */
 export function formatBasePrice(cents: number): string {
   const clp = cents / 100;
-  
-  return new Intl.NumberFormat("es-CL", {
-    style: "currency", 
-    currency: "CLP",
+
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(clp);
@@ -43,6 +43,6 @@ export function formatBasePrice(cents: number): string {
  * @returns Total formateado
  */
 export function formatTotal(items: Array<{ price_cents: number; quantity: number }>): string {
-  const totalCents = items.reduce((sum, item) => sum + (item.price_cents * item.quantity), 0);
+  const totalCents = items.reduce((sum, item) => sum + item.price_cents * item.quantity, 0);
   return formatPrice(totalCents);
 }

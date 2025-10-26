@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -26,9 +26,13 @@ function BuscarPageContent() {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  const supabase = useMemo(
+    () =>
+      createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      ),
+    [],
   );
 
   // Búsqueda en tiempo real
@@ -40,7 +44,7 @@ function BuscarPageContent() {
       }
 
       setLoading(true);
-      
+
       let queryBuilder = supabase
         .from('products')
         .select('id, name, name_es, image_url, price_cents, category_slug')
@@ -57,13 +61,13 @@ function BuscarPageContent() {
       // Filtro por precio
       if (minPrice) {
         // ✅ Convertir precio con markup a precio base para filtrar en BD
-        const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.3;
+        const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.4;
         const basePriceCents = (parseInt(minPrice) / MARKUP) * 100;
         queryBuilder = queryBuilder.gte('price_cents', basePriceCents);
       }
       if (maxPrice) {
         // ✅ Convertir precio con markup a precio base para filtrar en BD
-        const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.3;
+        const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.4;
         const basePriceCents = (parseInt(maxPrice) / MARKUP) * 100;
         queryBuilder = queryBuilder.lte('price_cents', basePriceCents);
       }
@@ -82,7 +86,7 @@ function BuscarPageContent() {
       } else {
         setProducts(data || []);
       }
-      
+
       setLoading(false);
     };
 
@@ -98,26 +102,26 @@ function BuscarPageContent() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="mx-auto max-w-6xl p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-6">🔍 Buscar Productos</h1>
-        
+        <h1 className="mb-6 text-3xl font-bold">🔍 Buscar Productos</h1>
+
         {/* Barra de búsqueda principal */}
         <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
           <input
             type="text"
             placeholder="Buscar productos por nombre..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lime-500 focus:border-transparent text-lg"
+            className="w-full rounded-lg border border-gray-300 py-3 pr-4 pl-10 text-lg focus:border-transparent focus:ring-2 focus:ring-lime-500"
           />
         </div>
 
         {/* Filtros */}
-        <div className="flex flex-wrap gap-4 items-center mb-6 p-4 bg-gray-50 rounded-lg">
+        <div className="mb-6 flex flex-wrap items-center gap-4 rounded-lg bg-gray-50 p-4">
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-600" />
+            <Filter className="h-4 w-4 text-gray-600" />
             <span className="font-medium text-gray-700">Filtros:</span>
           </div>
 
@@ -125,7 +129,7 @@ function BuscarPageContent() {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-lime-500"
+            className="rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-lime-500"
           >
             <option value="all">Todas las categorías</option>
             {categorias.map((cat) => (
@@ -143,7 +147,7 @@ function BuscarPageContent() {
               placeholder="Mín"
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
-              className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+              className="w-20 rounded border border-gray-300 px-2 py-1 text-sm"
             />
             <span className="text-gray-400">-</span>
             <input
@@ -151,7 +155,7 @@ function BuscarPageContent() {
               placeholder="Máx"
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
-              className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+              className="w-20 rounded border border-gray-300 px-2 py-1 text-sm"
             />
           </div>
 
@@ -159,15 +163,15 @@ function BuscarPageContent() {
           <div className="flex items-center gap-1">
             <button
               onClick={() => setPriceSort(priceSort === 'asc' ? 'none' : 'asc')}
-              className={`p-2 rounded ${priceSort === 'asc' ? 'bg-lime-600 text-white' : 'bg-white text-gray-600'} border border-gray-300 hover:bg-lime-50`}
+              className={`rounded p-2 ${priceSort === 'asc' ? 'bg-lime-600 text-white' : 'bg-white text-gray-600'} border border-gray-300 hover:bg-lime-50`}
             >
-              <SortAsc className="w-4 h-4" />
+              <SortAsc className="h-4 w-4" />
             </button>
             <button
               onClick={() => setPriceSort(priceSort === 'desc' ? 'none' : 'desc')}
-              className={`p-2 rounded ${priceSort === 'desc' ? 'bg-lime-600 text-white' : 'bg-white text-gray-600'} border border-gray-300 hover:bg-lime-50`}
+              className={`rounded p-2 ${priceSort === 'desc' ? 'bg-lime-600 text-white' : 'bg-white text-gray-600'} border border-gray-300 hover:bg-lime-50`}
             >
-              <SortDesc className="w-4 h-4" />
+              <SortDesc className="h-4 w-4" />
             </button>
           </div>
 
@@ -175,9 +179,9 @@ function BuscarPageContent() {
           {(categoryFilter !== 'all' || priceSort !== 'none' || minPrice || maxPrice) && (
             <button
               onClick={clearFilters}
-              className="flex items-center gap-1 px-3 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
+              className="flex items-center gap-1 rounded-md bg-red-100 px-3 py-2 text-red-700 transition-colors hover:bg-red-200"
             >
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
               Limpiar filtros
             </button>
           )}
@@ -186,8 +190,8 @@ function BuscarPageContent() {
 
       {/* Resultados */}
       {loading && (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lime-600 mx-auto"></div>
+        <div className="py-12 text-center">
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-lime-600"></div>
           <p className="mt-4 text-gray-600">Buscando productos...</p>
         </div>
       )}
@@ -195,25 +199,24 @@ function BuscarPageContent() {
       {!loading && query.length >= 2 && (
         <div className="mb-6">
           <p className="text-gray-600">
-            {products.length > 0 
-              ? `Se encontraron ${products.length} productos para "${query}"` 
-              : `No se encontraron productos para "${query}"`
-            }
+            {products.length > 0
+              ? `Se encontraron ${products.length} productos para "${query}"`
+              : `No se encontraron productos para "${query}"`}
           </p>
         </div>
       )}
 
       {!loading && query.length < 2 && (
-        <div className="text-center py-12">
-          <Search className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">¿Qué estás buscando?</h3>
+        <div className="py-12 text-center">
+          <Search className="mx-auto mb-4 h-16 w-16 text-gray-400" />
+          <h3 className="mb-2 text-xl font-semibold text-gray-700">¿Qué estás buscando?</h3>
           <p className="text-gray-600">Escribe al menos 2 caracteres para buscar productos</p>
         </div>
       )}
 
       {/* Grid de productos */}
       {products.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {products.map((product) => (
             <ProductCard key={product.id} {...product} />
           ))}
@@ -225,14 +228,16 @@ function BuscarPageContent() {
 
 export default function BuscarPage() {
   return (
-    <Suspense fallback={
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lime-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando página de búsqueda...</p>
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-6xl p-6">
+          <div className="py-12 text-center">
+            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-lime-600"></div>
+            <p className="mt-4 text-gray-600">Cargando página de búsqueda...</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <BuscarPageContent />
     </Suspense>
   );

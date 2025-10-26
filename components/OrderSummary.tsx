@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useOptimizedCart } from '@/contexts/OptimizedCartContext';
 import dynamic from 'next/dynamic';
@@ -10,10 +10,10 @@ interface OrderSummaryProps {
   isCheckingOut?: boolean;
 }
 
-export default function OrderSummary({ 
-  showCheckoutButton = true, 
+export default function OrderSummary({
+  showCheckoutButton = true,
   onCheckout,
-  isCheckingOut = false 
+  isCheckingOut = false,
 }: OrderSummaryProps) {
   const { totals, isEmpty } = useOptimizedCart();
   const hasPublicKey = Boolean(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY);
@@ -24,10 +24,8 @@ export default function OrderSummary({
   }
 
   return (
-    <div className="bg-gray-50 rounded-xl p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
-        Resumen del pedido
-      </h3>
+    <div className="rounded-xl bg-gray-50 p-6">
+      <h3 className="mb-4 text-lg font-semibold text-gray-900">Resumen del pedido</h3>
 
       {/* Línea de subtotal */}
       <div className="flex justify-between py-2">
@@ -39,8 +37,8 @@ export default function OrderSummary({
 
       {/* Línea de envío */}
       <div className="flex justify-between py-2">
-        <span className="text-gray-600 flex items-center gap-1">
-          <Truck className="w-4 h-4" />
+        <span className="flex items-center gap-1 text-gray-600">
+          <Truck className="h-4 w-4" />
           Envío
         </span>
         <span className={`font-medium ${totals.shipping() === 0 ? 'text-green-600' : ''}`}>
@@ -50,12 +48,13 @@ export default function OrderSummary({
 
       {/* Mensaje de envío gratis */}
       {totals.shipping() === 0 ? (
-        <div className="bg-green-50 text-green-700 text-sm p-2 rounded-md mb-4">
+        <div className="mb-4 rounded-md bg-green-50 p-2 text-sm text-green-700">
           🎉 ¡Felicitaciones! Tu pedido califica para envío gratis
         </div>
       ) : (
-        <div className="bg-blue-50 text-blue-700 text-sm p-2 rounded-md mb-4">
-          💡 Envío gratis en compras sobre {new Intl.NumberFormat('es-CL', {
+        <div className="mb-4 rounded-md bg-blue-50 p-2 text-sm text-blue-700">
+          💡 Envío gratis en compras sobre{' '}
+          {new Intl.NumberFormat('es-CL', {
             style: 'currency',
             currency: 'CLP',
             minimumFractionDigits: 0,
@@ -64,14 +63,12 @@ export default function OrderSummary({
       )}
 
       {/* Separador */}
-      <div className="border-t border-gray-200 my-4"></div>
+      <div className="my-4 border-t border-gray-200"></div>
 
       {/* Total */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <span className="text-lg font-semibold text-gray-900">Total</span>
-        <span className="text-xl font-bold text-lime-600">
-          {totals.formattedTotal()}
-        </span>
+        <span className="text-xl font-bold text-lime-600">{totals.formattedTotal()}</span>
       </div>
 
       {/* Acción de pago (botón o Wallet Brick) */}
@@ -79,28 +76,20 @@ export default function OrderSummary({
         <button
           onClick={onCheckout}
           disabled={isCheckingOut || isEmpty}
-          className="w-full mt-6 bg-lime-600 hover:bg-lime-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+          className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-lime-600 px-4 py-3 font-semibold text-white transition-colors duration-200 hover:bg-lime-700 disabled:bg-gray-400"
         >
           {isCheckingOut ? (
             <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
               Procesando...
             </>
           ) : (
             <>
-              <CreditCard className="w-4 h-4" />
+              <CreditCard className="h-4 w-4" />
               Proceder al pago
             </>
           )}
         </button>
-      )}
-
-      {hasPublicKey && MPWallet && (
-        <div className="mt-4">
-          {/* Renderizamos el Brick de pago cuando hay Public Key disponible */}
-          {/* MPWallet espera items desde el contexto al ser usado en CarroClient */}
-          {/* Aquí solo colocamos el contenedor; CarroClient enviará los items */}
-        </div>
       )}
 
       {/* Botonera adicional (placeholders sin lógica) */}
@@ -109,7 +98,7 @@ export default function OrderSummary({
           <button
             type="button"
             disabled
-            className="w-full border border-gray-300 text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-70 font-medium py-2.5 px-4 rounded-lg"
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-70"
             title="Disponible pronto"
           >
             Transferencia bancaria (pronto)
@@ -117,7 +106,7 @@ export default function OrderSummary({
           <button
             type="button"
             disabled
-            className="w-full border border-gray-300 text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-70 font-medium py-2.5 px-4 rounded-lg"
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-70"
             title="Disponible pronto"
           >
             Pago en cuotas (pronto)
@@ -128,15 +117,15 @@ export default function OrderSummary({
       {/* Garantías */}
       <div className="mt-4 space-y-2 text-xs text-gray-500">
         <div className="flex items-center gap-2">
-          <Shield className="w-3 h-3" />
+          <Shield className="h-3 w-3" />
           <span>Compra 100% segura</span>
         </div>
         <div className="flex items-center gap-2">
-          <Truck className="w-3 h-3" />
+          <Truck className="h-3 w-3" />
           <span>Envío a todo Chile</span>
         </div>
         <div className="flex items-center gap-2">
-          <CreditCard className="w-3 h-3" />
+          <CreditCard className="h-3 w-3" />
           <span>Paga con Mercado Pago</span>
         </div>
       </div>

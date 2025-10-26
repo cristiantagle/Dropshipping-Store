@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
@@ -31,19 +31,22 @@ const initialState: RecentlyViewedState = {
 };
 
 // Reducer para manejar acciones de recently viewed
-function recentlyViewedReducer(state: RecentlyViewedState, action: RecentlyViewedAction): RecentlyViewedState {
+function recentlyViewedReducer(
+  state: RecentlyViewedState,
+  action: RecentlyViewedAction,
+): RecentlyViewedState {
   switch (action.type) {
     case 'ADD_PRODUCT': {
       // Verificar si el producto ya es el más reciente para evitar updates innecesarios
-      const existingProduct = state.products.find(p => p.id === action.payload.id);
+      const existingProduct = state.products.find((p) => p.id === action.payload.id);
       if (existingProduct && state.products[0]?.id === action.payload.id) {
         // El producto ya es el más reciente, no hacer nada
         return state;
       }
-      
+
       // Remover el producto si ya existe para evitar duplicados
-      const filteredProducts = state.products.filter(p => p.id !== action.payload.id);
-      
+      const filteredProducts = state.products.filter((p) => p.id !== action.payload.id);
+
       // Agregar el nuevo producto al principio
       const newProduct: ViewedProduct = {
         ...action.payload,
@@ -60,7 +63,7 @@ function recentlyViewedReducer(state: RecentlyViewedState, action: RecentlyViewe
     }
 
     case 'REMOVE_PRODUCT': {
-      const updatedProducts = state.products.filter(p => p.id !== action.payload);
+      const updatedProducts = state.products.filter((p) => p.id !== action.payload);
       return {
         ...state,
         products: updatedProducts,
@@ -111,7 +114,7 @@ export function RecentlyViewedProvider({ children }: { children: React.ReactNode
   // Guardar en localStorage cuando cambie el estado (con debounce)
   useEffect(() => {
     if (state.products.length === 0) return; // No guardar array vacío inicial
-    
+
     const timeoutId = setTimeout(() => {
       try {
         localStorage.setItem('lunaria-recently-viewed', JSON.stringify(state.products));
@@ -133,7 +136,7 @@ export function RecentlyViewedProvider({ children }: { children: React.ReactNode
 // Hook personalizado para usar recently viewed
 export function useRecentlyViewed() {
   const context = useContext(RecentlyViewedContext);
-  
+
   if (!context) {
     throw new Error('useRecentlyViewed must be used within a RecentlyViewedProvider');
   }
@@ -155,14 +158,14 @@ export function useRecentlyViewed() {
 
   // Formato de precio helper
   const formatPrice = (cents: number) => {
-    const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.3;
-    
+    const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.4;
+
     const clp = cents / 100; // Convertir de centavos CLP a pesos CLP
     const finalPrice = clp * MARKUP;
-    
-    return new Intl.NumberFormat("es-CL", {
-      style: "currency",
-      currency: "CLP",
+
+    return new Intl.NumberFormat('es-CL', {
+      style: 'currency',
+      currency: 'CLP',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(finalPrice);
@@ -173,7 +176,7 @@ export function useRecentlyViewed() {
     products: state.products,
     totalViewed: state.products.length,
     maxItems: state.maxItems,
-    
+
     // Funciones
     addProduct,
     removeProduct,

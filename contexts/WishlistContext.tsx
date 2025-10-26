@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
@@ -35,7 +35,7 @@ function wishlistReducer(state: WishlistState, action: WishlistAction): Wishlist
   switch (action.type) {
     case 'ADD_ITEM': {
       // Verificar si el item ya existe
-      const existingItem = state.items.find(item => item.id === action.payload.id);
+      const existingItem = state.items.find((item) => item.id === action.payload.id);
       if (existingItem) {
         return state; // No agregar duplicados
       }
@@ -54,7 +54,7 @@ function wishlistReducer(state: WishlistState, action: WishlistAction): Wishlist
     }
 
     case 'REMOVE_ITEM': {
-      const newItems = state.items.filter(item => item.id !== action.payload);
+      const newItems = state.items.filter((item) => item.id !== action.payload);
 
       return {
         items: newItems,
@@ -114,16 +114,14 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   }, [state.items]);
 
   return (
-    <WishlistContext.Provider value={{ state, dispatch }}>
-      {children}
-    </WishlistContext.Provider>
+    <WishlistContext.Provider value={{ state, dispatch }}>{children}</WishlistContext.Provider>
   );
 }
 
 // Hook personalizado para usar la wishlist
 export function useWishlist() {
   const context = useContext(WishlistContext);
-  
+
   if (!context) {
     throw new Error('useWishlist must be used within a WishlistProvider');
   }
@@ -152,19 +150,19 @@ export function useWishlist() {
   };
 
   const isInWishlist = (productId: string): boolean => {
-    return state.items.some(item => item.id === productId);
+    return state.items.some((item) => item.id === productId);
   };
 
   // Formato de precio helper (reutilizado del carrito)
   const formatPrice = (cents: number) => {
-    const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.3;
-    
+    const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.4;
+
     const clp = cents / 100; // Convertir de centavos CLP a pesos CLP
     const finalPrice = clp * MARKUP;
-    
-    return new Intl.NumberFormat("es-CL", {
-      style: "currency",
-      currency: "CLP",
+
+    return new Intl.NumberFormat('es-CL', {
+      style: 'currency',
+      currency: 'CLP',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(finalPrice);
@@ -174,7 +172,7 @@ export function useWishlist() {
     // Estado
     items: state.items,
     totalItems: state.totalItems,
-    
+
     // Funciones
     addToWishlist,
     removeFromWishlist,

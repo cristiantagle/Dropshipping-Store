@@ -43,7 +43,7 @@ export default function DireccionesClient() {
       const ret = encodeURIComponent(pathname || '/cuenta/direcciones');
       router.replace('/cuenta/login?return=' + ret);
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, pathname]);
 
   async function load() {
     if (!user) {

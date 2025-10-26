@@ -1,0 +1,6 @@
+if (items.length === 0) {
+      // Solo permitir vaciado si es intencional (clear function o timeout)
+      const currentStoredItems = (() => {
+        try {
+          return JSON.parse(localStorage.getItem('carro') || '[]');
+        }

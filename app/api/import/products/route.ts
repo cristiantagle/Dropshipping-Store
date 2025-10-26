@@ -135,8 +135,10 @@ export async function POST(req: NextRequest) {
     }
 
     const title = it.title || 'Producto';
-    // Precio viene en CLP desde el scraper; aplicar markup global 40% (configurable)
-    const priceCents = applyMarkupClp(it.price, markup);
+    // Precio viene en CLP (pesos) desde el scraper; almacenar base en centavos (sin markup)
+    const rawPrice = Number(it.price);
+    const priceCents =
+      Number.isFinite(rawPrice) && rawPrice > 0 ? Math.round(rawPrice * 100) : null;
     if (!priceCents) {
       results.push({ ok: false, url, reason: 'invalid_price' });
       continue;

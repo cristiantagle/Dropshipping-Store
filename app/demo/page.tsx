@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import CategoryCarousel from "@/components/CategoryCarousel";
-import { CarouselSkeleton } from "@/components/Skeleton";
+import { useState, useEffect, useMemo } from 'react';
+import CategoryCarousel from '@/components/CategoryCarousel';
+import { CarouselSkeleton } from '@/components/Skeleton';
 import { createClient } from '@supabase/supabase-js';
 
 interface Product {
@@ -18,16 +18,20 @@ export default function DemoPage() {
   const [bellezaProducts, setBellezaProducts] = useState<Product[]>([]);
   const [ropaProducts, setRopaProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true); // Empezar cargando
-  
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+  const supabase = useMemo(
+    () =>
+      createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      ),
+    [],
   );
-  
+
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
-      
+
       // Obtener productos de belleza
       const { data: belleza } = await supabase
         .from('products')
@@ -36,7 +40,7 @@ export default function DemoPage() {
         .not('image_url', 'is', null)
         .order('price_cents', { ascending: true })
         .limit(6);
-      
+
       // Obtener productos de ropa mujer
       const { data: ropa } = await supabase
         .from('products')
@@ -45,27 +49,27 @@ export default function DemoPage() {
         .not('image_url', 'is', null)
         .order('price_cents', { ascending: true })
         .limit(6);
-      
+
       setBellezaProducts(belleza || []);
       setRopaProducts(ropa || []);
       setLoading(false);
     };
-    
+
     fetchProducts();
   }, []);
 
   return (
-    <main className="mx-auto max-w-7xl px-4 sm:px-6 py-16">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-display font-bold tracking-tight text-gray-900">
+    <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+      <div className="mb-12 text-center">
+        <h1 className="font-display text-4xl font-bold tracking-tight text-gray-900">
           Demo de Loading States
         </h1>
-        <p className="mt-3 text-gray-600 max-w-2xl mx-auto">
+        <p className="mx-auto mt-3 max-w-2xl text-gray-600">
           Compara el loading skeleton con el contenido real
         </p>
-        
+
         <div className="mt-8 space-y-4">
-          <div className="flex flex-wrap gap-4 justify-center">
+          <div className="flex flex-wrap justify-center gap-4">
             <button
               onClick={() => {
                 if (!loading) {
@@ -73,15 +77,19 @@ export default function DemoPage() {
                 }
               }}
               disabled={loading}
-              className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-colors ${
-                loading 
-                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+              className={`inline-flex items-center gap-2 rounded-xl px-6 py-3 font-semibold transition-colors ${
+                loading
+                  ? 'cursor-not-allowed bg-gray-400 text-gray-200'
                   : 'bg-lime-600 text-white hover:bg-lime-700'
               }`}
             >
-              {loading ? '⏳ Cargando...' : showSkeletons ? "📱 Mostrar productos reales" : "⚡ Mostrar loading skeletons"}
+              {loading
+                ? '⏳ Cargando...'
+                : showSkeletons
+                  ? '📱 Mostrar productos reales'
+                  : '⚡ Mostrar loading skeletons'}
             </button>
-            
+
             <button
               onClick={() => {
                 if (!loading) {
@@ -94,27 +102,28 @@ export default function DemoPage() {
                 }
               }}
               disabled={loading}
-              className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-colors ${
-                loading 
-                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+              className={`inline-flex items-center gap-2 rounded-xl px-6 py-3 font-semibold transition-colors ${
+                loading
+                  ? 'cursor-not-allowed bg-gray-400 text-gray-200'
                   : 'bg-blue-600 text-white hover:bg-blue-700'
               }`}
             >
               {loading ? '⏳ Simulando...' : '🔄 Simular carga real'}
             </button>
           </div>
-          
+
           {!loading && !showSkeletons && (
             <div className="text-center">
-              <div className="text-sm text-gray-600 bg-green-50 p-3 rounded-lg inline-block">
-                ✅ <strong>{bellezaProducts.length}</strong> productos de belleza y <strong>{ropaProducts.length}</strong> de ropa cargados desde Supabase
+              <div className="inline-block rounded-lg bg-green-50 p-3 text-sm text-gray-600">
+                ✅ <strong>{bellezaProducts.length}</strong> productos de belleza y{' '}
+                <strong>{ropaProducts.length}</strong> de ropa cargados desde Supabase
               </div>
             </div>
           )}
-          
+
           {loading && (
             <div className="text-center">
-              <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-lg inline-block">
+              <div className="inline-block rounded-lg bg-blue-50 p-3 text-sm text-blue-600">
                 ⏳ Cargando productos desde la base de datos...
               </div>
             </div>
@@ -164,93 +173,89 @@ export default function DemoPage() {
         />
       )}
 
-      <div className="text-center mt-16 p-8 bg-gray-50 rounded-xl">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          🎆 ¿Qué mejoramos?
-        </h2>
-        
-        <div className="grid md:grid-cols-3 gap-6 text-left max-w-6xl mx-auto mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h3 className="font-semibold text-lime-600 mb-3 flex items-center gap-2">
+      <div className="mt-16 rounded-xl bg-gray-50 p-8 text-center">
+        <h2 className="mb-4 text-2xl font-bold text-gray-900">🎆 ¿Qué mejoramos?</h2>
+
+        <div className="mx-auto mb-8 grid max-w-6xl gap-6 text-left md:grid-cols-3">
+          <div className="rounded-lg bg-white p-6 shadow-sm">
+            <h3 className="mb-3 flex items-center gap-2 font-semibold text-lime-600">
               ⚡ Loading Skeletons
             </h3>
-            <ul className="text-gray-600 space-y-2 text-sm">
+            <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-green-400" />
                 Shimmer effect suave
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-400 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-blue-400" />
                 Mantiene el layout estable
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-purple-400 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-purple-400" />
                 Mejor percepción de velocidad
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-orange-400 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-orange-400" />
                 Componentes reutilizables
               </li>
             </ul>
           </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h3 className="font-semibold text-lime-600 mb-3 flex items-center gap-2">
+
+          <div className="rounded-lg bg-white p-6 shadow-sm">
+            <h3 className="mb-3 flex items-center gap-2 font-semibold text-lime-600">
               🎆 Hero Mejorado
             </h3>
-            <ul className="text-gray-600 space-y-2 text-sm">
+            <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-green-400" />
                 Imagen de fondo atractiva
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-400 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-blue-400" />
                 Animaciones de entrada fluidas
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-purple-400 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-purple-400" />
                 Gradientes profesionales
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-orange-400 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-orange-400" />
                 Trust badges y elementos flotantes
               </li>
             </ul>
           </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h3 className="font-semibold text-lime-600 mb-3 flex items-center gap-2">
+
+          <div className="rounded-lg bg-white p-6 shadow-sm">
+            <h3 className="mb-3 flex items-center gap-2 font-semibold text-lime-600">
               📊 Performance
             </h3>
-            <ul className="text-gray-600 space-y-2 text-sm">
+            <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-green-400" />
                 First Load JS: 98.9 kB
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-400 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-blue-400" />
                 Build optimizado
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-purple-400 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-purple-400" />
                 SSG + datos dinámicos
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-orange-400 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-orange-400" />
                 Cero errores TypeScript
               </li>
             </ul>
           </div>
         </div>
-        
-        <div className="bg-lime-50 border border-lime-200 rounded-lg p-6">
-          <h3 className="font-semibold text-lime-700 mb-2">
-            🏆 Impacto de las mejoras
-          </h3>
-          <p className="text-gray-700 text-sm">
-            Los loading skeletons mejoran la <strong>percepción de velocidad</strong> hasta en un 40%, 
-            mientras que el Hero renovado aumenta el <strong>engagement</strong> y reduce el bounce rate. 
-            Todo esto manteniendo el excelente rendimiento de Next.js.
+
+        <div className="rounded-lg border border-lime-200 bg-lime-50 p-6">
+          <h3 className="mb-2 font-semibold text-lime-700">🏆 Impacto de las mejoras</h3>
+          <p className="text-sm text-gray-700">
+            Los loading skeletons mejoran la <strong>percepción de velocidad</strong> hasta en un
+            40%, mientras que el Hero renovado aumenta el <strong>engagement</strong> y reduce el
+            bounce rate. Todo esto manteniendo el excelente rendimiento de Next.js.
           </p>
         </div>
       </div>

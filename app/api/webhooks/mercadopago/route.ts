@@ -33,7 +33,18 @@ export async function POST(req: NextRequest) {
         if (prefId) patch.mp_preference_id = String(prefId);
         if (payStatus) patch.status = String(payStatus);
         if (prefId) {
-          await sb.from('orders').update(patch).eq('mp_preference_id', String(prefId));
+          const { data: orders } = await sb
+            .from('orders')
+            .select('id, status')
+            .eq('mp_preference_id', String(prefId));
+          if (orders && orders.length > 0) {
+            for (const o of orders) {
+              if (o.status === 'cancelled' && payStatus !== 'approved') continue;
+              await sb.from('orders').update(patch).eq('id', o.id);
+            }
+          } else {
+            await sb.from('orders').update(patch).eq('mp_preference_id', String(prefId));
+          }
         }
         await sb.from('orders').update(patch).eq('mp_payment_id', String(paymentId));
       } catch (e) {

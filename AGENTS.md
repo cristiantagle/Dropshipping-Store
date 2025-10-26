@@ -56,8 +56,10 @@
 
 ### Pricing Policy
 
-- Scraper sends prices in CLP. Backend applies a global markup of 40%: `final = round(price * 1.4)`.
-- You can override with body `markup_percent` (e.g., `0.35` for +35%).
+- Scraper sends prices in CLP (pesos).
+- Import/API stores base price in cents: `products.price_cents = round(price_clp * 100)` (no markup).
+- UI applies a global markup via `NEXT_PUBLIC_MARKUP` (default `1.4`, i.e., +40%).
+- Formatting uses `es-CL` and `CLP` (sin decimales). Para filtros de precio, convertir el rango visible a base (centavos) antes de consultar.
 
 ## Acuerdo de Trabajo (Agente)
 
@@ -395,7 +397,7 @@ Notas: no abrir el token endpoint en el navegador (usar callback). Si el callbac
   - Lote concurrente (3 por defecto), cancelable, con reporte y persistencia de fallidos.
 
 - Backend actualizado:
-  - `/api/import/products`: CORS + OPTIONS, `X-Import-Token` opcional, `IMPORT_ALLOWED_ORIGINS` opcional, markup de precios CLP +40% (config. por `markup_percent`).
+  - `/api/import/products`: CORS + OPTIONS, `X-Import-Token` opcional, `IMPORT_ALLOWED_ORIGINS` opcional. Guarda precio base en centavos (sin markup); el markup se aplica en el cliente vía `NEXT_PUBLIC_MARKUP` (default 1.4).
   - `/api/categories`: CORS + OPTIONS para alimentar el selector de categorías en la extensión.
 
 - Limpieza aplicada:
@@ -428,3 +430,35 @@ Notas: no abrir el token endpoint en el navegador (usar callback). Si el callbac
 - UI producto: props tipadas en `components/ProductDetail.tsx` y `components/ProductDetailClient.tsx` (ajuste de `category_slug`/`image_url` para `add`).
 - Resultado: ESLint warnings bajan (~100 → ~78) sin romper build.
   codex resume 019a15e5-dbdf-7672-a6d4-90afa56fe445
+  codex resume 019a1b62-ea21-7410-8209-71e7a46665a0
+
+## Estado y Registro (2025-10-25 — Pricing Unification)
+
+- Política de precios actualizada (operativa):
+  - DB guarda precio base en centavos CLP (sin markup).
+  - UI aplica markup global vía `NEXT_PUBLIC_MARKUP` (default 1.4, +40%).
+- Import API: `app/api/import/products/route.ts` guarda `price_cents = round(price_clp * 100)`.
+- UI: se eliminaron `* 1.3` locales y se centralizó en `lib/formatPrice.ts`.
+  - Afectados: `CarroClient`, `MPWallet`, `MiniCart`, `OfertasClient`, `CategoryPageClient`, `buscar/page`, `RecentlyViewedContext`, `WishlistContext`.
+- Script de normalización: `scripts/fix_aliexpress_prices.sql` (ajusta `products.price_cents` usando `products_external.price`).
+- Snapshot: `.backup_global/20251025_234519` antes de los cambios.
+
+## Estado y Registro (2025-10-26 — Checkout UX + Home Fix)
+
+- Home (carga estable):
+  - `app/page.tsx`: evita bucle de re-render al cargar categorías. El efecto usa slugs fijos y un guard con `useRef` para una sola ejecución en dev/StrictMode.
+  - Resultado: la página de inicio deja de “titilar” o recargar infinitamente los carruseles.
+- Mercado Pago (flujo clásico en nueva pestaña):
+  - `components/MPWallet.tsx`: reemplazado el Brick embebido por un botón amarillo “Pagar con Mercado Pago”.
+    - Crea la preferencia vía `/api/checkout/mercadopago` y, si el usuario está logeado, registra la orden (`orders`) y sus ítems (`order_items`) antes de abrir Mercado Pago.
+    - Abre `init_point/sandbox_init_point` en una pestaña nueva con `window.open` (evita quedarse “atrapado”).
+  - `components/CarroClient.tsx`:
+    - Muestra `MPWallet` (botón amarillo) cuando existe `NEXT_PUBLIC_MP_PUBLIC_KEY`.
+    - Fallback: si no hay Public Key, muestra botón “Proceder al pago”.
+    - Limpia el carrito al volver con `?status=success` (toast + `clear()`).
+  - `components/OrderSummary.tsx`: el botón secundario solo aparece cuando NO hay Public Key (para no duplicar acciones).
+- SEO y APIs auxiliares (previos):
+  - `app/sitemap.ts` y `app/robots.ts` añadidos.
+  - `app/producto/[id]/page.tsx`: JSON‑LD Product con precio CLP (+40%).
+  - `app/api/home/category/route.ts`: conversión USD→CLP (tasa `USD_TO_CLP`, default 950) si `products_external.currency='USD'`.
+    codex resume 019a1e60-d32a-7a31-9291-eefbaabb7851

@@ -13,7 +13,7 @@ export default function AccountClient() {
       const ret = encodeURIComponent(pathname || '/cuenta');
       router.replace('/cuenta/login?return=' + ret);
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, pathname]);
 
   if (loading) {
     return (

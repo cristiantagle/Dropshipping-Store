@@ -6,15 +6,15 @@ import * as dotenv from 'dotenv';
 // Cargar variables de entorno
 dotenv.config();
 
-const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.3;
+const MARKUP = Number(process.env.NEXT_PUBLIC_MARKUP) || 1.4;
 
 function formatPrice(cents: number) {
   const clp = cents / 100; // Convertir de centavos CLP a pesos CLP
   const finalPrice = clp * MARKUP;
-  
-  return new Intl.NumberFormat("es-CL", {
-    style: "currency",
-    currency: "CLP",
+
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(finalPrice);
@@ -35,7 +35,9 @@ console.log('');
 
 examplePrices.forEach((priceCents, index) => {
   const formattedPrice = formatPrice(priceCents);
-  console.log(`${index + 1}. Centavos almacenados: ${priceCents.toLocaleString()} → Precio final: ${formattedPrice}`);
+  console.log(
+    `${index + 1}. Centavos almacenados: ${priceCents.toLocaleString()} → Precio final: ${formattedPrice}`,
+  );
 });
 
 console.log('');
