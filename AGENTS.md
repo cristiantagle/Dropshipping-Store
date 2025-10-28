@@ -462,3 +462,27 @@ Notas: no abrir el token endpoint en el navegador (usar callback). Si el callbac
   - `app/producto/[id]/page.tsx`: JSON‑LD Product con precio CLP (+40%).
   - `app/api/home/category/route.ts`: conversión USD→CLP (tasa `USD_TO_CLP`, default 950) si `products_external.currency='USD'`.
     codex resume 019a1e60-d32a-7a31-9291-eefbaabb7851
+
+## Estado y Registro (2025-10-28 — Next 16 en repo)
+
+- Core (repo): Next 16.0.0 y React 19 instalados en package.json. Build validado (
+  pm run build OK) y
+  pm run dev muestra ▲ Next.js 16.
+- ESLint: migrado a 9 (flat). Usamos @next/eslint-plugin-next@^16 en lugar de eslint-config-next clásico.
+- SSR y App Router:
+  - params ahora es Promise en páginas dinámicas. Archivos ajustados:
+    - pp/producto/[id]/page.tsx
+    - pp/categorias/[slug]/page.tsx
+    - pp/cuenta/pedidos/[id]/page.tsx
+  - cookies() es async en Next 16. Ajustes:
+    - pp/api/aliexpress/start/route.ts (usa wait cookies())
+    - pp/api/aliexpress/callback/route.ts (usa wait cookies())
+  - Supabase SSR: lib/supabase/server.ts ahora es async y usa wait cookies(). Callers actualizados (lib/auth/guards.ts, páginas indicadas).
+- TypeScript/React 19:
+  - Tipos actualizados: @types/react y @types/react-dom v19.
+  - pp/categorias/page.tsx: JSX.Element → ReactNode en el mapa de iconos.
+- Snapshots: creado .backup_global/20251028_072647 antes de tocar dependencias; limpieza aplicada (quedan 2 últimos).
+- Notas de desarrollo:
+  - Si agregas nuevas páginas dinámicas: export default async function X({ params }: { params: Promise<...> }) { const { ... } = await params; }.
+  - Para cookies/headers en server: const cookieStore = await cookies();.
+  - El cliente SSR de Supabase debe invocarse con wait supabaseServer().
