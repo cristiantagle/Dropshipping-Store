@@ -8,13 +8,10 @@ import { getCategory } from '@/lib/categorias';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export default async function ProductPage({ params }: { params: { id: string } }) {
-  const supabase = supabaseServer();
-  const { data: product } = await supabase
-    .from('products')
-    .select('*')
-    .eq('id', params.id)
-    .single();
+export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const supabase = await supabaseServer();
+  const { data: product } = await supabase.from('products').select('*').eq('id', id).single();
 
   if (!product) return notFound();
 

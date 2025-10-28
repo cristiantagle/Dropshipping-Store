@@ -3,10 +3,10 @@ import { supabaseServer } from '@/lib/supabase/server';
 import Link from 'next/link';
 import Image from 'next/image';
 
-export default async function OrderDetailPage({ params }: { params: { id: string } }) {
+export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const user = await requireUser('/cuenta/pedidos');
-  const supabase = supabaseServer();
-  const id = params.id;
+  const supabase = await supabaseServer();
 
   const { data: order, error } = await supabase
     .from('orders')

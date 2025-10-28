@@ -25,7 +25,7 @@ export async function GET(req: Request) {
 
   // State
   const state = Math.random().toString(36).slice(2) + Date.now().toString(36);
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   cookieStore.set('ae_oauth_state', state, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',

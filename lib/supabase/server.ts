@@ -3,10 +3,10 @@ import { cookies } from 'next/headers';
 
 // Server-side Supabase client using @supabase/ssr con cookies de Next.js.
 // - Usa ANON_KEY y enlaza la sesión vía cookies para SSR/acciones.
-export const supabaseServer = () => {
+export const supabaseServer = async () => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
   return createServerClient(url, anon, {
     cookies: {

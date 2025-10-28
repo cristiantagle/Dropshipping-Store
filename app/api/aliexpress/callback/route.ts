@@ -148,7 +148,7 @@ export async function GET(req: Request) {
   const state = url.searchParams.get('state');
   const err = url.searchParams.get('error') || url.searchParams.get('error_description');
 
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const expectedState = cookieStore.get('ae_oauth_state')?.value;
 
   if (err) {
